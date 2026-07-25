@@ -1,3 +1,5 @@
+$MEM-GC
+
 sct Student {
     str name.
     ui8 age.
