@@ -1,0 +1,92 @@
+sct Student {
+    str name.
+    ui8 age.
+    mui8[] grades.
+}
+
+enm Result {
+    Pass.
+    Fail.
+}
+
+fc calculate_average(mui8[] grades)!f32 {
+    val mui8 total = 0.
+    
+    for (grade : grades) {
+        total += grade.
+    }
+
+    val f32 average = total / 3.
+    
+    exit average.
+}
+
+fc get_result(f32 average)!Result {
+    if (average >= 50) {
+        exit Result::Pass.
+    }
+    else {
+        exit Result::Fail.
+    }
+}
+
+fc grade_message(Result result)!str {
+    if (result == Result::Pass) {
+        exit "Student passed".
+    }
+    else {
+        exit "Student failed".
+    }
+}
+
+fc main()!void {
+
+    val cstr school = "Teapot Academy".
+
+    val Student student = Student(
+        "Alex"|15
+    ).
+
+    student::grades = [80|65|90].
+
+    do {
+
+        val f32 average = calculate_average(
+            student::grades
+        ).
+
+        val Result result = get_result(
+            average
+        ).
+
+        val str message = grade_message(
+            result
+        ).
+
+    }
+
+    fail(error) {
+
+    }
+
+
+    val map[str]ui8 subjects = (
+        ["Math"|90]
+    ).
+
+
+    val mui8 attempts = 3.
+
+    while (attempts > 0) {
+
+        if (attempts == 1) {
+            break.
+        }
+
+        attempts -= 1.
+    }
+
+
+    val str first_letter = student::name[0] >> str.
+
+}
