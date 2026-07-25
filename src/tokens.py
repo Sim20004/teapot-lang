@@ -80,10 +80,9 @@ class TokenType(Enum):
     COLON = auto()
     DOUBLE_COLON = auto()
     EXCLAMATION = auto()
+    CAST = auto()
     # End of file
     EOF = auto()
-    # Comment (temporary)
-    COMMENT = auto()
 
 print("Created TokenType Enum")
 
@@ -116,11 +115,56 @@ KEYWORDS = {
 
 print("Created KEYWORDS")
 
+SYMBOLS = {
+    "+": TokenType.PLUS,
+    "-": TokenType.MINUS,
+    "*": TokenType.MULTIPLY,
+    "/": TokenType.DIVIDE,
+    "%": TokenType.MODULO,
+    "**": TokenType.POWER,
+    "==": TokenType.EQUALS,
+    ">": TokenType.GREATER,
+    "<": TokenType.LESS,
+    ">=": TokenType.GREATER_EQUAL,
+    "<=": TokenType.LESS_EQUAL,
+    "~=": TokenType.NOT_EQUAL,
+    "&&": TokenType.AND,
+    "||": TokenType.OR,
+    "~": TokenType.NOT,
+    "=": TokenType.ASSIGN,
+    "+=": TokenType.ASSIGN_PLUS,
+    "-=": TokenType.ASSIGN_MINUS,
+    "*=": TokenType.ASSIGN_MULTIPLY,
+    "/=": TokenType.ASSIGN_DIVIDE,
+    "(": TokenType.OPEN_PAREN,
+    ")": TokenType.CLOSE_PAREN,
+    "{": TokenType.OPEN_BRACE,
+    "}": TokenType.CLOSE_BRACE,
+    "[": TokenType.OPEN_BRACKET,
+    "]": TokenType.CLOSE_BRACKET,
+    ",": TokenType.COMMA,
+    ".": TokenType.PERIOD,
+    "|": TokenType.PIPE,
+    ":": TokenType.COLON,
+    "::": TokenType.DOUBLE_COLON,
+    "!": TokenType.EXCLAMATION,
+    ">>": TokenType.CAST,
+}
+
+print("Created SYMBOLS")
+
+DIRECTIVES = {
+    "$MEM_GC": TokenType.DIRECTIVE,
+    "$MEM_MANUAL": TokenType.DIRECTIVE,
+}
+
+print("Created DIRECTIVES")
+
 TYPE_KEYWORDS = {
     "void", "str", "char", "bln", "aint", "dml", "f32", "f64", "si8", "si16", "si32", 
     "si64", "ui8", "ui16", "ui32", "ui64", "mstr", "mbln", "msi8", "msi16", "msi32", 
     "msi64", "mui8", "mui16", "mui32", "mui64", "maint", "mf32", "mf64", "mdml", 
-    "cstr", "cbln", "csi8", "csi16", "csi32", "csi64", "csi32", "cui8", "cui16", 
+    "cstr", "cbln", "csi8", "csi16", "csi32", "csi64", "cui8", "cui16", 
     "cui32", "cui64", "caint", "cf32", "cf64", "cdml",
 }
 
