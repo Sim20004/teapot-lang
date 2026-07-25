@@ -352,7 +352,8 @@ for token in tokens:
         print(str(token.type).replace("TokenType.", ""))
 
 # TODO: Lexer improvements
-#
+# 
+# [ ] Add memoru management thing and make main main file
 # [x] Add single-line comments
 #     Example: // This is a comment
 #
