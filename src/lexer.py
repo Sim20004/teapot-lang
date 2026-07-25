@@ -93,8 +93,14 @@ class Lexer:
 
             if trace: print(f"\nProcessing character: {repr(char)}")
 
+            if char == "/" and self.position + 1 < len(self.source) and self.source[self.position + 1] == "/":
+                print("Found comment")
+                while self.current_character() is not None and self.current_character() != "\n":
+                    self.advance()
+                continue
+
             if char.isspace():
-                if trace: print("Whitespace detected, skipping")
+                if trace: print("Whxitespace detected, skipping")
                 self.advance()
                 continue
 
@@ -347,8 +353,10 @@ for token in tokens:
 
 # TODO: Lexer improvements
 #
-# [ ] Add single-line comments
+# [x] Add single-line comments
 #     Example: // This is a comment
+#
+# [ ] Syntax error trace fix with identifier consumation
 #
 # [ ] Add multi-line comments (if supported)
 #     Example:
