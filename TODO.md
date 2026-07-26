@@ -1,4 +1,4 @@
-# Teapot Compiler TODO
+# Teapot Compiler TODO (unmaintained for now)
 
 ## Lexer
 
@@ -13,34 +13,34 @@
 - [x] Add tokenise()
 
 ### Token recognition
-- [ ] Implement read_word()
+- [x] Implement read_word()
   - [x] Keywords
   - [x] Types
   - [x] Boolean literals
   - [x] Identifiers
 
-- [ ] Implement read_number()
-  - [ ] Integers
-  - [ ] Floats
-  - [ ] Decimal literals
+- [x] Implement read_number()
+  - [x] Integers
+  - [x] Floats
+  - [x] Decimal literals
 
-- [ ] Implement read_string()
-  - [ ] Normal strings
-  - [ ] Escape sequences (`\n`, `\"`, etc.)
+- [x] Implement read_string()
+  - [x] Normal strings
+  - [x] Escape sequences (`\n`, `\"`, etc.)
 
-- [ ] Implement read_character()
-  - [ ] Single characters
-  - [ ] Escape sequences
+- [x] Implement read_character()
+  - [x] Single characters
+  - [x] Escape sequences
 
-- [ ] Implement read_symbol()
-  - [ ] Arithmetic operators
-  - [ ] Comparison operators
-  - [ ] Logical operators
-  - [ ] Assignment operators
-  - [ ] Punctuation
+- [x] Implement read_symbol()
+  - [x] Arithmetic operators
+  - [x] Comparison operators
+  - [x] Logical operators
+  - [x] Assignment operators
+  - [x] Punctuation
 
 ### Comments
-- [ ] Single-line comments (`//`)
+- [x] Single-line comments (`//`)
 - [ ] Multi-line comments (`/* */`)
 - [ ] Ignore comment markers inside strings
 
