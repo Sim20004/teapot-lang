@@ -1,27 +1,6 @@
-import argparse
+from tokens import Token, TokenType, TYPE_KEYWORDS, KEYWORDS, SYMBOLS, BOOLEAN_LITERALS, DIRECTIVES
 
-parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    "-i",
-    "--input",
-    help="Input source file",
-    required=True
-)
-
-parser.add_argument(
-    "-t",
-    "--trace",
-    help="Enable exhaustive debug output",
-    action="store_true"
-)
-
-args = parser.parse_args()
-
-trace = args.trace
-
-from tokens import Token, TokenType, TYPE_KEYWORDS, KEYWORDS, SYMBOLS, BOOLEAN_LITERALS
-
+trace = False
 class LexerError(Exception):
     def __init__(self, msg, line, col):
         super().__init__(f"Lexer error at {line}:{col}: {msg}")
@@ -46,6 +25,7 @@ class Lexer:
         self.position = 0
         self.line = 1
         self.col = 1
+        self.tokens = []
 
         if trace: print("Initialised lexer position:")
         if trace: print(f"  position={self.position}")
@@ -84,23 +64,56 @@ class Lexer:
 
 
     def tokenise(self):
-        if trace: print("Starting tokenisation")
-
-        tokens = []
+        directive_seen = False
 
         while self.current_character() is not None:
             char = self.current_character()
 
-            if trace: print(f"\nProcessing character: {repr(char)}")
+            if char == "$":
+                start_line = self.line
+                start_col = self.col
+                value = ""
+
+                while (
+                    self.current_character() is not None
+                    and self.current_character() != "\n"
+                ):
+                    value += self.current_character()
+                    self.advance()
+
+                if directive_seen:
+                    raise LexerError(
+                        "Directive must only appear once",
+                        start_line,
+                        start_col
+                    )
+
+                if value in DIRECTIVES:
+                    self.tokens.append(
+                        Token(
+                            TokenType.DIRECTIVE,
+                            value,
+                            start_line,
+                            start_col
+                        )
+                    )
+                    directive_seen = True
+                    continue
+
+                raise LexerError(
+                    "Invalid directive",
+                    start_line,
+                    start_col
+                )        
 
             if char == "/" and self.position + 1 < len(self.source) and self.source[self.position + 1] == "/":
-                print("Found comment")
+                if trace: print("Found comment")
                 while self.current_character() is not None and self.current_character() != "\n":
                     self.advance()
                 continue
 
             if char.isspace():
-                if trace: print("Whxitespace detected, skipping")
+                if trace: print("Whitespace detected, skipping")
                 self.advance()
                 continue
 
@@ -109,7 +122,7 @@ class Lexer:
                 if trace: print("Identifier or keyword detected")
                 token = self.read_word()
                 if trace: print(f"Created token: {token}")
-                tokens.append(token)
+                self.tokens.append(token)
                 continue
 
 
@@ -117,7 +130,7 @@ class Lexer:
                 if trace: print("Number detected")
                 token = self.read_number()
                 if trace: print(f"Created token: {token}")
-                tokens.append(token)
+                self.tokens.append(token)
                 continue
 
 
@@ -125,25 +138,25 @@ class Lexer:
                 if trace: print("String detected")
                 token = self.read_string()
                 if trace: print(f"Created token: {token}")
-                tokens.append(token)
+                self.tokens.append(token)
                 continue
 
 
             if trace: print("Symbol detected")
             token = self.read_symbol()
             if trace: print(f"Created token: {token}")
-            tokens.append(token)
+            self.tokens.append(token)
 
 
         eof = Token(TokenType.EOF, None, self.line, self.col)
         if trace: print(f"Adding EOF token: {eof}")
 
-        tokens.append(eof)
+        self.tokens.append(eof)
 
         if trace: print("Tokenisation complete")
-        if trace: print(f"Total tokens: {len(tokens)}")
+        if trace: print(f"Total tokens: {len(self.tokens)}")
 
-        return tokens
+        return self.tokens
 
 
     def read_word(self):
@@ -298,8 +311,8 @@ class Lexer:
 
         raise LexerError(
             "Invalid symbol.",
-            self.line,
-            self.col
+            start_line,
+            start_col
         )
 
     def read_string(self):
@@ -333,31 +346,29 @@ class Lexer:
             start_col
         )
 
-with open(args.input, "r") as input_file:
-    source = input_file.read()
+def run(source, trace):
+    lexer = Lexer(source)
 
-lexer = Lexer(source)
+    tokens = lexer.tokenise()
 
-tokens = lexer.tokenise()
+    if trace: print("\nToken Object list:")
 
-if trace: print("\nToken Object list:")
+    for token in tokens:
+        if trace: print(token)
 
-for token in tokens:
-    if trace: print(token)
+    if trace: print("\nToken List\n")
 
-if trace: print("\nToken List\n")
-
-for token in tokens:
-    if trace:
-        print(str(token.type).replace("TokenType.", ""))
+    for token in tokens:
+        if trace:
+            print(str(token.type).replace("TokenType.", ""))
 
 # TODO: Lexer improvements
 # 
-# [ ] Add memoru management thing and make main main file
+# [x] Add memory management thing and make main main file
 # [x] Add single-line comments
 #     Example: // This is a comment
 #
-# [ ] Syntax error trace fix with identifier consumation
+# [x] Syntax error trace fix with identifier consumation
 #
 # [ ] Add multi-line comments (if supported)
 #     Example:
