@@ -1,7 +1,9 @@
-from src.tokens import Token, TokenType, TYPE_KEYWORDS, KEYWORDS, SYMBOLS, BOOLEAN_LITERALS, DIRECTIVES
-
 if __name__ == "__main__":
     exit("Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler")
+
+
+from src.tokens import Token, TokenType, TYPE_KEYWORDS, KEYWORDS, SYMBOLS, BOOLEAN_LITERALS, DIRECTIVES
+from src.parser import run as run_parser
 
 trace = False
 class LexerError(Exception):
@@ -362,6 +364,8 @@ def run(source, trace):
     for token in tokens:
         if trace:
             print(str(token.type).replace("TokenType.", ""))
+
+    run_parser(tokens, trace)
 
 # TODO: Lexer improvements
 # 

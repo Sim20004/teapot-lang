@@ -1,10 +1,11 @@
+from sys import exit as leave
+
+if __name__ == "__main__":
+    leave("Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler")
+
 from enum import Enum, auto
 from dataclasses import dataclass
 from typing import List
-from sys import exit
-
-if __name__ == "__main__":
-    exit("Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler")
 
 class TokenType(Enum):
     # Memory management
@@ -88,8 +89,6 @@ class TokenType(Enum):
     # End of file
     EOF = auto()
 
-print("Created TokenType Enum")
-
 KEYWORDS = {
     "attach": TokenType.IMPORT, 
     "as": TokenType.AS, 
@@ -116,8 +115,6 @@ KEYWORDS = {
     "list": TokenType.LIST, 
     "map": TokenType.MAP,   
 }
-
-print("Created KEYWORDS")
 
 SYMBOLS = {
     "+": TokenType.PLUS,
@@ -155,14 +152,10 @@ SYMBOLS = {
     ">>": TokenType.CAST,
 }
 
-print("Created SYMBOLS")
-
 DIRECTIVES = {
     "$MEM-GC": TokenType.DIRECTIVE,
     "$MEM-MANUAL": TokenType.DIRECTIVE,
 }
-
-print("Created DIRECTIVES")
 
 TYPE_KEYWORDS = {
     "void", "str", "char", "bln", "aint", "dml", "f32", "f64", "si8", "si16", "si32", 
@@ -172,14 +165,11 @@ TYPE_KEYWORDS = {
     "cui32", "cui64", "caint", "cf32", "cf64", "cdml",
 }
 
-print("Created TYPE_KEYWORDS")
 
 BOOLEAN_LITERALS = {
     "true", 
     "false",
 }
-
-print("Created BOOLEAN_LITERALS")
 
 @dataclass
 class Token:
@@ -187,5 +177,3 @@ class Token:
     value: str | None = None
     line: int | None = None
     col: int | None = None
-
-print("Created dataclass Token")
