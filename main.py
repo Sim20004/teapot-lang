@@ -23,6 +23,6 @@ trace = args.trace
 with open(args.input, "r") as input_file:
     source = input_file.read()
 
-import lexer
+import src.lexer
 
-lexer.run(source, trace)
+src.lexer.run(source, trace)

@@ -1,4 +1,7 @@
-from tokens import Token, TokenType, TYPE_KEYWORDS, KEYWORDS, SYMBOLS, BOOLEAN_LITERALS, DIRECTIVES
+from src.tokens import Token, TokenType, TYPE_KEYWORDS, KEYWORDS, SYMBOLS, BOOLEAN_LITERALS, DIRECTIVES
+
+if __name__ == "__main__":
+    exit("Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler")
 
 trace = False
 class LexerError(Exception):
@@ -8,8 +11,6 @@ class LexerError(Exception):
         self.col = col
 
 if trace: print("Created LexerError class")
-
-
 class Lexer:
     def __init__(self, source):
         if trace: print("Creating Lexer object")

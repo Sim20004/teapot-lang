@@ -1,6 +1,10 @@
 from enum import Enum, auto
 from dataclasses import dataclass
 from typing import List
+from sys import exit
+
+if __name__ == "__main__":
+    exit("Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler")
 
 class TokenType(Enum):
     # Memory management
@@ -154,8 +158,8 @@ SYMBOLS = {
 print("Created SYMBOLS")
 
 DIRECTIVES = {
-    "$MEM_GC": TokenType.DIRECTIVE,
-    "$MEM_MANUAL": TokenType.DIRECTIVE,
+    "$MEM-GC": TokenType.DIRECTIVE,
+    "$MEM-MANUAL": TokenType.DIRECTIVE,
 }
 
 print("Created DIRECTIVES")
