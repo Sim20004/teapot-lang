@@ -1,1 +1,4 @@
-val ui8 x = 5.
+val ui8 a = 5 + 3.
+val ui8 b = a + 10.
+val str c = "Hello " + "World".
+val bool d = ~true.

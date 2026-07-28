@@ -1,18 +1,21 @@
 from sys import exit as leave
 
 if __name__ == "__main__":
-    leave("Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler")
+    leave(
+        "Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler"
+    )
 
 from enum import Enum, auto
 from dataclasses import dataclass
 from typing import List
+
 
 class TokenType(Enum):
     # Memory management
     DIRECTIVE = auto()
     # Modules and visibility
     IMPORT = auto()
-    AS = auto() 
+    AS = auto()
     PUBLIC = auto()
     # Functions
     FUNCTION = auto()
@@ -89,31 +92,32 @@ class TokenType(Enum):
     # End of file
     EOF = auto()
 
+
 KEYWORDS = {
-    "attach": TokenType.IMPORT, 
-    "as": TokenType.AS, 
+    "attach": TokenType.IMPORT,
+    "as": TokenType.AS,
     "pub": TokenType.PUBLIC,
-    "fc": TokenType.FUNCTION, 
-    "exit": TokenType.EXIT, 
-    "operator": TokenType.OPERATOR, 
-    "val": TokenType.VAL, 
-    "ref": TokenType.REFERENCE, 
+    "fc": TokenType.FUNCTION,
+    "exit": TokenType.EXIT,
+    "operator": TokenType.OPERATOR,
+    "val": TokenType.VAL,
+    "ref": TokenType.REFERENCE,
     "free": TokenType.FREE,
-    "null": TokenType.NULL, 
-    "if": TokenType.IF, 
-    "elif": TokenType.ELSEIF, 
-    "else": TokenType.ELSE, 
-    "while": TokenType.WHILE, 
-    "for": TokenType.FOR, 
-    "break": TokenType.BREAK, 
+    "null": TokenType.NULL,
+    "if": TokenType.IF,
+    "elif": TokenType.ELSEIF,
+    "else": TokenType.ELSE,
+    "while": TokenType.WHILE,
+    "for": TokenType.FOR,
+    "break": TokenType.BREAK,
     "continue": TokenType.CONTINUE,
-    "do": TokenType.DO, 
-    "fail": TokenType.FAIL, 
-    "err": TokenType.ERROR, 
-    "sct": TokenType.STRUCT, 
-    "enm": TokenType.ENUM, 
-    "list": TokenType.LIST, 
-    "map": TokenType.MAP,   
+    "do": TokenType.DO,
+    "fail": TokenType.FAIL,
+    "err": TokenType.ERROR,
+    "sct": TokenType.STRUCT,
+    "enm": TokenType.ENUM,
+    "list": TokenType.LIST,
+    "map": TokenType.MAP,
 }
 
 SYMBOLS = {
@@ -158,18 +162,59 @@ DIRECTIVES = {
 }
 
 TYPE_KEYWORDS = {
-    "void", "str", "char", "bln", "aint", "dml", "f32", "f64", "si8", "si16", "si32", 
-    "si64", "ui8", "ui16", "ui32", "ui64", "mstr", "mbln", "msi8", "msi16", "msi32", 
-    "msi64", "mui8", "mui16", "mui32", "mui64", "maint", "mf32", "mf64", "mdml", 
-    "cstr", "cbln", "csi8", "csi16", "csi32", "csi64", "cui8", "cui16", 
-    "cui32", "cui64", "caint", "cf32", "cf64", "cdml",
+    "void",
+    "str",
+    "char",
+    "bln",
+    "aint",
+    "dml",
+    "f32",
+    "f64",
+    "si8",
+    "si16",
+    "si32",
+    "si64",
+    "ui8",
+    "ui16",
+    "ui32",
+    "ui64",
+    "mstr",
+    "mbln",
+    "msi8",
+    "msi16",
+    "msi32",
+    "msi64",
+    "mui8",
+    "mui16",
+    "mui32",
+    "mui64",
+    "maint",
+    "mf32",
+    "mf64",
+    "mdml",
+    "cstr",
+    "cbln",
+    "csi8",
+    "csi16",
+    "csi32",
+    "csi64",
+    "cui8",
+    "cui16",
+    "cui32",
+    "cui64",
+    "caint",
+    "cf32",
+    "cf64",
+    "cdml",
+    "bool",
 }
 
 
 BOOLEAN_LITERALS = {
-    "true", 
+    "true",
     "false",
 }
+
 
 @dataclass
 class Token:
