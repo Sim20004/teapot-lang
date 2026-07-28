@@ -1,156 +1,364 @@
-# Teapot Language Specification     
+# Teapot Language Specification
 
-## End of line
-End of line is declared using a period (`.`).
-This must be used after every statement, but does not need to be used after closing braces as they already terminate blocks.
+## Table of Contents
+1. [Overview](#overview)
+2. [Naming Rules](#naming-rules)
+3. [Reserved Words](#reserved-words)
+4. [Data Types](#data-types)
+5. [Variables & Constants](#variables--constants)
+6. [Operators](#operators)
+7. [Comments](#comments)
+8. [Control Flow](#control-flow)
+9. [Loop Control](#loop-control)
+10. [Functions](#functions)
+11. [Public / Private Visibility](#public--private-visibility)
+12. [Data Structures](#data-structures)
+13. [References & Pointers](#references--pointers)
+14. [Memory Management](#memory-management)
+15. [Error Handling](#error-handling)
+16. [Type Conversion & Casting](#type-conversion--casting)
+17. [Operator Precedence](#operator-precedence)
+18. [Modules & Imports](#modules--imports)
 
-## Functions 
-#### Declaration
-`fc name(type name | type name | etc...)!returnvalue {}`
-#### Return a value    
-`exit returnvalue.`
-Full stop marks end of line.  
-#### Function overloading
-Function overloading is allowed. This means that this code:
+---
+
+## Overview
+
+- **Encoding:** Teapot uses UTF-8 encoding.
+- **Entry point:** The program starts at `fc main()!void {}`.
+- **End of line:** A statement is terminated with a period (`.`). This is required after every statement, but is *not* needed after a closing brace, since braces already terminate blocks.
+- **Whitespace:** Keywords must be separated by whitespace. Operators do not require whitespace around them. Any whitespace outside of these cases is ignored.
+- **Scope:** Variables can only be accessed inside the scope in which they are defined.
+- **Shadowing:** Shadowing is allowed — a variable in an inner scope may reuse the name of one in an outer scope:
+  ```
+  val mui8 x = 5.
+
+  {
+      val mui8 x = 10.
+  }
+  ```
+
+---
+
+## Naming Rules
+
+An identifier is **invalid** if it:
+- Starts with a number
+- Contains a non-alphanumeric character other than `_` or `-`
+- Starts with any non-alphabetic character
+- Exactly matches a reserved word
+
+Names are **case-sensitive**.
+
+---
+
+## Reserved Words
+
+The following is the exhaustive list of keywords. They cannot be used as identifiers outside of strings.
+
+**Modules and visibility**
+- `attach` — imports a module
+- `as` — creates an alias for an imported module
+- `pub` — makes an object public
+
+**Functions**
+- `fc` — declares a function
+- `exit` — returns a value from a function
+- `operator` — declares a custom operator overload
+
+**Variables and memory**
+- `val` — declares a variable
+- `ref` — declares a reference
+- `free` — frees memory when using manual memory management
+- `null` — represents no value
+
+**Control flow**
+- `if` — conditional statement
+- `elif` — else-if conditional branch
+- `else` — else conditional branch
+- `while` — while loop
+- `for` — for loop
+- `break` — exits the current loop
+- `continue` — skips to the next loop iteration
+
+**Error handling**
+- `do` — starts the error-handling block
+- `fail` — defines the error-handling branch
+- `err` — declares an error type
+
+**Data structures**
+- `sct` — declares a struct
+- `enm` — declares an enum
+- `list` — declares a dynamic list
+- `map` — declares a map/dictionary
+
+**Primitive data types**
+- `void`, `str`, `char`, `bln`, `aint`, `dml`, `f32`, `f64`
+
+**Signed integer types**
+- `si8`, `si16`, `si32`, `si64`
+
+**Unsigned integer types**
+- `ui8`, `ui16`, `ui32`, `ui64`
+
+**Mutable / constant prefixes**
+- `m` — mutable type prefix
+- `c` — constant type prefix
+
+**Boolean literals**
+- `true`, `false`
+
+---
+
+## Data Types
+
+| Type | Description |
+|---|---|
+| `str` | String (UTF-8 char array; `text[0]` is valid) |
+| `char` | Character |
+| `si8`/`si16`/`si32`/`si64` | Signed 8/16/32/64-bit integer |
+| `ui8`/`ui16`/`ui32`/`ui64` | Unsigned 8/16/32/64-bit integer |
+| `aint` | Arbitrary precision integer |
+| `f32` | 32-bit float |
+| `f64` | 64-bit float |
+| `dml` | Decimal |
+| `bln` | Boolean (`true`, `false`) |
+| `void` | Function returns nothing |
+
+> **Note:** `void` has no mutable/constant variants — `cvoid`/`mvoid` are invalid.
+
+### Mutable & Constant Prefixes
+
+Every data type (except `void`) can be prefixed to indicate mutability:
+
+- **Mutable types:** `mstr`, `mbln`, `msi8`, `msi16`, `msi32`, `msi64`, `mui8`, `mui16`, `mui32`, `mui64`, `maint`, `mf32`, `mf64`, `mdml`
+- **Constant types:** `cstr`, `cbln`, `csi8`, `csi16`, `csi32`, `csi64`, `cui8`, `cui16`, `cui32`, `cui64`, `caint`, `cf32`, `cf64`, `cdml`
+
+Constants are runtime values that do **not** change.
+
+---
+
+## Variables & Constants
+
+Declare a variable with `val`, giving it a mutable (`m...`) or constant (`c...`) type:
+
+```
+val cstr name = "Teapot".
+```
+
+### Initialisation
+A variable can be declared without a value:
+```
+val mui8 x.
+```
+This gives the variable the value `null`. `null` is converted to `0` when the value is subsequently changed.
+
+### Type Conversion
+Values are automatically converted to a compatible target type:
+```
+val f32 x = 5
+```
+This is valid — the `ui8` literal `5` is converted to `f32`.
+
+---
+
+## Operators
+
+### Arithmetic
+| Operator | Meaning |
+|---|---|
+| `+` | Addition |
+| `-` | Subtraction |
+| `*` | Multiplication |
+| `/` | Division |
+| `%` | Modulus |
+| `**` | Exponentiation |
+
+### Comparison
+| Operator | Meaning |
+|---|---|
+| `==` | Equal to |
+| `>` | Greater than |
+| `<` | Less than |
+| `>=` | Greater than or equal to |
+| `<=` | Less than or equal to |
+| `~=` | Not equal to |
+
+### Logical
+| Operator | Meaning |
+|---|---|
+| `&&` | And |
+| `\|\|` | Or |
+| `~` | Not |
+
+### Assignment
+| Operator | Meaning |
+|---|---|
+| `=` | Set variable to value |
+| `+=` | Add value to variable |
+| `-=` | Subtract value from variable |
+| `*=` | Multiply variable by value |
+| `/=` | Divide variable by value |
+
+### Custom Operators
+Structs can define their own operator overloads:
+```
+operator + (Vector a, Vector b)!Vector {
+    exit Vector(a.x+b.x, a.y+b.y).
+}
+```
+
+---
+
+## Comments
+
+```
+// Inline comment
+
+/*
+Multi-line comment
+*/
+```
+Comment syntax appearing inside a comment or a string is ignored.
+
+---
+
+## Control Flow
+
+### If / Else If / Else
+```
+if (condition) {
+
+}
+elif (condition) {
+
+}
+else {
+
+}
+```
+
+### While
+```
+while (condition) {
+
+}
+```
+
+### For
+```
+for (item : list) {
+
+}
+```
+
+---
+
+## Loop Control
+
+```
+break.
+continue.
+```
+
+---
+
+## Functions
+
+### Declaration
+```
+fc name(type name, type name, etc...)!returnvalue {}
+```
+
+### Returning a Value
+```
+exit returnvalue.
+```
+
+### Entry Point
+```
+fc main()!void {}
+```
+
+### Function Overloading
+Functions may share a name if their parameter lists differ:
 ```
 fc add(mui8 a)!mui8 {}
 fc add(mstr a)!str {}
 ```
-is valid.
+Overloading is **not** permitted where the only difference between two functions is the presence of a default argument.
 
-Note that the functions must have different parameters to the function of the same name.
-
-You cannot overload when the difference between the two functions is the presence of a default argument.
-#### Default arguments
-You can set default arguments when declaring a function as so:
+### Default Arguments
 ```
 fc hello(str name = "User") {}
 ```
-This makes the argument optional.
-#### Recursion
-Recursion is allowed, but the compiler will exit the program if the recursion limit is exceeded.
+This makes `name` optional.
 
-## Public/private
-All objects are private by default - you must make an object public using the `pub` keyword.
-For example:
+### Recursion
+Recursion is allowed. If the recursion limit is exceeded, the compiler will exit the program.
+
+---
+
+## Public / Private Visibility
+
+All objects are **private** by default. Use `pub` to expose an object:
 ```
 pub fc tcp()!void {
 
 }
 ```
 
-## Datatypes  
-  
-str -> String (UTF-8 char arrays, text[0] is valid)
-char -> Character 
-si8/si16/si32/si64 -> Signed 8-bit/16-bit/32-bit/64-bit integer   
-ui8/ui16/ui32/ui64 -> Unsigned 8-bit/16-bit/32-bit/64-bit integer   
-aint -> Arbitrary precision-based integer   
-f32 -> 32-bit float   
-f64 -> 64-bit float   
-dml -> Decimal   
-bln -> Boolean (Values: true, false)   
-void -> Function returns nothing  
-  
-Note: void does not have mutable/constant types. cvoid/mvoid are invalid.  
-  
-## Arrays
+---
 
-Arrays can only be of the same type, and are of fixed size using contiguous memory. They are created like this:
+## Data Structures
 
-`val mui8[] ages = [1|2|3].`
+### Arrays
+Fixed-size, contiguous, single-type:
+```
+val mui8[] ages = [1, 2, 3].
+```
 
-## Lists
+### Lists
+Dynamic and resizable:
+```
+list<datatype>
+```
 
-Lists are dynamic, and are created as below:
-
-`list<datatype>`
-
-## Maps/dictionaries
-
-Example:
+### Maps / Dictionaries
 ```
 val map[str]ui8 ages = (
-    ["John"|15]
+    ["John", 15]
 ).
 ```
 
-## Imports
-#### Syntax
-Example syntax:
-`attach filename.`
-You can exclude the file extension (.tp) when importing.
-All functions from the imported file will be accessible.
-
-You can import specific functions as so:
-`attach filename::function.`
-
-And you can import a module with an alias like this:
-`attach filename as foo.`
-
-## Memory management
-To ensure that you have as much control as possible, Teapot allows you to choose whether you would like to use one of the two memory management models:
-- Garbage collection
-- Manual memory freeing
-#### Garbage collection
-To specify that you will be using garbage collection, place this at the very top of the file:
-`$MEM-GC`
-This means that the compiler will automatically free memory.
-
-#### Manual memory freeing
-To specify that you will be using manual memory freeing, place this at the very top of the file:
-`$MEM-MANUAL`
-This means you will need to free memory using free().
-##### free() usage
-You can free memory by calling free() on an object as so:
-`object::free()`
-
-> [!WARNING]
-> You must specify one of the above or the program will not compile.
-
-## References and Pointers
-References are declared like this:
+### Tuples
 ```
-val mui8 x = 5.
-val ref mui8 y = x.
+(10, hello)
 ```
-References can be mutable. Null references are not allowed, and you can perform arithmetic operations with pointers as you would with variables.
 
-## Tuples
+### Structs
 
-`(10|hello)`
-
-## Call a function  
-  
-`function(arg|arg2|arg3).`  
-
-## Structs
-#### Declaration
+**Declaration:**
 ```
 sct Person {
     str name.
     ui8 age.
 }
 ```
-#### Creation
+
+**Creation:**
 ```
-val Person p = Person("Bob"|15).
+val Person p = Person("Bob", 15).
 ```
-#### Access
+
+**Field access:**
 ```
 p::name.
 ```
 
-#### Operators
-Structs can define operators like this:
-```
-operator + (Vector a | Vector b)!Vector {
-    exit Vector(a.x+b.x|a.y+b.y).
-}
-```
+### Enums
 
-## Enums
-#### Declaration
+**Declaration:**
 ```
 enm Colour {
     Red.
@@ -158,298 +366,119 @@ enm Colour {
     Blue.
 }
 ```
-#### Usage
+
+**Usage:**
 ```
 Colour::Red.
 ```
 
-## Scope
+### Calling a Function
+```
+function(arg, arg2, arg3).
+```
 
-Variables can only be accessed inside of the scope where it is defined.
+---
 
-## Shadowing
+## References & Pointers
 
-Shadowing is allowed. This means that this:
 ```
 val mui8 x = 5.
-
-{
-    val mui8 x = 10.
-}
+val ref mui8 y = x.
 ```
-is valid.
+References can be mutable. Null references are **not** allowed. Pointer arithmetic works the same as with ordinary variables.
 
-## Initialisation
+---
 
-Variables can be initialised without a value as so:
-`val mui8 x.`
-This variable will have the value `null`.
-`null` will be converted to 0 when the value is changed.
+## Memory Management
 
-## Constants
+Teapot supports two memory management models, chosen per file. **One of the two directives below must appear at the very top of the file, or the program will not compile.**
 
-Constants are runtime values that do **not** change.
+### Garbage Collection
+```
+$MEM-GC
+```
+The compiler automatically frees memory.
 
-## Error handling
-Errors are handled as below:
+### Manual Memory Freeing
+```
+$MEM-MANUAL
+```
+You must free memory yourself using `free()`:
+```
+object::free()
+```
+
+---
+
+## Error Handling
+
 ```
 do {
-    
-} 
+
+}
 
 fail(FileError e) {
 
 }
 ```
-The `do` branch contains the code to run, and the `fail` branch contains the code to run if there is an error in the `do` branch.
+The `do` branch runs the main code; the `fail` branch runs if an error occurs in the `do` branch.
 
-The FileError type is structured like this:
+Error types are declared with `err`:
 ```
 err FileError {
     str message.
 }
 ```
-## Precedence
 
-Arithmetic operations are calculated in the order they are written. This means:
-`5 + 2 * 3`
+---
+
+## Type Conversion & Casting
+
+**Automatic conversion** (see also [Variables & Constants](#variables--constants)):
+```
+val f32 x = 5
+```
+
+**Explicit casting** uses `>>`:
+```
+x >> mui8
+y >> str
+```
+
+---
+
+## Operator Precedence
+
+Arithmetic operations are evaluated strictly in the order written (left to right), **not** by standard mathematical precedence:
+```
+5 + 2 * 3
+```
 is calculated as
-`(5 + 2) * 3`
-If you would like to calculate in a different order, use brackets:
-`5 + (2 * 3)`
-
-## Type conversion
-
-`val f32 x = 5`
-is valid. `ui8` 5 will be converted to a `f32`.
-
-## Casting
-
-To cast, you use the format:
-`variable >> datatype`
-For example:
-`x >> mui8`
-`y >> str`
-
-## Control flow
-#### If
-Syntax:
 ```
-if (condition) {
-    
-}
+(5 + 2) * 3
 ```
-#### Else
+Use brackets to force a different order:
 ```
-else {
-
-}
-```
-#### Else if:
-```
-elif {
-
-}
-```
-#### While
-```
-while (condition) {
-
-}
-```
-#### For
-```
-for (item : list) {
-
-}
-```
-## Loop control
-#### Break
-```
-break.
-```
-#### Continue
-```
-continue.
+5 + (2 * 3)
 ```
 
-## Comments  
-// Inline comment   
-/*   
-Multi line comment   
-*/  
-  
-## Variables  
-  
-Declare a variable with val.   
-Each datatype can be mutable (mdatatype) or constant (cdatatype).  
-  
-Example:  
-  
-val cstr name = "Teapot".  
-  
-## Encoding  
-  
-Teapot uses UTF-8 encoding.  
-  
-## Entry point  
-  
-The program starts at fc main()!void {}.  
-  
-## Naming  
-  
-Names cannot match any of the following cases:  
-- Starts with a number  
-- Has a non-alphanumeric character other than _ or - in it  
-- Starts with any non-alphabetic character  
-- Exactly matches a reserved word (see next section)  
-  
-Names are case-sensitive.  
-  
-## Reserved words
+---
 
-These are keywords that are used by the language. They cannot be used as identifiers outside of strings.
+## Modules & Imports
 
-Following is the exhaustive list of reserved words:
+**Basic import** (file extension `.tp` may be omitted):
+```
+attach filename.
+```
 
-#### Modules and visibility
-- `attach`: Imports a module
-- `as`: Creates an alias for an imported module
-- `pub`: Makes an object public
+**Import specific function:**
+```
+attach filename::function.
+```
 
-#### Functions
-- `fc`: Declares a function
-- `exit`: Returns a value from a function
-- `operator`: Declares a custom operator overload
+**Import with alias:**
+```
+attach filename as foo.
+```
 
-#### Variables and memory
-- `val`: Declares a variable
-- `ref`: Declares a reference
-- `free`: Frees memory when using manual memory management
-- `null`: Represents no value
-
-#### Control flow
-- `if`: Conditional statement
-- `elif`: Else-if conditional branch
-- `else`: Else conditional branch
-- `while`: While loop
-- `for`: For loop
-- `break`: Exits the current loop
-- `continue`: Skips to the next loop iteration
-
-#### Error handling
-- `do`: Starts the error-handling block
-- `fail`: Defines the error-handling branch
-- `err`: Declares an error type
-
-#### Data structures
-- `sct`: Declares a struct
-- `enm`: Declares an enum
-- `list`: Declares a dynamic list
-- `map`: Declares a map/dictionary
-
-#### Primitive data types
-- `void`: Function returns no value
-- `str`: UTF-8 string
-- `char`: Character
-- `bln`: Boolean
-- `aint`: Arbitrary precision integer
-- `dml`: Decimal floating-point number
-- `f32`: 32-bit floating-point number
-- `f64`: 64-bit floating-point number
-
-#### Signed integer types
-- `si8`: Signed 8-bit integer
-- `si16`: Signed 16-bit integer
-- `si32`: Signed 32-bit integer
-- `si64`: Signed 64-bit integer
-
-#### Unsigned integer types
-- `ui8`: Unsigned 8-bit integer
-- `ui16`: Unsigned 16-bit integer
-- `ui32`: Unsigned 32-bit integer
-- `ui64`: Unsigned 64-bit integer
-
-#### Mutable and constant types
-
-The following prefixes are reserved:
-
-- `m`: Mutable type
-- `c`: Constant type
-
-Examples:
-
-##### Mutable types
-- `mstr`: Mutable string
-- `mbln`: Mutable boolean
-- `msi8`: Mutable signed 8-bit integer
-- `msi16`: Mutable signed 16-bit integer
-- `msi32`: Mutable signed 32-bit integer
-- `msi64`: Mutable signed 64-bit integer
-- `mui8`: Mutable unsigned 8-bit integer
-- `mui16`: Mutable unsigned 16-bit integer
-- `mui32`: Mutable unsigned 32-bit integer
-- `mui64`: Mutable unsigned 64-bit integer
-- `maint`: Mutable arbitrary precision integer
-- `mf32`: Mutable 32-bit float
-- `mf64`: Mutable 64-bit float
-- `mdml`: Mutable decimal
-
-##### Constant types
-- `cstr`: Constant string
-- `cbln`: Constant boolean
-- `csi8`: Constant signed 8-bit integer
-- `csi16`: Constant signed 16-bit integer
-- `csi32`: Constant signed 32-bit integer
-- `csi64`: Constant signed 64-bit integer
-- `cui8`: Constant unsigned 8-bit integer
-- `cui16`: Constant unsigned 16-bit integer
-- `cui32`: Constant unsigned 32-bit integer
-- `cui64`: Constant unsigned 64-bit integer
-- `caint`: Constant arbitrary precision integer
-- `cf32`: Constant 32-bit float
-- `cf64`: Constant 64-bit float
-- `cdml`: Constant decimal
-
-#### Boolean literals
-- `true`: Boolean true value
-- `false`: Boolean false value
-  
-## Operators  
-  
-Following is an exhaustive list of all the operators.  
-  
-### Arithmetic  
-- +: addition  
-- -: subtraction  
-- *: multiplication  
-- /: division  
-- %: modulus  
-- **: exponentiation  
-### Comparison  
-- ==: is equal to  
-- \>: is greater than  
-- <: is less than  
-- \>=: is greater than or equal to  
-- <=: is less than or equal to  
-- ~=: is not equal to  
-### Logical  
-- &&: and  
-- ||: or  
-- ~: not  
-### Assignment  
-- =: set the variable to the value specified  
-- +=: set the variable to its current value added to the value specified  
-- -=: set the variable to its current value subtracted from the value specified  
-- *=: set the variable to its current value multiplied by the value specified  
-- /=: set the variable to its current value divided by the value specified  
-  
-## Comments  
-- //: inline comment  
-- /*: start multi-line comment  
-- */: end multi-line comment  
-  
-Comment declarations inside of comments or strings will be ignored.  
-  
-## Whitespaces  
-Keywords must be separated with whitespaces, while operators do not. Any whitespaces outside of this case will be ignored.
+All functions from an imported file are accessible after import.

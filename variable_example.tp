@@ -1,4 +1,4 @@
 val ui8 a = 5 + 3.
 val ui8 b = a + 10.
 val str c = "Hello " + "World".
-val bool d = ~true.
+val bln d = ~true.

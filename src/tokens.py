@@ -206,7 +206,7 @@ TYPE_KEYWORDS = {
     "cf32",
     "cf64",
     "cdml",
-    "bool",
+    "bln",
 }
 
 
