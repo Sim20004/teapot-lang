@@ -153,5 +153,5 @@ def run(tokens_from_lexer, trace_arg):
                     print(f"{spacing}    {value}")
         else:
             print(f"{spacing}{node}")
-
-    print_ast(ast_tree)
+    if trace:
+        print_ast(ast_tree)
