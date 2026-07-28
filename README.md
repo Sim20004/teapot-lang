@@ -100,7 +100,7 @@ The language is not yet production-ready.
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/teapot-lang.git
+git clone https://github.com/Sim20004/teapot-lang.git
 cd teapot-lang
 ```
 
