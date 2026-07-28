@@ -35,36 +35,68 @@ class Parser:
     def expect(self, token):
         if self.at_end():
             raise ParserError("Tried to expect a nonexistent token", token, self.position)
-        if self.current_token() != token:
-            raise ParserError(f"Expected token {token}, found {self.current_token()} instead.")
+        if self.current_token().type != token:
+            raise ParserError(f"Expected token {token}, found {self.current_token()} instead.", token, self.position)
         return self.advance()
     
     def handle_variable(self):
-        if self.current_token() == tokens.TokenType.TYPE:
-            datatype = self.current_token().value
+        datatype = self.expect(tokens.TokenType.TYPE).value
+        identifier = self.expect(tokens.TokenType.IDENTIFIER).value
+        self.expect(tokens.TokenType.ASSIGN)
+        value = self.handle_expression()
+        self.expect(tokens.TokenType.PERIOD)
+        return ast.DeclareVariable(identifier, datatype, value)
+        
+    def handle_expression(self):
+        token = self.current_token()
+        if token.type in [
+            tokens.TokenType.INTEGER,
+            tokens.TokenType.FLOAT,
+            tokens.TokenType.BOOLEAN,
+            tokens.TokenType.STRING
+        ]:
+            exp_token = self.current_token()
             self.advance()
-            if self.current_token() == tokens.TokenType.IDENTIFIER:
-                identifier = self.current_token().value
+            left_side = ast.Literal(token.value)
+        while self.current_token().type != tokens.TokenType.PERIOD:
+            token = self.current_token()
+            if token.type in [
+                tokens.TokenType.PLUS,
+                tokens.TokenType.MINUS,
+                tokens.TokenType.MULTIPLY,
+                tokens.TokenType.DIVIDE,
+                tokens.TokenType.MODULO,
+                tokens.TokenType.POWER 
+            ]:
+                operator = token.value
                 self.advance()
-                if self.current_token() == tokens.TokenType.ASSIGN:
-                    self.advance()
-                    if self.current_token() == tokens.TokenType.FLOAT or tokens.TokenType.INTEGER:
-                        value = self.current_token().value
-                        self.advance()
-                        return ast.DeclareVariable (
-                            identifier,
-                            datatype,
-                            value
-                        )
+                token = self.current_token()
+            if token.type in [
+                tokens.TokenType.INTEGER,
+                tokens.TokenType.FLOAT,
+                tokens.TokenType.BOOLEAN,
+                tokens.TokenType.STRING
+            ]:
+                right_side = ast.Literal(token.value)
+                self.advance()
+            else:
+                raise ParserError("Found invalid expression", self.current_token(), self.position)
+            left_side = ast.BinaryExpression(
+                left_side,
+                operator,
+                right_side
+            )
+        return left_side
+
 
     def parse(self):
-        while self.current_token():
-            if self.current_token() == tokens.TokenType.VAL:
+        while self.current_token().type != tokens.TokenType.EOF:
+            if self.current_token().type == tokens.TokenType.VAL:
                 self.advance()
                 self.ast_tree.append(self.handle_variable())
-                
-        return self.ast_tree
-                
+            else:
+                raise ParserError("Invalid token found", self.current_token(), self.position)
+        return self.ast_tree  
             
 
 
@@ -72,3 +104,32 @@ def run(tokens_from_lexer, trace_arg):
     trace = trace_arg
     parser = Parser(tokens_from_lexer)
     ast_tree = parser.parse()
+
+    def print_ast(node, indent=0): # Temporary debugging
+        spacing = " " * indent
+
+        if hasattr(node, "__dict__"):
+            print(f"{spacing}{type(node).__name__}:")
+
+            for key, value in vars(node).items():
+                print(f"{spacing}  {key}:")
+
+                if hasattr(value, "__dict__"):
+                    print_ast(value, indent + 4)
+
+                elif isinstance(value, list):
+                    for item in value:
+                        if hasattr(item, "__dict__"):
+                            print_ast(item, indent + 4)
+                        else:
+                            print(f"{spacing}    {item}")
+
+                else:
+                    print(f"{spacing}    {value}")
+
+        else:
+            print(f"{spacing}{node}")
+
+
+    for node in ast_tree:
+        print_ast(node)

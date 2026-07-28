@@ -194,6 +194,10 @@ class Lexer:
         elif value in BOOLEAN_LITERALS:
             token_type = TokenType.BOOLEAN
             if trace: print("Word classified as boolean literal")
+            if value == "true":
+                value = True
+            else:
+                value = False
 
         else:
             token_type = TokenType.IDENTIFIER
@@ -251,10 +255,11 @@ class Lexer:
         if flt:
             token_type = TokenType.FLOAT
             if trace: print("Number classified as FLOAT")
+            value = float(value)
         else:
             token_type = TokenType.INTEGER
             if trace: print("Number classified as INTEGER")
-
+            value = int(value)
 
         return Token(
             token_type,
@@ -344,7 +349,7 @@ class Lexer:
 
         return Token(
             TokenType.STRING,
-            value,
+            str(value),
             start_line,
             start_col
         )
@@ -365,7 +370,7 @@ def run(source, trace):
         if trace:
             print(str(token.type).replace("TokenType.", ""))
 
-    run_parser(tokens, trace)
+    return run_parser(tokens, trace)
 
 # TODO: Lexer improvements
 # 
