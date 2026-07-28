@@ -57,6 +57,25 @@ class Parser:
         self.expect(tokens.TokenType.PERIOD)
         return ast.DeclareVariable(identifier, datatype, value)
 
+    def handle_primary(self):
+        token = self.current_token()
+        if token.type in [
+            tokens.TokenType.INTEGER,
+            tokens.TokenType.FLOAT,
+            tokens.TokenType.BOOLEAN,
+            tokens.TokenType.STRING,
+            tokens.TokenType.IDENTIFIER,
+        ]:
+            self.advance()
+            if token.type == tokens.TokenType.IDENTIFIER:
+                side = ast.Identifier(token.value)
+            else:
+                side = ast.Literal(token.value)
+        else:
+            raise ParserError("Invalid expression", token, self.position)
+        
+        return side
+
     def handle_expression(self):
         operator = None
         token = self.current_token()
@@ -68,20 +87,7 @@ class Parser:
             self.advance()
             token = self.current_token()
 
-        if token.type in [
-            tokens.TokenType.INTEGER,
-            tokens.TokenType.FLOAT,
-            tokens.TokenType.BOOLEAN,
-            tokens.TokenType.STRING,
-            tokens.TokenType.IDENTIFIER,
-        ]:
-            self.advance()
-            if token.type == tokens.TokenType.IDENTIFIER:
-                left_side = ast.Identifier(token.value)
-            else:
-                left_side = ast.Literal(token.value)
-        else:
-            raise ParserError("Invalid expression", token, self.position)
+        left_side = self.handle_primary()
 
         if unary:
             return ast.UnaryExpression(operator, left_side)
@@ -104,23 +110,7 @@ class Parser:
             else:
                 raise ParserError("Invalid operator found", token, self.position)
 
-            if token.type in [
-                tokens.TokenType.INTEGER,
-                tokens.TokenType.FLOAT,
-                tokens.TokenType.BOOLEAN,
-                tokens.TokenType.STRING,
-                tokens.TokenType.IDENTIFIER,
-            ]:
-                if token.type == tokens.TokenType.IDENTIFIER:
-                    right_side = ast.Identifier(token.value)
-                    self.advance()
-                else:
-                    right_side = ast.Literal(token.value)
-                    self.advance()
-            else:
-                raise ParserError(
-                    "Found invalid expression", self.current_token(), self.position
-                )
+            right_side = self.handle_primary()
 
             left_side = ast.BinaryExpression(left_side, operator, right_side)
 
