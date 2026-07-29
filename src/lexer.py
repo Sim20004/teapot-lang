@@ -10,6 +10,7 @@ from src.tokens import (
     Token,
     TokenType,
 )
+from src.debug import print
 
 if __name__ == "__main__":
     exit(
@@ -24,6 +25,7 @@ class LexerError(Exception):
         super().__init__(f"Lexer error at {line}:{col}: {msg}")
         self.line = line
         self.col = col
+        print(f"\nLexer error at {line}:{col}: {msg}")
 
 
 if trace:
@@ -373,14 +375,14 @@ def run(source, trace):
     tokens = lexer.tokenise()
 
     if trace:
-        print("\nToken Object list:")
+        print("\nToken Object list:\n")
 
     for token in tokens:
         if trace:
             print(token)
 
     if trace:
-        print("\nToken List\n")
+        print("\nToken List:\n")
 
     for token in tokens:
         if trace:

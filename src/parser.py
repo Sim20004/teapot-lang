@@ -1,5 +1,7 @@
 from sys import exit as leave
 
+from src.debug import print
+
 if __name__ == "__main__":
     leave(
         "Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler"
@@ -17,6 +19,7 @@ class ParserError(Exception):
         super().__init__(f"Parser error at token {token} at position {position}: {msg}")
         self.token = token
         self.position = position
+        print(f"\nParser error at token {token} at position {position}: {msg}")
 
 
 class Parser:
@@ -79,22 +82,42 @@ class Parser:
         self.advance()
         return block
 
-    def handle_function(self):
-        name = self.expect(tokens.TokenType.IDENTIFIER).value
+    def get_precedence(self, token):
+        PRECEDENCES = {
+            tokens.TokenType.PLUS: 1,
+            tokens.TokenType.MINUS: 1,
 
-        self.expect(tokens.TokenType.OPEN_PAREN)
+            tokens.TokenType.MODULO: 2,
+            tokens.TokenType.DIVIDE: 2,
+            tokens.TokenType.MULTIPLY: 2,
 
+            tokens.TokenType.POWER: 3,
+        }
+
+        return PRECEDENCES.get(token.type, -1)
+
+    def handle_function_argument(self):
         args = []
 
+        datatype = self.expect(tokens.TokenType.TYPE).value
+        identifier = self.expect(tokens.TokenType.IDENTIFIER).value
+        args.append(ast.FunctionArgument(identifier, datatype))
+
+        while self.current_token().type == tokens.TokenType.COMMA:
+            self.advance()
+            datatype = self.expect(tokens.TokenType.TYPE).value
+            identifier = self.expect(tokens.TokenType.IDENTIFIER).value
+            args.append(ast.FunctionArgument(identifier, datatype))
+
+        return args
+
+    def handle_function(self):
+        args = []
+        name = self.expect(tokens.TokenType.IDENTIFIER).value
+        self.expect(tokens.TokenType.OPEN_PAREN)
         if self.current_token().type != tokens.TokenType.CLOSE_PAREN:
-            args.append(self.expect(tokens.TokenType.IDENTIFIER).value)
-
-            while self.current_token().type == tokens.TokenType.COMMA:
-                self.advance()
-                args.append(self.expect(tokens.TokenType.IDENTIFIER).value)
-
+            args = self.handle_function_argument()
         self.expect(tokens.TokenType.CLOSE_PAREN)
-
         self.expect(tokens.TokenType.EXCLAMATION)
 
         if self.current_token().type == tokens.TokenType.TYPE:
@@ -164,7 +187,7 @@ class Parser:
 
         return side
 
-    def handle_expression(self):
+    def handle_expression(self, min_precedence=0):
         operator = None
         token = self.current_token()
         unary = False
@@ -180,32 +203,26 @@ class Parser:
         if unary:
             return ast.UnaryExpression(operator, left_side)
 
-        while (
-            not self.at_end()
-            and self.current_token().type != tokens.TokenType.PERIOD
-            and self.current_token().type != tokens.TokenType.CLOSE_PAREN
-        ):
+        while True:
             token = self.current_token()
-            if token.type in [
-                tokens.TokenType.PLUS,
-                tokens.TokenType.MINUS,
-                tokens.TokenType.MULTIPLY,
-                tokens.TokenType.DIVIDE,
-                tokens.TokenType.MODULO,
-                tokens.TokenType.POWER,
-            ]:
-                operator = token.value
-                self.advance()
-                token = self.current_token()
-            else:
-                raise ParserError("Invalid operator found", token, self.position)
+            precedence = self.get_precedence(token)
 
-            right_side = self.handle_primary()
+            if precedence < min_precedence:
+                break
 
-            left_side = ast.BinaryExpression(left_side, operator, right_side)
+            operator = token.value
+            self.advance()
+
+            right_side = self.handle_expression(precedence + 1)
+
+            left_side = ast.BinaryExpression (
+                left_side,
+                operator,
+                right_side
+            )
 
         return left_side
-
+    
     def expect_directive(self):
         token = self.current_token()
         if token.type == tokens.TokenType.DIRECTIVE and token.value in [
@@ -229,6 +246,11 @@ class Parser:
         self.advance()
 
         return handler(self)
+
+    STMT_HANDLERS = {
+        tokens.TokenType.VAL: handle_variable,
+        tokens.TokenType.FUNCTION: handle_function
+    }
 
     def parse(self):
         self.expect_directive()
@@ -271,4 +293,5 @@ def run(tokens_from_lexer, trace_arg):
     ast_tree = parser.parse()
 
     if trace:
+        print("\nAST Tree:\n")
         print_ast(ast_tree)

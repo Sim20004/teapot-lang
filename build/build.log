@@ -1,0 +1,172 @@
+
+Token Object list:
+
+Token(type=<TokenType.DIRECTIVE: 1>, value='$MEM-GC', line=1, col=1)
+Token(type=<TokenType.VAL: 8>, value='val', line=3, col=1)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=3, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=3, col=10)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=3, col=14)
+Token(type=<TokenType.INTEGER: 27>, value=15, line=3, col=16)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=3, col=18)
+Token(type=<TokenType.VAL: 8>, value='val', line=4, col=1)
+Token(type=<TokenType.TYPE: 26>, value='mf32', line=4, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='height', line=4, col=10)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=4, col=17)
+Token(type=<TokenType.FLOAT: 28>, value=1.75, line=4, col=19)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=4, col=23)
+Token(type=<TokenType.VAL: 8>, value='val', line=5, col=1)
+Token(type=<TokenType.TYPE: 26>, value='cstr', line=5, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='name', line=5, col=10)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=5, col=15)
+Token(type=<TokenType.STRING: 29>, value='Simar', line=5, col=17)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=5, col=24)
+Token(type=<TokenType.VAL: 8>, value='val', line=6, col=1)
+Token(type=<TokenType.TYPE: 26>, value='mbln', line=6, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='active', line=6, col=10)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=6, col=17)
+Token(type=<TokenType.BOOLEAN: 31>, value=True, line=6, col=19)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=6, col=23)
+Token(type=<TokenType.VAL: 8>, value='val', line=8, col=1)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=8, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='result', line=8, col=10)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=8, col=17)
+Token(type=<TokenType.INTEGER: 27>, value=5, line=8, col=19)
+Token(type=<TokenType.PLUS: 33>, value='+', line=8, col=21)
+Token(type=<TokenType.INTEGER: 27>, value=3, line=8, col=23)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=8, col=24)
+Token(type=<TokenType.VAL: 8>, value='val', line=9, col=1)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=9, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='calculation', line=9, col=10)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=9, col=22)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=9, col=24)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=9, col=25)
+Token(type=<TokenType.PLUS: 33>, value='+', line=9, col=28)
+Token(type=<TokenType.INTEGER: 27>, value=5, line=9, col=30)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=9, col=31)
+Token(type=<TokenType.MULTIPLY: 35>, value='*', line=9, col=33)
+Token(type=<TokenType.INTEGER: 27>, value=2, line=9, col=35)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=9, col=36)
+Token(type=<TokenType.VAL: 8>, value='val', line=11, col=1)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=11, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='empty', line=11, col=10)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=11, col=15)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=13, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='main', line=13, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=13, col=8)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=13, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='a', line=13, col=14)
+Token(type=<TokenType.COMMA: 59>, value=',', line=13, col=15)
+Token(type=<TokenType.TYPE: 26>, value='cbln', line=13, col=17)
+Token(type=<TokenType.IDENTIFIER: 32>, value='x', line=13, col=22)
+Token(type=<TokenType.COMMA: 59>, value=',', line=13, col=23)
+Token(type=<TokenType.TYPE: 26>, value='mstr', line=13, col=25)
+Token(type=<TokenType.IDENTIFIER: 32>, value='b', line=13, col=30)
+Token(type=<TokenType.COMMA: 59>, value=',', line=13, col=31)
+Token(type=<TokenType.TYPE: 26>, value='msi16', line=13, col=33)
+Token(type=<TokenType.IDENTIFIER: 32>, value='n', line=13, col=39)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=13, col=40)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=13, col=41)
+Token(type=<TokenType.TYPE: 26>, value='void', line=13, col=42)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=13, col=47)
+Token(type=<TokenType.VAL: 8>, value='val', line=14, col=5)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=14, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=14, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=14, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=0, line=14, col=20)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=14, col=21)
+Token(type=<TokenType.VAL: 8>, value='val', line=15, col=5)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=15, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=15, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=15, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=15, line=15, col=20)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=15, col=22)
+Token(type=<TokenType.IDENTIFIER: 32>, value='w', line=15, col=23)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=16, col=1)
+Token(type=<TokenType.EOF: 66>, value=None, line=16, col=2)
+
+Token List:
+
+DIRECTIVE
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+INTEGER
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+FLOAT
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+STRING
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+BOOLEAN
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+INTEGER
+PLUS
+INTEGER
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+OPEN_PAREN
+INTEGER
+PLUS
+INTEGER
+CLOSE_PAREN
+MULTIPLY
+INTEGER
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+PERIOD
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
+TYPE
+IDENTIFIER
+COMMA
+TYPE
+IDENTIFIER
+COMMA
+TYPE
+IDENTIFIER
+COMMA
+TYPE
+IDENTIFIER
+CLOSE_PAREN
+EXCLAMATION
+TYPE
+OPEN_BRACE
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+INTEGER
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+INTEGER
+PERIOD
+IDENTIFIER
+CLOSE_BRACE
+EOF
+
+Parser error at token Token(type=<TokenType.IDENTIFIER: 32>, value='w', line=15, col=23) at position 79: Invalid statement

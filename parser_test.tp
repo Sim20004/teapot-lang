@@ -10,6 +10,7 @@ val mui8 calculation = (10 + 5) * 2.
 
 val mui8 empty.
 
-fc main(a, x, b, n)!void {
+fc main(mui8 a, cbln x, mstr b, msi16 n)!void {
     val mui8 age = 0.
+    val mui8 age = 15.
 }

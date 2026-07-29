@@ -1,8 +1,9 @@
 import argparse
 from pathlib import Path
+import os
+import shutil
 
 from src import lexer
-
 
 class TeapotError(Exception):
     def __init__(self, msg):
@@ -25,6 +26,7 @@ parser.add_argument(
     action="store_true"
 )
 
+
 args = parser.parse_args()
 
 trace = args.trace
@@ -38,5 +40,12 @@ try:
         source = input_file.read()
 except FileNotFoundError:
     raise TeapotError("Input file does not exist!")
+
+if not os.path.exists("build"):
+    os.makedirs("build")
+else:
+    shutil.rmtree("build")
+    os.makedirs("build")
+
 
 lexer.run(source, trace)
