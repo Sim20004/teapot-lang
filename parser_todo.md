@@ -8,11 +8,11 @@
   * [x] Replace large `if/elif` chain in `parse()`
   * [x] Return AST nodes instead of directly appending everywhere
 
-* [ ] Create `handle_block()`
+* [x] Create `handle_block()`
 
-  * [ ] Parse `{ }`
-  * [ ] Store statements inside block AST node
-  * [ ] Support nested scopes
+  * [x] Parse `{ }`
+  * [x] Store statements inside block AST node
+  * [x] Support nested scopes
 
 * [ ] Create `parse_type()`
 
