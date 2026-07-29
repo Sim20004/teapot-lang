@@ -2,3 +2,4 @@ val ui8 a = 5 + 3.
 val ui8 b = a + 10.
 val str c = "Hello " + "World".
 val bln d = ~true.
+val ui8 e = (5 + 3) * 4.

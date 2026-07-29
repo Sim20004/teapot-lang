@@ -71,9 +71,14 @@ class Parser:
                 side = ast.Identifier(token.value)
             else:
                 side = ast.Literal(token.value)
+        elif token.type == tokens.TokenType.OPEN_PAREN:
+            self.advance()
+            expr = self.handle_expression()
+            self.expect(tokens.TokenType.CLOSE_PAREN)
+            return expr
         else:
             raise ParserError("Invalid expression", token, self.position)
-        
+    
         return side
 
     def handle_expression(self):
@@ -93,7 +98,7 @@ class Parser:
             return ast.UnaryExpression(operator, left_side)
 
         while (
-            not self.at_end() and self.current_token().type != tokens.TokenType.PERIOD
+            not self.at_end() and self.current_token().type != tokens.TokenType.PERIOD and self.current_token().type != tokens.TokenType.CLOSE_PAREN
         ):
             token = self.current_token()
             if token.type in [
