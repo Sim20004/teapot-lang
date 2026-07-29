@@ -1,19 +1,20 @@
+from sys import exit
+
+from src.parser import run as run_parser
+from src.tokens import (
+    BOOLEAN_LITERALS,
+    DIRECTIVES,
+    KEYWORDS,
+    SYMBOLS,
+    TYPE_KEYWORDS,
+    Token,
+    TokenType,
+)
+
 if __name__ == "__main__":
     exit(
         "Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler"
     )
-
-
-from src.tokens import (
-    Token,
-    TokenType,
-    TYPE_KEYWORDS,
-    KEYWORDS,
-    SYMBOLS,
-    BOOLEAN_LITERALS,
-    DIRECTIVES,
-)
-from src.parser import run as run_parser
 
 trace = False
 
@@ -34,7 +35,7 @@ class Lexer:
         if trace:
             print("Creating Lexer object")
         if trace:
-            print(f"Original source: {repr(source)}")
+            print(f"Original source: {source!r}")
 
         self.source = source.replace("\r\n", "\n")
 
@@ -67,14 +68,14 @@ class Lexer:
 
         char = self.source[self.position]
         if trace:
-            print(f"Current character: {repr(char)} at {self.line}:{self.col}")
+            print(f"Current character: {char!r} at {self.line}:{self.col}")
         return char
 
     def advance(self):
         current = self.current_character()
 
         if trace:
-            print(f"Advancing past character: {repr(current)}")
+            print(f"Advancing past character: {current!r}")
 
         if current == "\n":
             self.line += 1
@@ -204,7 +205,7 @@ class Lexer:
         ):
             char = self.current_character()
             if trace:
-                print(f"Adding character to word: {repr(char)}")
+                print(f"Adding character to word: {char!r}")
 
             value += char
             self.advance()
@@ -264,7 +265,7 @@ class Lexer:
             char = self.current_character()
 
             if trace:
-                print(f"Adding number character: {repr(char)}")
+                print(f"Adding number character: {char!r}")
 
             value += char
 
@@ -308,14 +309,14 @@ class Lexer:
         first = self.current_character()
 
         if trace:
-            print(f"First symbol character: {repr(first)}")
+            print(f"First symbol character: {first!r}")
 
         self.advance()
 
         second = self.current_character()
 
         if trace:
-            print(f"Second symbol character: {repr(second)}")
+            print(f"Second symbol character: {second!r}")
 
         if second is not None:
             two_char = first + second

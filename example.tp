@@ -46,10 +46,10 @@ fc main()!void {
     val cstr school = "Teapot Academy".
 
     val Student student = Student(
-        "Alex"|15
+        "Alex",15
     ).
 
-    student::grades = [80|65|90].
+    student::grades = [80,65,90].
 
     do {
 
@@ -73,7 +73,7 @@ fc main()!void {
 
 
     val map[str]ui8 subjects = (
-        ["Math"|90]
+        ["Math",90]
     ).
 
 

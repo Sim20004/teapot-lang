@@ -1,11 +1,10 @@
-from sys import exit as leave
 from dataclasses import dataclass
+from sys import exit as leave
 
 if __name__ == "__main__":
     leave(
         "Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler"
     )
-
 
 @dataclass
 class ASTError(Exception):
@@ -269,5 +268,6 @@ class Directive(ASTNode):
 
 @dataclass
 class Program(ASTNode):
-    def __init__(self, statements):
+    def __init__(self, statements, memory_mode):
         self.statements = statements
+        self.memory_mode = memory_mode

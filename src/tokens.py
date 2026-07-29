@@ -1,14 +1,11 @@
+from dataclasses import dataclass
+from enum import Enum, auto
 from sys import exit as leave
 
 if __name__ == "__main__":
     leave(
         "Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler"
     )
-
-from enum import Enum, auto
-from dataclasses import dataclass
-from typing import List
-
 
 class TokenType(Enum):
     # Memory management
@@ -206,7 +203,6 @@ TYPE_KEYWORDS = {
     "cf32",
     "cf64",
     "cdml",
-    "bln",
 }
 
 

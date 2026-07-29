@@ -1,5 +1,15 @@
-val ui8 a = 5 + 3.
-val ui8 b = a + 10.
-val str c = "Hello " + "World".
-val bln d = ~true.
-val ui8 e = (5 + 3) * 4.
+$MEM-GC
+
+val mui8 age = 15.
+val mf32 height = 1.75.
+val cstr name = "Simar".
+val mbln active = true.
+
+val mui8 result = 5 + 3.
+val mui8 calculation = (10 + 5) * 2.
+
+val mui8 empty.
+
+fc main(a, x, b, n)!void {
+    val mui8 age = 0.
+}
