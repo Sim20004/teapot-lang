@@ -1,55 +1,121 @@
 $MEM-GC
 
-sct Student {
-    str name.
-    ui8 age.
-    mui8[] grades.
+pub sct Student {
+    cstr name.
+    mui8 age.
+    mui8 grades. // TODO: ARRAY/MAP/LIST
 }
 
-enm Result {
+pub enm Result {
     Pass.
     Fail.
 }
 
+err TestError {
+    str message.
+}
+
+operator +(Student a, Student b)!Student {
+    exit Student(
+        a::name,
+        a::age + b::age
+    ).
+}
+
+fc factorial(ui8 n)!ui8 {
+    if (n <= 1) {
+        exit 1.
+    }
+
+    exit n * factorial(n - 1).
+}
+
+fc greet(str name = "User")!str {
+    exit "Hello".
+}
+
+fc overloaded(ui8 x)!ui8 {
+    exit x + 1.
+}
+
+fc overloaded(str x)!str {
+    exit x.
+}
+
 fc calculate_average(mui8[] grades)!f32 {
+
     val mui8 total = 0.
-    
+
     for (grade : grades) {
         total += grade.
     }
 
-    val f32 average = total / 3.
-    
-    exit average.
+    exit total >> f32 / 3.
 }
 
 fc get_result(f32 average)!Result {
+
     if (average >= 50) {
         exit Result::Pass.
+    }
+    elif (average == 49) {
+        exit Result::Fail.
     }
     else {
         exit Result::Fail.
     }
 }
 
-fc grade_message(Result result)!str {
-    if (result == Result::Pass) {
-        exit "Student passed".
-    }
-    else {
-        exit "Student failed".
-    }
-}
-
 fc main()!void {
 
+    // constants
     val cstr school = "Teapot Academy".
 
+    // primitive types
+    val bln passed = true.
+    val char letter = "A".
+
+    val si32 signed_num = -5.
+    val ui32 unsigned_num = 5.
+
+    val f32 float32 = 3.14.
+    val f64 float64 = 3.14159265359.
+
+    val dml money = 12.34.
+    val aint huge = 999999999999999999999999.
+
+    // null initialisation
+    val mui8 counter.
+    counter += 1.
+
+    // structs
     val Student student = Student(
-        "Alex",15
+        "Alex",
+        15
     ).
 
-    student::grades = [80,65,90].
+    student::grades = [80, 65, 90].
+
+    // references
+    val ref Student student_ref = student.
+
+    // tuple
+    val pair = (
+        10,
+        "hello"
+    ).
+
+    // list
+    val list<ui8> numbers.
+
+    // map
+    val map[str]ui8 subjects = (
+        ["Math",90]
+        ["English",85]
+    ).
+
+    // arrays
+    val mui8[] values = [1,2,3].
 
     do {
 
@@ -61,34 +127,89 @@ fc main()!void {
             average
         ).
 
-        val str message = grade_message(
-            result
-        ).
+        // enum comparison
+        if (result == Result::Pass) {
 
-    }
-
-    fail(error) {
-
-    }
-
-
-    val map[str]ui8 subjects = (
-        ["Math",90]
-    ).
-
-
-    val mui8 attempts = 3.
-
-    while (attempts > 0) {
-
-        if (attempts == 1) {
-            break.
         }
 
-        attempts -= 1.
+        // boolean operators
+        if (
+            passed &&
+            average > 0 ||
+            ~false
+        ) {
+
+        }
+
+        // while
+        val mui8 attempts = 3.
+
+        while (attempts > 0) {
+
+            if (attempts == 2) {
+                continue.
+            }
+
+            if (attempts == 1) {
+                break.
+            }
+
+            attempts -= 1.
+        }
+
+        // casts
+        val str age_text =
+            student::age >> str.
+
+        // indexing
+        val str first_letter =
+            student::name[0] >> str.
+
+        // recursion
+        val ui8 fact = factorial(5).
+
+        // default args
+        val str msg1 = greet().
+
+        // normal args
+        val str msg2 =
+            greet("Alex").
+
+        // overloads
+        val ui8 a =
+            overloaded(5).
+
+        val str b =
+            overloaded("hello").
+
+        // operator overload
+        val Student merged =
+            student + student.
+
+        // arithmetic
+        val ui8 math =
+            (5 + 2) * 3.
+
+        math /= 2.
+        math *= 2.
+        math -= 1.
+        math += 1.
+
+        // comparisons
+        if (math == 10) {}
+        if (math ~= 10) {}
+        if (math > 10) {}
+        if (math < 10) {}
+        if (math >= 10) {}
+        if (math <= 10) {}
+
     }
 
+    fail(TestError e) {
 
-    val str first_letter = student::name[0] >> str.
+        val str error_text =
+            e::message.
+
+    }
 
 }

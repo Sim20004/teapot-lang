@@ -2,103 +2,848 @@
 Token Object list:
 
 Token(type=<TokenType.DIRECTIVE: 1>, value='$MEM-GC', line=1, col=1)
-Token(type=<TokenType.VAL: 8>, value='val', line=3, col=1)
-Token(type=<TokenType.TYPE: 26>, value='mui8', line=3, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=3, col=10)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=3, col=14)
-Token(type=<TokenType.INTEGER: 27>, value=15, line=3, col=16)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=3, col=18)
-Token(type=<TokenType.VAL: 8>, value='val', line=4, col=1)
-Token(type=<TokenType.TYPE: 26>, value='mf32', line=4, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='height', line=4, col=10)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=4, col=17)
-Token(type=<TokenType.FLOAT: 28>, value=1.75, line=4, col=19)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=4, col=23)
-Token(type=<TokenType.VAL: 8>, value='val', line=5, col=1)
-Token(type=<TokenType.TYPE: 26>, value='cstr', line=5, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='name', line=5, col=10)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=5, col=15)
-Token(type=<TokenType.STRING: 29>, value='Simar', line=5, col=17)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=5, col=24)
-Token(type=<TokenType.VAL: 8>, value='val', line=6, col=1)
-Token(type=<TokenType.TYPE: 26>, value='mbln', line=6, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='active', line=6, col=10)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=6, col=17)
-Token(type=<TokenType.BOOLEAN: 31>, value=True, line=6, col=19)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=6, col=23)
-Token(type=<TokenType.VAL: 8>, value='val', line=8, col=1)
-Token(type=<TokenType.TYPE: 26>, value='mui8', line=8, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='result', line=8, col=10)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=8, col=17)
-Token(type=<TokenType.INTEGER: 27>, value=5, line=8, col=19)
-Token(type=<TokenType.PLUS: 33>, value='+', line=8, col=21)
-Token(type=<TokenType.INTEGER: 27>, value=3, line=8, col=23)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=8, col=24)
-Token(type=<TokenType.VAL: 8>, value='val', line=9, col=1)
-Token(type=<TokenType.TYPE: 26>, value='mui8', line=9, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='calculation', line=9, col=10)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=9, col=22)
-Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=9, col=24)
-Token(type=<TokenType.INTEGER: 27>, value=10, line=9, col=25)
-Token(type=<TokenType.PLUS: 33>, value='+', line=9, col=28)
-Token(type=<TokenType.INTEGER: 27>, value=5, line=9, col=30)
-Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=9, col=31)
-Token(type=<TokenType.MULTIPLY: 35>, value='*', line=9, col=33)
-Token(type=<TokenType.INTEGER: 27>, value=2, line=9, col=35)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=9, col=36)
-Token(type=<TokenType.VAL: 8>, value='val', line=11, col=1)
-Token(type=<TokenType.TYPE: 26>, value='mui8', line=11, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='empty', line=11, col=10)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=11, col=15)
-Token(type=<TokenType.FUNCTION: 5>, value='fc', line=13, col=1)
-Token(type=<TokenType.IDENTIFIER: 32>, value='main', line=13, col=4)
-Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=13, col=8)
-Token(type=<TokenType.TYPE: 26>, value='mui8', line=13, col=9)
-Token(type=<TokenType.IDENTIFIER: 32>, value='a', line=13, col=14)
-Token(type=<TokenType.COMMA: 59>, value=',', line=13, col=15)
-Token(type=<TokenType.TYPE: 26>, value='cbln', line=13, col=17)
-Token(type=<TokenType.IDENTIFIER: 32>, value='x', line=13, col=22)
-Token(type=<TokenType.COMMA: 59>, value=',', line=13, col=23)
-Token(type=<TokenType.TYPE: 26>, value='mstr', line=13, col=25)
-Token(type=<TokenType.IDENTIFIER: 32>, value='b', line=13, col=30)
-Token(type=<TokenType.COMMA: 59>, value=',', line=13, col=31)
-Token(type=<TokenType.TYPE: 26>, value='msi16', line=13, col=33)
-Token(type=<TokenType.IDENTIFIER: 32>, value='n', line=13, col=39)
-Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=13, col=40)
-Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=13, col=41)
-Token(type=<TokenType.TYPE: 26>, value='void', line=13, col=42)
-Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=13, col=47)
-Token(type=<TokenType.VAL: 8>, value='val', line=14, col=5)
-Token(type=<TokenType.TYPE: 26>, value='mui8', line=14, col=9)
-Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=14, col=14)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=14, col=18)
-Token(type=<TokenType.INTEGER: 27>, value=0, line=14, col=20)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=14, col=21)
-Token(type=<TokenType.VAL: 8>, value='val', line=15, col=5)
-Token(type=<TokenType.TYPE: 26>, value='mui8', line=15, col=9)
-Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=15, col=14)
-Token(type=<TokenType.ASSIGN: 48>, value='=', line=15, col=18)
-Token(type=<TokenType.INTEGER: 27>, value=15, line=15, col=20)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=15, col=22)
-Token(type=<TokenType.IDENTIFIER: 32>, value='w', line=15, col=23)
+Token(type=<TokenType.PUBLIC: 4>, value='pub', line=3, col=1)
+Token(type=<TokenType.STRUCT: 22>, value='sct', line=3, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=3, col=9)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=3, col=17)
+Token(type=<TokenType.TYPE: 26>, value='cstr', line=4, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='name', line=4, col=10)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=4, col=14)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=5, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=5, col=10)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=5, col=13)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=6, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='grades', line=6, col=10)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=6, col=16)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=7, col=1)
+Token(type=<TokenType.PUBLIC: 4>, value='pub', line=9, col=1)
+Token(type=<TokenType.ENUM: 23>, value='enm', line=9, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Result', line=9, col=9)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=9, col=16)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Pass', line=10, col=5)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=10, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Fail', line=11, col=5)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=11, col=9)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=12, col=1)
+Token(type=<TokenType.ERROR: 21>, value='err', line=14, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='TestError', line=14, col=5)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=14, col=15)
+Token(type=<TokenType.TYPE: 26>, value='str', line=15, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='message', line=15, col=9)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=15, col=16)
 Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=16, col=1)
-Token(type=<TokenType.EOF: 66>, value=None, line=16, col=2)
+Token(type=<TokenType.OPERATOR: 7>, value='operator', line=18, col=1)
+Token(type=<TokenType.PLUS: 33>, value='+', line=18, col=10)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=18, col=11)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=18, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='a', line=18, col=20)
+Token(type=<TokenType.COMMA: 59>, value=',', line=18, col=21)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=18, col=23)
+Token(type=<TokenType.IDENTIFIER: 32>, value='b', line=18, col=31)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=18, col=32)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=18, col=33)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=18, col=34)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=18, col=42)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=19, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=19, col=10)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=19, col=17)
+Token(type=<TokenType.IDENTIFIER: 32>, value='a', line=20, col=9)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=20, col=10)
+Token(type=<TokenType.IDENTIFIER: 32>, value='name', line=20, col=12)
+Token(type=<TokenType.COMMA: 59>, value=',', line=20, col=16)
+Token(type=<TokenType.IDENTIFIER: 32>, value='a', line=21, col=9)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=21, col=10)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=21, col=12)
+Token(type=<TokenType.PLUS: 33>, value='+', line=21, col=16)
+Token(type=<TokenType.IDENTIFIER: 32>, value='b', line=21, col=18)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=21, col=19)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=21, col=21)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=22, col=5)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=22, col=6)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=23, col=1)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=25, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='factorial', line=25, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=25, col=13)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=25, col=14)
+Token(type=<TokenType.IDENTIFIER: 32>, value='n', line=25, col=18)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=25, col=19)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=25, col=20)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=25, col=21)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=25, col=25)
+Token(type=<TokenType.IF: 12>, value='if', line=26, col=5)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=26, col=8)
+Token(type=<TokenType.IDENTIFIER: 32>, value='n', line=26, col=9)
+Token(type=<TokenType.LESS_EQUAL: 43>, value='<=', line=26, col=11)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=26, col=14)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=26, col=15)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=26, col=17)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=27, col=9)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=27, col=14)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=27, col=15)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=28, col=5)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=30, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='n', line=30, col=10)
+Token(type=<TokenType.MULTIPLY: 35>, value='*', line=30, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='factorial', line=30, col=14)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=30, col=23)
+Token(type=<TokenType.IDENTIFIER: 32>, value='n', line=30, col=24)
+Token(type=<TokenType.MINUS: 34>, value='-', line=30, col=26)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=30, col=28)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=30, col=29)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=30, col=30)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=31, col=1)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=33, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='greet', line=33, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=33, col=9)
+Token(type=<TokenType.TYPE: 26>, value='str', line=33, col=10)
+Token(type=<TokenType.IDENTIFIER: 32>, value='name', line=33, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=33, col=19)
+Token(type=<TokenType.STRING: 29>, value='User', line=33, col=21)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=33, col=27)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=33, col=28)
+Token(type=<TokenType.TYPE: 26>, value='str', line=33, col=29)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=33, col=33)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=34, col=5)
+Token(type=<TokenType.STRING: 29>, value='Hello', line=34, col=10)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=34, col=17)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=35, col=1)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=37, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='overloaded', line=37, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=37, col=14)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=37, col=15)
+Token(type=<TokenType.IDENTIFIER: 32>, value='x', line=37, col=19)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=37, col=20)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=37, col=21)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=37, col=22)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=37, col=26)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=38, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='x', line=38, col=10)
+Token(type=<TokenType.PLUS: 33>, value='+', line=38, col=12)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=38, col=14)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=38, col=15)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=39, col=1)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=41, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='overloaded', line=41, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=41, col=14)
+Token(type=<TokenType.TYPE: 26>, value='str', line=41, col=15)
+Token(type=<TokenType.IDENTIFIER: 32>, value='x', line=41, col=19)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=41, col=20)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=41, col=21)
+Token(type=<TokenType.TYPE: 26>, value='str', line=41, col=22)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=41, col=26)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=42, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='x', line=42, col=10)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=42, col=11)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=43, col=1)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=45, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='calculate_average', line=45, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=45, col=21)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=45, col=22)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=45, col=26)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=45, col=27)
+Token(type=<TokenType.IDENTIFIER: 32>, value='grades', line=45, col=29)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=45, col=35)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=45, col=36)
+Token(type=<TokenType.TYPE: 26>, value='f32', line=45, col=37)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=45, col=41)
+Token(type=<TokenType.VAL: 8>, value='val', line=47, col=5)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=47, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='total', line=47, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=47, col=20)
+Token(type=<TokenType.INTEGER: 27>, value=0, line=47, col=22)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=47, col=23)
+Token(type=<TokenType.FOR: 16>, value='for', line=49, col=5)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=49, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='grade', line=49, col=10)
+Token(type=<TokenType.COLON: 62>, value=':', line=49, col=16)
+Token(type=<TokenType.IDENTIFIER: 32>, value='grades', line=49, col=18)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=49, col=24)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=49, col=26)
+Token(type=<TokenType.IDENTIFIER: 32>, value='total', line=50, col=9)
+Token(type=<TokenType.ASSIGN_PLUS: 49>, value='+=', line=50, col=15)
+Token(type=<TokenType.IDENTIFIER: 32>, value='grade', line=50, col=18)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=50, col=23)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=51, col=5)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=53, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='total', line=53, col=10)
+Token(type=<TokenType.CAST: 65>, value='>>', line=53, col=16)
+Token(type=<TokenType.TYPE: 26>, value='f32', line=53, col=19)
+Token(type=<TokenType.DIVIDE: 36>, value='/', line=53, col=23)
+Token(type=<TokenType.INTEGER: 27>, value=3, line=53, col=25)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=53, col=26)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=54, col=1)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=56, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='get_result', line=56, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=56, col=14)
+Token(type=<TokenType.TYPE: 26>, value='f32', line=56, col=15)
+Token(type=<TokenType.IDENTIFIER: 32>, value='average', line=56, col=19)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=56, col=26)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=56, col=27)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Result', line=56, col=28)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=56, col=35)
+Token(type=<TokenType.IF: 12>, value='if', line=58, col=5)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=58, col=8)
+Token(type=<TokenType.IDENTIFIER: 32>, value='average', line=58, col=9)
+Token(type=<TokenType.GREATER_EQUAL: 42>, value='>=', line=58, col=17)
+Token(type=<TokenType.INTEGER: 27>, value=50, line=58, col=20)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=58, col=22)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=58, col=24)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=59, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Result', line=59, col=14)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=59, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Pass', line=59, col=22)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=59, col=26)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=60, col=5)
+Token(type=<TokenType.ELSEIF: 13>, value='elif', line=61, col=5)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=61, col=10)
+Token(type=<TokenType.IDENTIFIER: 32>, value='average', line=61, col=11)
+Token(type=<TokenType.EQUALS: 39>, value='==', line=61, col=19)
+Token(type=<TokenType.INTEGER: 27>, value=49, line=61, col=22)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=61, col=24)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=61, col=26)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=62, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Result', line=62, col=14)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=62, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Fail', line=62, col=22)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=62, col=26)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=63, col=5)
+Token(type=<TokenType.ELSE: 14>, value='else', line=64, col=5)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=64, col=10)
+Token(type=<TokenType.EXIT: 6>, value='exit', line=65, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Result', line=65, col=14)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=65, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Fail', line=65, col=22)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=65, col=26)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=66, col=5)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=67, col=1)
+Token(type=<TokenType.FUNCTION: 5>, value='fc', line=69, col=1)
+Token(type=<TokenType.IDENTIFIER: 32>, value='main', line=69, col=4)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=69, col=8)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=69, col=9)
+Token(type=<TokenType.EXCLAMATION: 64>, value='!', line=69, col=10)
+Token(type=<TokenType.TYPE: 26>, value='void', line=69, col=11)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=69, col=16)
+Token(type=<TokenType.VAL: 8>, value='val', line=72, col=5)
+Token(type=<TokenType.TYPE: 26>, value='cstr', line=72, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='school', line=72, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=72, col=21)
+Token(type=<TokenType.STRING: 29>, value='Teapot Academy', line=72, col=23)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=72, col=39)
+Token(type=<TokenType.VAL: 8>, value='val', line=75, col=5)
+Token(type=<TokenType.TYPE: 26>, value='bln', line=75, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='passed', line=75, col=13)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=75, col=20)
+Token(type=<TokenType.BOOLEAN: 31>, value=True, line=75, col=22)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=75, col=26)
+Token(type=<TokenType.VAL: 8>, value='val', line=76, col=5)
+Token(type=<TokenType.TYPE: 26>, value='char', line=76, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='letter', line=76, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=76, col=21)
+Token(type=<TokenType.STRING: 29>, value='A', line=76, col=23)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=76, col=26)
+Token(type=<TokenType.VAL: 8>, value='val', line=78, col=5)
+Token(type=<TokenType.TYPE: 26>, value='si32', line=78, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='signed_num', line=78, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=78, col=25)
+Token(type=<TokenType.MINUS: 34>, value='-', line=78, col=27)
+Token(type=<TokenType.INTEGER: 27>, value=5, line=78, col=28)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=78, col=29)
+Token(type=<TokenType.VAL: 8>, value='val', line=79, col=5)
+Token(type=<TokenType.TYPE: 26>, value='ui32', line=79, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='unsigned_num', line=79, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=79, col=27)
+Token(type=<TokenType.INTEGER: 27>, value=5, line=79, col=29)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=79, col=30)
+Token(type=<TokenType.VAL: 8>, value='val', line=81, col=5)
+Token(type=<TokenType.TYPE: 26>, value='f32', line=81, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='float32', line=81, col=13)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=81, col=21)
+Token(type=<TokenType.FLOAT: 28>, value=3.14, line=81, col=23)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=81, col=27)
+Token(type=<TokenType.VAL: 8>, value='val', line=82, col=5)
+Token(type=<TokenType.TYPE: 26>, value='f64', line=82, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='float64', line=82, col=13)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=82, col=21)
+Token(type=<TokenType.FLOAT: 28>, value=3.14159265359, line=82, col=23)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=82, col=36)
+Token(type=<TokenType.VAL: 8>, value='val', line=84, col=5)
+Token(type=<TokenType.TYPE: 26>, value='dml', line=84, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='money', line=84, col=13)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=84, col=19)
+Token(type=<TokenType.FLOAT: 28>, value=12.34, line=84, col=21)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=84, col=26)
+Token(type=<TokenType.VAL: 8>, value='val', line=85, col=5)
+Token(type=<TokenType.TYPE: 26>, value='aint', line=85, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='huge', line=85, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=85, col=19)
+Token(type=<TokenType.INTEGER: 27>, value=999999999999999999999999, line=85, col=21)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=85, col=45)
+Token(type=<TokenType.VAL: 8>, value='val', line=88, col=5)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=88, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='counter', line=88, col=14)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=88, col=21)
+Token(type=<TokenType.IDENTIFIER: 32>, value='counter', line=89, col=5)
+Token(type=<TokenType.ASSIGN_PLUS: 49>, value='+=', line=89, col=13)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=89, col=16)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=89, col=17)
+Token(type=<TokenType.VAL: 8>, value='val', line=92, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=92, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=92, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=92, col=25)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=92, col=27)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=92, col=34)
+Token(type=<TokenType.STRING: 29>, value='Alex', line=93, col=9)
+Token(type=<TokenType.COMMA: 59>, value=',', line=93, col=15)
+Token(type=<TokenType.INTEGER: 27>, value=15, line=94, col=9)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=95, col=5)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=95, col=6)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=97, col=5)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=97, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='grades', line=97, col=14)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=97, col=21)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=97, col=23)
+Token(type=<TokenType.INTEGER: 27>, value=80, line=97, col=24)
+Token(type=<TokenType.COMMA: 59>, value=',', line=97, col=26)
+Token(type=<TokenType.INTEGER: 27>, value=65, line=97, col=28)
+Token(type=<TokenType.COMMA: 59>, value=',', line=97, col=30)
+Token(type=<TokenType.INTEGER: 27>, value=90, line=97, col=32)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=97, col=34)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=97, col=35)
+Token(type=<TokenType.VAL: 8>, value='val', line=100, col=5)
+Token(type=<TokenType.REFERENCE: 9>, value='ref', line=100, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=100, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student_ref', line=100, col=21)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=100, col=33)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=100, col=35)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=100, col=42)
+Token(type=<TokenType.VAL: 8>, value='val', line=103, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='pair', line=103, col=9)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=103, col=14)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=103, col=16)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=104, col=9)
+Token(type=<TokenType.COMMA: 59>, value=',', line=104, col=11)
+Token(type=<TokenType.STRING: 29>, value='hello', line=105, col=9)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=106, col=5)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=106, col=6)
+Token(type=<TokenType.VAL: 8>, value='val', line=109, col=5)
+Token(type=<TokenType.LIST: 24>, value='list', line=109, col=9)
+Token(type=<TokenType.LESS: 41>, value='<', line=109, col=13)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=109, col=14)
+Token(type=<TokenType.GREATER: 40>, value='>', line=109, col=17)
+Token(type=<TokenType.IDENTIFIER: 32>, value='numbers', line=109, col=19)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=109, col=26)
+Token(type=<TokenType.VAL: 8>, value='val', line=112, col=5)
+Token(type=<TokenType.MAP: 25>, value='map', line=112, col=9)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=112, col=12)
+Token(type=<TokenType.TYPE: 26>, value='str', line=112, col=13)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=112, col=16)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=112, col=17)
+Token(type=<TokenType.IDENTIFIER: 32>, value='subjects', line=112, col=21)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=112, col=30)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=112, col=32)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=113, col=9)
+Token(type=<TokenType.STRING: 29>, value='Math', line=113, col=10)
+Token(type=<TokenType.COMMA: 59>, value=',', line=113, col=16)
+Token(type=<TokenType.INTEGER: 27>, value=90, line=113, col=17)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=113, col=19)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=114, col=9)
+Token(type=<TokenType.STRING: 29>, value='English', line=114, col=10)
+Token(type=<TokenType.COMMA: 59>, value=',', line=114, col=19)
+Token(type=<TokenType.INTEGER: 27>, value=85, line=114, col=20)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=114, col=22)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=115, col=5)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=115, col=6)
+Token(type=<TokenType.VAL: 8>, value='val', line=118, col=5)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=118, col=9)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=118, col=13)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=118, col=14)
+Token(type=<TokenType.IDENTIFIER: 32>, value='values', line=118, col=16)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=118, col=23)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=118, col=25)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=118, col=26)
+Token(type=<TokenType.COMMA: 59>, value=',', line=118, col=27)
+Token(type=<TokenType.INTEGER: 27>, value=2, line=118, col=28)
+Token(type=<TokenType.COMMA: 59>, value=',', line=118, col=29)
+Token(type=<TokenType.INTEGER: 27>, value=3, line=118, col=30)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=118, col=31)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=118, col=32)
+Token(type=<TokenType.DO: 19>, value='do', line=120, col=5)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=120, col=8)
+Token(type=<TokenType.VAL: 8>, value='val', line=122, col=9)
+Token(type=<TokenType.TYPE: 26>, value='f32', line=122, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='average', line=122, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=122, col=25)
+Token(type=<TokenType.IDENTIFIER: 32>, value='calculate_average', line=122, col=27)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=122, col=44)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=123, col=13)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=123, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='grades', line=123, col=22)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=124, col=9)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=124, col=10)
+Token(type=<TokenType.VAL: 8>, value='val', line=126, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Result', line=126, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='result', line=126, col=20)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=126, col=27)
+Token(type=<TokenType.IDENTIFIER: 32>, value='get_result', line=126, col=29)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=126, col=39)
+Token(type=<TokenType.IDENTIFIER: 32>, value='average', line=127, col=13)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=128, col=9)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=128, col=10)
+Token(type=<TokenType.IF: 12>, value='if', line=131, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=131, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='result', line=131, col=13)
+Token(type=<TokenType.EQUALS: 39>, value='==', line=131, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Result', line=131, col=23)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=131, col=29)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Pass', line=131, col=31)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=131, col=35)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=131, col=37)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=133, col=9)
+Token(type=<TokenType.IF: 12>, value='if', line=136, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=136, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='passed', line=137, col=13)
+Token(type=<TokenType.AND: 45>, value='&&', line=137, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='average', line=138, col=13)
+Token(type=<TokenType.GREATER: 40>, value='>', line=138, col=21)
+Token(type=<TokenType.INTEGER: 27>, value=0, line=138, col=23)
+Token(type=<TokenType.OR: 46>, value='||', line=138, col=25)
+Token(type=<TokenType.NOT: 47>, value='~', line=139, col=13)
+Token(type=<TokenType.BOOLEAN: 31>, value=False, line=139, col=14)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=140, col=9)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=140, col=11)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=142, col=9)
+Token(type=<TokenType.VAL: 8>, value='val', line=145, col=9)
+Token(type=<TokenType.TYPE: 26>, value='mui8', line=145, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='attempts', line=145, col=18)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=145, col=27)
+Token(type=<TokenType.INTEGER: 27>, value=3, line=145, col=29)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=145, col=30)
+Token(type=<TokenType.WHILE: 15>, value='while', line=147, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=147, col=15)
+Token(type=<TokenType.IDENTIFIER: 32>, value='attempts', line=147, col=16)
+Token(type=<TokenType.GREATER: 40>, value='>', line=147, col=25)
+Token(type=<TokenType.INTEGER: 27>, value=0, line=147, col=27)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=147, col=28)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=147, col=30)
+Token(type=<TokenType.IF: 12>, value='if', line=149, col=13)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=149, col=16)
+Token(type=<TokenType.IDENTIFIER: 32>, value='attempts', line=149, col=17)
+Token(type=<TokenType.EQUALS: 39>, value='==', line=149, col=26)
+Token(type=<TokenType.INTEGER: 27>, value=2, line=149, col=29)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=149, col=30)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=149, col=32)
+Token(type=<TokenType.CONTINUE: 18>, value='continue', line=150, col=17)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=150, col=25)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=151, col=13)
+Token(type=<TokenType.IF: 12>, value='if', line=153, col=13)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=153, col=16)
+Token(type=<TokenType.IDENTIFIER: 32>, value='attempts', line=153, col=17)
+Token(type=<TokenType.EQUALS: 39>, value='==', line=153, col=26)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=153, col=29)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=153, col=30)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=153, col=32)
+Token(type=<TokenType.BREAK: 17>, value='break', line=154, col=17)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=154, col=22)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=155, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='attempts', line=157, col=13)
+Token(type=<TokenType.ASSIGN_MINUS: 50>, value='-=', line=157, col=22)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=157, col=25)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=157, col=26)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=158, col=9)
+Token(type=<TokenType.VAL: 8>, value='val', line=161, col=9)
+Token(type=<TokenType.TYPE: 26>, value='str', line=161, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age_text', line=161, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=161, col=26)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=162, col=13)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=162, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='age', line=162, col=22)
+Token(type=<TokenType.CAST: 65>, value='>>', line=162, col=26)
+Token(type=<TokenType.TYPE: 26>, value='str', line=162, col=29)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=162, col=32)
+Token(type=<TokenType.VAL: 8>, value='val', line=165, col=9)
+Token(type=<TokenType.TYPE: 26>, value='str', line=165, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='first_letter', line=165, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=165, col=30)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=166, col=13)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=166, col=20)
+Token(type=<TokenType.IDENTIFIER: 32>, value='name', line=166, col=22)
+Token(type=<TokenType.OPEN_BRACKET: 57>, value='[', line=166, col=26)
+Token(type=<TokenType.INTEGER: 27>, value=0, line=166, col=27)
+Token(type=<TokenType.CLOSE_BRACKET: 58>, value=']', line=166, col=28)
+Token(type=<TokenType.CAST: 65>, value='>>', line=166, col=30)
+Token(type=<TokenType.TYPE: 26>, value='str', line=166, col=33)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=166, col=36)
+Token(type=<TokenType.VAL: 8>, value='val', line=169, col=9)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=169, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='fact', line=169, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=169, col=22)
+Token(type=<TokenType.IDENTIFIER: 32>, value='factorial', line=169, col=24)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=169, col=33)
+Token(type=<TokenType.INTEGER: 27>, value=5, line=169, col=34)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=169, col=35)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=169, col=36)
+Token(type=<TokenType.VAL: 8>, value='val', line=172, col=9)
+Token(type=<TokenType.TYPE: 26>, value='str', line=172, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='msg1', line=172, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=172, col=22)
+Token(type=<TokenType.IDENTIFIER: 32>, value='greet', line=172, col=24)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=172, col=29)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=172, col=30)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=172, col=31)
+Token(type=<TokenType.VAL: 8>, value='val', line=175, col=9)
+Token(type=<TokenType.TYPE: 26>, value='str', line=175, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='msg2', line=175, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=175, col=22)
+Token(type=<TokenType.IDENTIFIER: 32>, value='greet', line=176, col=13)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=176, col=18)
+Token(type=<TokenType.STRING: 29>, value='Alex', line=176, col=19)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=176, col=25)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=176, col=26)
+Token(type=<TokenType.VAL: 8>, value='val', line=179, col=9)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=179, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='a', line=179, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=179, col=19)
+Token(type=<TokenType.IDENTIFIER: 32>, value='overloaded', line=180, col=13)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=180, col=23)
+Token(type=<TokenType.INTEGER: 27>, value=5, line=180, col=24)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=180, col=25)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=180, col=26)
+Token(type=<TokenType.VAL: 8>, value='val', line=182, col=9)
+Token(type=<TokenType.TYPE: 26>, value='str', line=182, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='b', line=182, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=182, col=19)
+Token(type=<TokenType.IDENTIFIER: 32>, value='overloaded', line=183, col=13)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=183, col=23)
+Token(type=<TokenType.STRING: 29>, value='hello', line=183, col=24)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=183, col=31)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=183, col=32)
+Token(type=<TokenType.VAL: 8>, value='val', line=186, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=186, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='merged', line=186, col=21)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=186, col=28)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=187, col=13)
+Token(type=<TokenType.PLUS: 33>, value='+', line=187, col=21)
+Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=187, col=23)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=187, col=30)
+Token(type=<TokenType.VAL: 8>, value='val', line=190, col=9)
+Token(type=<TokenType.TYPE: 26>, value='ui8', line=190, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=190, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=190, col=22)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=191, col=13)
+Token(type=<TokenType.INTEGER: 27>, value=5, line=191, col=14)
+Token(type=<TokenType.PLUS: 33>, value='+', line=191, col=16)
+Token(type=<TokenType.INTEGER: 27>, value=2, line=191, col=18)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=191, col=19)
+Token(type=<TokenType.MULTIPLY: 35>, value='*', line=191, col=21)
+Token(type=<TokenType.INTEGER: 27>, value=3, line=191, col=23)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=191, col=24)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=193, col=9)
+Token(type=<TokenType.ASSIGN_DIVIDE: 52>, value='/=', line=193, col=14)
+Token(type=<TokenType.INTEGER: 27>, value=2, line=193, col=17)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=193, col=18)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=194, col=9)
+Token(type=<TokenType.ASSIGN_MULTIPLY: 51>, value='*=', line=194, col=14)
+Token(type=<TokenType.INTEGER: 27>, value=2, line=194, col=17)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=194, col=18)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=195, col=9)
+Token(type=<TokenType.ASSIGN_MINUS: 50>, value='-=', line=195, col=14)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=195, col=17)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=195, col=18)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=196, col=9)
+Token(type=<TokenType.ASSIGN_PLUS: 49>, value='+=', line=196, col=14)
+Token(type=<TokenType.INTEGER: 27>, value=1, line=196, col=17)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=196, col=18)
+Token(type=<TokenType.IF: 12>, value='if', line=199, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=199, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=199, col=13)
+Token(type=<TokenType.EQUALS: 39>, value='==', line=199, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=199, col=21)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=199, col=23)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=199, col=25)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=199, col=26)
+Token(type=<TokenType.IF: 12>, value='if', line=200, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=200, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=200, col=13)
+Token(type=<TokenType.NOT_EQUAL: 44>, value='~=', line=200, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=200, col=21)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=200, col=23)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=200, col=25)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=200, col=26)
+Token(type=<TokenType.IF: 12>, value='if', line=201, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=201, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=201, col=13)
+Token(type=<TokenType.GREATER: 40>, value='>', line=201, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=201, col=20)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=201, col=22)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=201, col=24)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=201, col=25)
+Token(type=<TokenType.IF: 12>, value='if', line=202, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=202, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=202, col=13)
+Token(type=<TokenType.LESS: 41>, value='<', line=202, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=202, col=20)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=202, col=22)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=202, col=24)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=202, col=25)
+Token(type=<TokenType.IF: 12>, value='if', line=203, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=203, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=203, col=13)
+Token(type=<TokenType.GREATER_EQUAL: 42>, value='>=', line=203, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=203, col=21)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=203, col=23)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=203, col=25)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=203, col=26)
+Token(type=<TokenType.IF: 12>, value='if', line=204, col=9)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=204, col=12)
+Token(type=<TokenType.IDENTIFIER: 32>, value='math', line=204, col=13)
+Token(type=<TokenType.LESS_EQUAL: 43>, value='<=', line=204, col=18)
+Token(type=<TokenType.INTEGER: 27>, value=10, line=204, col=21)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=204, col=23)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=204, col=25)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=204, col=26)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=206, col=5)
+Token(type=<TokenType.FAIL: 20>, value='fail', line=208, col=5)
+Token(type=<TokenType.OPEN_PAREN: 53>, value='(', line=208, col=9)
+Token(type=<TokenType.IDENTIFIER: 32>, value='TestError', line=208, col=10)
+Token(type=<TokenType.IDENTIFIER: 32>, value='e', line=208, col=20)
+Token(type=<TokenType.CLOSE_PAREN: 54>, value=')', line=208, col=21)
+Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=208, col=23)
+Token(type=<TokenType.VAL: 8>, value='val', line=210, col=9)
+Token(type=<TokenType.TYPE: 26>, value='str', line=210, col=13)
+Token(type=<TokenType.IDENTIFIER: 32>, value='error_text', line=210, col=17)
+Token(type=<TokenType.ASSIGN: 48>, value='=', line=210, col=28)
+Token(type=<TokenType.IDENTIFIER: 32>, value='e', line=211, col=13)
+Token(type=<TokenType.DOUBLE_COLON: 63>, value='::', line=211, col=14)
+Token(type=<TokenType.IDENTIFIER: 32>, value='message', line=211, col=16)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=211, col=23)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=213, col=5)
+Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=215, col=1)
+Token(type=<TokenType.EOF: 66>, value=None, line=215, col=2)
 
 Token List:
 
 DIRECTIVE
+PUBLIC
+STRUCT
+IDENTIFIER
+OPEN_BRACE
+TYPE
+IDENTIFIER
+PERIOD
+TYPE
+IDENTIFIER
+PERIOD
+TYPE
+IDENTIFIER
+PERIOD
+CLOSE_BRACE
+PUBLIC
+ENUM
+IDENTIFIER
+OPEN_BRACE
+IDENTIFIER
+PERIOD
+IDENTIFIER
+PERIOD
+CLOSE_BRACE
+ERROR
+IDENTIFIER
+OPEN_BRACE
+TYPE
+IDENTIFIER
+PERIOD
+CLOSE_BRACE
+OPERATOR
+PLUS
+OPEN_PAREN
+IDENTIFIER
+IDENTIFIER
+COMMA
+IDENTIFIER
+IDENTIFIER
+CLOSE_PAREN
+EXCLAMATION
+IDENTIFIER
+OPEN_BRACE
+EXIT
+IDENTIFIER
+OPEN_PAREN
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+COMMA
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+PLUS
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+CLOSE_PAREN
+PERIOD
+CLOSE_BRACE
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
+TYPE
+IDENTIFIER
+CLOSE_PAREN
+EXCLAMATION
+TYPE
+OPEN_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+LESS_EQUAL
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+EXIT
+INTEGER
+PERIOD
+CLOSE_BRACE
+EXIT
+IDENTIFIER
+MULTIPLY
+IDENTIFIER
+OPEN_PAREN
+IDENTIFIER
+MINUS
+INTEGER
+CLOSE_PAREN
+PERIOD
+CLOSE_BRACE
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
+TYPE
+IDENTIFIER
+ASSIGN
+STRING
+CLOSE_PAREN
+EXCLAMATION
+TYPE
+OPEN_BRACE
+EXIT
+STRING
+PERIOD
+CLOSE_BRACE
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
+TYPE
+IDENTIFIER
+CLOSE_PAREN
+EXCLAMATION
+TYPE
+OPEN_BRACE
+EXIT
+IDENTIFIER
+PLUS
+INTEGER
+PERIOD
+CLOSE_BRACE
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
+TYPE
+IDENTIFIER
+CLOSE_PAREN
+EXCLAMATION
+TYPE
+OPEN_BRACE
+EXIT
+IDENTIFIER
+PERIOD
+CLOSE_BRACE
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
+TYPE
+OPEN_BRACKET
+CLOSE_BRACKET
+IDENTIFIER
+CLOSE_PAREN
+EXCLAMATION
+TYPE
+OPEN_BRACE
 VAL
 TYPE
 IDENTIFIER
 ASSIGN
 INTEGER
 PERIOD
-VAL
+FOR
+OPEN_PAREN
+IDENTIFIER
+COLON
+IDENTIFIER
+CLOSE_PAREN
+OPEN_BRACE
+IDENTIFIER
+ASSIGN_PLUS
+IDENTIFIER
+PERIOD
+CLOSE_BRACE
+EXIT
+IDENTIFIER
+CAST
+TYPE
+DIVIDE
+INTEGER
+PERIOD
+CLOSE_BRACE
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
 TYPE
 IDENTIFIER
-ASSIGN
-FLOAT
+CLOSE_PAREN
+EXCLAMATION
+IDENTIFIER
+OPEN_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+GREATER_EQUAL
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+EXIT
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
 PERIOD
+CLOSE_BRACE
+ELSEIF
+OPEN_PAREN
+IDENTIFIER
+EQUALS
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+EXIT
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+PERIOD
+CLOSE_BRACE
+ELSE
+OPEN_BRACE
+EXIT
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+PERIOD
+CLOSE_BRACE
+CLOSE_BRACE
+FUNCTION
+IDENTIFIER
+OPEN_PAREN
+CLOSE_PAREN
+EXCLAMATION
+TYPE
+OPEN_BRACE
 VAL
 TYPE
 IDENTIFIER
@@ -115,9 +860,291 @@ VAL
 TYPE
 IDENTIFIER
 ASSIGN
+STRING
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+MINUS
 INTEGER
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+INTEGER
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+FLOAT
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+FLOAT
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+FLOAT
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+INTEGER
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+PERIOD
+IDENTIFIER
+ASSIGN_PLUS
+INTEGER
+PERIOD
+VAL
+IDENTIFIER
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+STRING
+COMMA
+INTEGER
+CLOSE_PAREN
+PERIOD
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+ASSIGN
+OPEN_BRACKET
+INTEGER
+COMMA
+INTEGER
+COMMA
+INTEGER
+CLOSE_BRACKET
+PERIOD
+VAL
+REFERENCE
+IDENTIFIER
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+PERIOD
+VAL
+IDENTIFIER
+ASSIGN
+OPEN_PAREN
+INTEGER
+COMMA
+STRING
+CLOSE_PAREN
+PERIOD
+VAL
+LIST
+LESS
+TYPE
+GREATER
+IDENTIFIER
+PERIOD
+VAL
+MAP
+OPEN_BRACKET
+TYPE
+CLOSE_BRACKET
+TYPE
+IDENTIFIER
+ASSIGN
+OPEN_PAREN
+OPEN_BRACKET
+STRING
+COMMA
+INTEGER
+CLOSE_BRACKET
+OPEN_BRACKET
+STRING
+COMMA
+INTEGER
+CLOSE_BRACKET
+CLOSE_PAREN
+PERIOD
+VAL
+TYPE
+OPEN_BRACKET
+CLOSE_BRACKET
+IDENTIFIER
+ASSIGN
+OPEN_BRACKET
+INTEGER
+COMMA
+INTEGER
+COMMA
+INTEGER
+CLOSE_BRACKET
+PERIOD
+DO
+OPEN_BRACE
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+CLOSE_PAREN
+PERIOD
+VAL
+IDENTIFIER
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+IDENTIFIER
+CLOSE_PAREN
+PERIOD
+IF
+OPEN_PAREN
+IDENTIFIER
+EQUALS
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+AND
+IDENTIFIER
+GREATER
+INTEGER
+OR
+NOT
+BOOLEAN
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+INTEGER
+PERIOD
+WHILE
+OPEN_PAREN
+IDENTIFIER
+GREATER
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+EQUALS
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+CONTINUE
+PERIOD
+CLOSE_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+EQUALS
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+BREAK
+PERIOD
+CLOSE_BRACE
+IDENTIFIER
+ASSIGN_MINUS
+INTEGER
+PERIOD
+CLOSE_BRACE
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+CAST
+TYPE
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+DOUBLE_COLON
+IDENTIFIER
+OPEN_BRACKET
+INTEGER
+CLOSE_BRACKET
+CAST
+TYPE
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+INTEGER
+CLOSE_PAREN
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+CLOSE_PAREN
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+STRING
+CLOSE_PAREN
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+INTEGER
+CLOSE_PAREN
+PERIOD
+VAL
+TYPE
+IDENTIFIER
+ASSIGN
+IDENTIFIER
+OPEN_PAREN
+STRING
+CLOSE_PAREN
+PERIOD
+VAL
+IDENTIFIER
+IDENTIFIER
+ASSIGN
+IDENTIFIER
 PLUS
-INTEGER
+IDENTIFIER
 PERIOD
 VAL
 TYPE
@@ -131,42 +1158,87 @@ CLOSE_PAREN
 MULTIPLY
 INTEGER
 PERIOD
-VAL
-TYPE
 IDENTIFIER
+ASSIGN_DIVIDE
+INTEGER
 PERIOD
-FUNCTION
 IDENTIFIER
+ASSIGN_MULTIPLY
+INTEGER
+PERIOD
+IDENTIFIER
+ASSIGN_MINUS
+INTEGER
+PERIOD
+IDENTIFIER
+ASSIGN_PLUS
+INTEGER
+PERIOD
+IF
 OPEN_PAREN
-TYPE
 IDENTIFIER
-COMMA
-TYPE
+EQUALS
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+IF
+OPEN_PAREN
 IDENTIFIER
-COMMA
-TYPE
+NOT_EQUAL
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+IF
+OPEN_PAREN
 IDENTIFIER
-COMMA
-TYPE
+GREATER
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+LESS
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+GREATER_EQUAL
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+IF
+OPEN_PAREN
+IDENTIFIER
+LESS_EQUAL
+INTEGER
+CLOSE_PAREN
+OPEN_BRACE
+CLOSE_BRACE
+CLOSE_BRACE
+FAIL
+OPEN_PAREN
+IDENTIFIER
 IDENTIFIER
 CLOSE_PAREN
-EXCLAMATION
-TYPE
 OPEN_BRACE
 VAL
 TYPE
 IDENTIFIER
 ASSIGN
-INTEGER
-PERIOD
-VAL
-TYPE
 IDENTIFIER
-ASSIGN
-INTEGER
-PERIOD
+DOUBLE_COLON
 IDENTIFIER
+PERIOD
+CLOSE_BRACE
 CLOSE_BRACE
 EOF
 
-Parser error at token Token(type=<TokenType.IDENTIFIER: 32>, value='w', line=15, col=23) at position 79: Invalid statement
+Parser error at token Token(type=<TokenType.ENUM: 23>, value='enm', line=9, col=5) at position 16: Invalid statement

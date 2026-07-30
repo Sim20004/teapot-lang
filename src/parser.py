@@ -74,12 +74,31 @@ class Parser:
             self.position += 1
         return token
 
+    def handle_struct(self, public=False):
+        name = self.expect(tokens.TokenType.IDENTIFIER).value
+        self.expect(tokens.TokenType.OPEN_BRACE)
+        body = []
+        while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_BRACE:
+            member_type = self.expect(tokens.TokenType.TYPE).value
+            mutable = self.DATATYPES_MUTABILITY.get(member_type)
+            if mutable is None:
+                raise ParserError (
+                    "Invalid datatype",
+                    self.current_token(),
+                    self.position
+                )
+            member_id = self.expect(tokens.TokenType.IDENTIFIER).value
+            self.expect(tokens.TokenType.PERIOD)
+            body.append(ast.StructField(member_id, ast.Type(member_type, mutable)))
+        self.expect(tokens.TokenType.CLOSE_BRACE)
+        return ast.Struct(name, body, public)
+    
     def handle_block(self):
         self.expect(tokens.TokenType.OPEN_BRACE)
         block = []
         while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_BRACE:
             block.append(self.handle_statement())
-        self.advance()
+        self.expect(tokens.TokenType.CLOSE_BRACE)
         return block
 
     def get_precedence(self, token):
@@ -97,8 +116,7 @@ class Parser:
         return PRECEDENCES.get(token.type, -1)
 
     def handle_function_argument(self):
-        args = []
-
+        args = []        
         datatype = self.expect(tokens.TokenType.TYPE).value
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
         args.append(ast.FunctionArgument(identifier, datatype))
@@ -111,7 +129,7 @@ class Parser:
 
         return args
 
-    def handle_function(self):
+    def handle_function(self, public):
         args = []
         name = self.expect(tokens.TokenType.IDENTIFIER).value
         self.expect(tokens.TokenType.OPEN_PAREN)
@@ -131,7 +149,7 @@ class Parser:
 
         body = self.handle_block()
 
-        return ast.Function(name, args, return_type, body)
+        return ast.Function(name, args, return_type, body, public)
 
     def expect(self, token):
         if self.at_end():
@@ -239,17 +257,36 @@ class Parser:
             )
 
     def handle_statement(self):
+        public = False
+
+        if self.current_token().type == tokens.TokenType.PUBLIC:
+            public = True
+            self.advance()
+    
         token = self.current_token()
         handler = self.STMT_HANDLERS.get(token.type)
+
+        if handler is None:
+            raise ParserError("Invalid statement", token, self.position)
+
+        if public and token.type not in [
+            tokens.TokenType.FUNCTION,
+            tokens.TokenType.STRUCT,
+            tokens.TokenType.ENUM,
+            tokens.TokenType.ERROR,
+            tokens.TokenType.OPERATOR
+        ]:
+            raise ParserError("Only functions, structs, enums, operators, and errors can be public.", token, self.position)
+
         if handler is None:
             raise ParserError("Invalid statement", token, self.position)
         self.advance()
-
-        return handler(self)
+        return handler(self, public)
 
     STMT_HANDLERS = {
         tokens.TokenType.VAL: handle_variable,
-        tokens.TokenType.FUNCTION: handle_function
+        tokens.TokenType.FUNCTION: handle_function,
+        tokens.TokenType.STRUCT: handle_struct
     }
 
     def parse(self):

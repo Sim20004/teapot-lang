@@ -26,11 +26,12 @@ class Import(ASTNode):
 
 @dataclass
 class Function(ASTNode):
-    def __init__(self, name, arguments, return_type, body):
+    def __init__(self, name, arguments, return_type, body, public=False):
         self.name = name
         self.arguments = arguments
         self.return_type = return_type
         self.body = body
+        self.public = public
 
 
 @dataclass
@@ -49,10 +50,11 @@ class Return(ASTNode):
 
 @dataclass
 class Operator(ASTNode):
-    def __init__(self, symbol, arguments, body):
+    def __init__(self, symbol, arguments, body, public=False):
         self.symbol = symbol
         self.arguments = arguments
         self.body = body
+        self.public = public
 
 
 @dataclass
@@ -160,16 +162,17 @@ class Fail(ASTNode):
 
 @dataclass
 class Struct(ASTNode):
-    def __init__(self, identifier, body):
+    def __init__(self, identifier, body, public=False):
         self.body = body
         self.identifier = identifier
-
+        self.public = public
 
 @dataclass
 class Enum(ASTNode):
-    def __init__(self, identifier, body):
+    def __init__(self, identifier, body, public=False):
         self.body = body
         self.identifier = identifier
+        self.public = public
 
 
 @dataclass
@@ -255,9 +258,10 @@ class Reference(ASTNode):
 
 @dataclass
 class Error(ASTNode):
-    def __init__(self, identifier, body):
+    def __init__(self, identifier, body, public=False):
         self.identifier = identifier
         self.body = body
+        self.public = public
 
 
 @dataclass
