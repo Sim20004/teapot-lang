@@ -28,9 +28,9 @@ Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=12, col=1)
 Token(type=<TokenType.ERROR: 21>, value='err', line=14, col=1)
 Token(type=<TokenType.IDENTIFIER: 32>, value='TestError', line=14, col=5)
 Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=14, col=15)
-Token(type=<TokenType.TYPE: 26>, value='str', line=15, col=5)
-Token(type=<TokenType.IDENTIFIER: 32>, value='message', line=15, col=9)
-Token(type=<TokenType.PERIOD: 60>, value='.', line=15, col=16)
+Token(type=<TokenType.TYPE: 26>, value='mstr', line=15, col=5)
+Token(type=<TokenType.IDENTIFIER: 32>, value='message', line=15, col=10)
+Token(type=<TokenType.PERIOD: 60>, value='.', line=15, col=17)
 Token(type=<TokenType.CLOSE_BRACE: 56>, value='}', line=16, col=1)
 Token(type=<TokenType.OPERATOR: 7>, value='operator', line=18, col=1)
 Token(type=<TokenType.PLUS: 33>, value='+', line=18, col=10)
@@ -1241,4 +1241,4 @@ CLOSE_BRACE
 CLOSE_BRACE
 EOF
 
-Parser error at token Token(type=<TokenType.ENUM: 23>, value='enm', line=9, col=5) at position 16: Invalid statement
+Parser error at token Token(type=<TokenType.OPEN_BRACE: 55>, value='{', line=18, col=42) at position 42: Invalid statement

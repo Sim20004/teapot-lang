@@ -47,6 +47,10 @@ class Return(ASTNode):
     def __init__(self, value=None):
         self.value = value
 
+class OperatorArgument(ASTNode):
+    def __init__(self, name, datatype):
+        self.name = name
+        self.datatype = datatype
 
 @dataclass
 class Operator(ASTNode):
@@ -56,7 +60,11 @@ class Operator(ASTNode):
         self.body = body
         self.public = public
 
-
+class ErrorMember(ASTNode):
+    def __init__(self, name, datatype, mutable=False):
+        self.name = name
+        self.datatype = datatype
+        self.mutable = mutable
 @dataclass
 class Cast(ASTNode):
     def __init__(self, expression, datatype):

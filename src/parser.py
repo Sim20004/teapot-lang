@@ -92,6 +92,98 @@ class Parser:
             body.append(ast.StructField(member_id, ast.Type(member_type, mutable)))
         self.expect(tokens.TokenType.CLOSE_BRACE)
         return ast.Struct(name, body, public)
+
+    def handle_enum(self, public=False):
+        name = self.expect(tokens.TokenType.IDENTIFIER).value
+        self.expect(tokens.TokenType.OPEN_BRACE)
+        body = []
+        while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_BRACE:
+            member_name = self.expect(tokens.TokenType.IDENTIFIER).value
+            self.expect(tokens.TokenType.PERIOD)
+            body.append(ast.EnumMember(member_name))
+        self.expect(tokens.TokenType.CLOSE_BRACE)
+        return ast.Enum(name, body, public)
+
+    def handle_err(self, public=False):
+        name = self.expect(tokens.TokenType.IDENTIFIER)
+        self.expect(tokens.TokenType.OPEN_BRACE)
+        body = []
+        while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_BRACE:
+            member_datatype = self.expect(tokens.TokenType.TYPE).value
+            mutable = self.DATATYPES_MUTABILITY.get(member_datatype)
+            if mutable is None:
+                raise ParserError (
+                    "Invalid datatype",
+                    self.current_token(),
+                    self.position
+                )
+            member_name = self.expect(tokens.TokenType.IDENTIFIER)
+            self.expect(tokens.TokenType.PERIOD)
+            body.append(ast.ErrorMember(member_name, member_datatype, mutable))
+        self.expect(tokens.TokenType.CLOSE_BRACE)
+        return ast.Error(name, body, public)
+
+    def handle_operator(self, public=False):
+        operator_tokens = [
+            tokens.TokenType.PLUS,
+            tokens.TokenType.MINUS,
+            tokens.TokenType.MODULO,
+            tokens.TokenType.MULTIPLY,
+            tokens.TokenType.DIVIDE,
+        ]
+
+        if self.current_token().type in operator_tokens:
+            name = self.advance().value
+
+        elif self.current_token().type == tokens.TokenType.IDENTIFIER:
+            name = self.advance().value
+
+        else:
+            raise ParserError(
+                "Invalid operator name",
+                self.current_token(),
+                self.position
+            )
+        args = self.handle_operator_arguments()
+        self.expect(tokens.TokenType.EXCLAMATION)
+        if self.current_token().type == tokens.TokenType.IDENTIFIER:
+            return_type = self.expect(tokens.TokenType.IDENTIFIER)
+        elif self.current_token().type == tokens.TokenType.TYPE:
+            return_type = self.expect(tokens.TokenType.TYPE)
+
+        body = [] # TODO: BODY
+
+
+    def handle_operator_arguments(self):
+        args = []
+        self.expect(tokens.TokenType.OPEN_PAREN)
+        if self.current_token().type != tokens.TokenType.CLOSE_PAREN:
+            if self.current_token().type in [
+                tokens.TokenType.TYPE,
+                tokens.TokenType.IDENTIFIER,
+            ]:
+                datatype = self.expect(self.current_token().type)
+            else:
+                raise ParserError("Invalid type", self.current_token(), self.position)
+            
+        identifier = self.expect(tokens.TokenType.IDENTIFIER)
+
+        args.append(ast.OperatorArgument(identifier, datatype))
+
+        while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_PAREN:
+            self.expect(tokens.TokenType.COMMA)
+            if self.current_token().type in [
+                tokens.TokenType.TYPE,
+                tokens.TokenType.IDENTIFIER,
+            ]:
+                datatype = self.expect(self.current_token().type)
+            else:
+                raise ParserError("Invalid type", self.current_token(), self.position)
+            identifier = self.expect(tokens.TokenType.IDENTIFIER)
+            args.append(ast.OperatorArgument(identifier, datatype))
+        self.expect(tokens.TokenType.CLOSE_PAREN)
+        return args
+            
     
     def handle_block(self):
         self.expect(tokens.TokenType.OPEN_BRACE)
@@ -286,7 +378,10 @@ class Parser:
     STMT_HANDLERS = {
         tokens.TokenType.VAL: handle_variable,
         tokens.TokenType.FUNCTION: handle_function,
-        tokens.TokenType.STRUCT: handle_struct
+        tokens.TokenType.STRUCT: handle_struct,
+        tokens.TokenType.ENUM: handle_enum,
+        tokens.TokenType.ERROR: handle_err,
+        tokens.TokenType.OPERATOR: handle_operator,
     }
 
     def parse(self):

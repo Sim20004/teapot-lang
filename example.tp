@@ -12,7 +12,7 @@ pub enm Result {
 }
 
 err TestError {
-    str message.
+    mstr message.
 }
 
 operator +(Student a, Student b)!Student {
