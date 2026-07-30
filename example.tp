@@ -15,31 +15,28 @@ err TestError {
     mstr message.
 }
 
-operator +(Student a, Student b)!Student {
-    exit Student(
-        a::name,
-        a::age + b::age
-    ).
+operator +(Student a, Student b)!cui8 {
+    exit cui8 8.
 }
 
 fc factorial(ui8 n)!ui8 {
     if (n <= 1) {
-        exit 1.
+        exit cui8 1.
     }
 
-    exit n * factorial(n - 1).
+    exit cui8 n * factorial(n - 1).
 }
 
-fc greet(str name = "User")!str {
-    exit "Hello".
+fc greet(mstr name = "User")!str {
+    exit cstr "Hello".
 }
 
 fc overloaded(ui8 x)!ui8 {
-    exit x + 1.
+    exit cui8 x + 1.
 }
 
 fc overloaded(str x)!str {
-    exit x.
+    exit cstr x.
 }
 
 fc calculate_average(mui8[] grades)!f32 {

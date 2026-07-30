@@ -44,8 +44,19 @@ class FunctionArgument(ASTNode):
 
 @dataclass
 class Return(ASTNode):
-    def __init__(self, value=None):
+    def __init__(self, value=None, datatype=None):
         self.value = value
+        self.datatype = datatype
+
+class CallExpression(ASTNode):
+    def __init__(self, callee, arguments):
+        self.callee = callee
+        self.arguments = arguments
+
+class MemberAccess(ASTNode):
+    def __init__(self, obj, member):
+        self.obj = obj
+        self.member = member
 
 class OperatorArgument(ASTNode):
     def __init__(self, name, datatype):
@@ -54,11 +65,12 @@ class OperatorArgument(ASTNode):
 
 @dataclass
 class Operator(ASTNode):
-    def __init__(self, symbol, arguments, body, public=False):
+    def __init__(self, symbol, arguments, body, return_type, public=False):
         self.symbol = symbol
         self.arguments = arguments
         self.body = body
         self.public = public
+        self.return_type = return_type
 
 class ErrorMember(ASTNode):
     def __init__(self, name, datatype, mutable=False):
@@ -238,26 +250,19 @@ class StructField(ASTNode):
         self.identifier = identifier
         self.datatype = datatype
 
+@dataclass
+class ArrayType(ASTNode):
+    def __init__(self, datatype, elements):
+        self.datatype = datatype
 
 @dataclass
 class EnumMember(ASTNode):
     def __init__(self, name):
         self.name = name
-
-
-@dataclass
-class MemberAccess(ASTNode):
-    def __init__(self, instance, member):
-        self.instance = instance
-        self.member = member
-
-
 @dataclass
 class ArrayLiteral(ASTNode):
     def __init__(self, values):
         self.values = values
-
-
 @dataclass
 class Reference(ASTNode):
     def __init__(self, expression):
