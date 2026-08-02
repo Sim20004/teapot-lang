@@ -3,7 +3,7 @@ $MEM-GC
 pub sct Student {
     cstr name.
     mui8 age.
-    mui8 grades. // TODO: ARRAY/MAP/LIST
+    mui8 grades.
 }
 
 pub enm Result {
@@ -16,30 +16,30 @@ err TestError {
 }
 
 operator +(Student a, Student b)!cui8 {
-    exit cui8 8.
+    exit 8.
 }
 
-fc factorial(ui8 n)!ui8 {
+fc factorial(cui8 n)!cui8 {
     if (n <= 1) {
-        exit cui8 1.
+        exit 1.
     }
 
-    exit cui8 n * factorial(n - 1).
+    exit n * factorial(n - 1).
 }
 
-fc greet(mstr name = "User")!str {
-    exit cstr "Hello".
+fc greet(cstr name = "User")!cstr {
+    exit "Hello".
 }
 
-fc overloaded(ui8 x)!ui8 {
-    exit cui8 x + 1.
+fc overloaded(cui8 x)!cui8 {
+    exit x + 1.
 }
 
-fc overloaded(str x)!str {
-    exit cstr x.
+fc overloaded(cstr x)!cstr {
+    exit x.
 }
 
-fc calculate_average(mui8[] grades)!f32 {
+fc calculate_average(mui8[] grades)!cf32 {
 
     val mui8 total = 0.
 
@@ -47,10 +47,10 @@ fc calculate_average(mui8[] grades)!f32 {
         total += grade.
     }
 
-    exit total >> f32 / 3.
+    exit total >> cf32 / 3.
 }
 
-fc get_result(f32 average)!Result {
+fc get_result(cf32 average)!Result {
 
     if (average >= 50) {
         exit Result::Pass.
@@ -69,19 +69,19 @@ fc main()!void {
     val cstr school = "Teapot Academy".
 
     // primitive types
-    val bln passed = true.
-    val char letter = "A".
+    val cbln passed = true.
+    val cchar letter = "A".
 
-    val si32 signed_num = -5.
-    val ui32 unsigned_num = 5.
+    val csi32 signed_num = -5.
+    val cui32 unsigned_num = 5.
 
-    val f32 float32 = 3.14.
-    val f64 float64 = 3.14159265359.
+    val cf32 float32 = 3.14.
+    val cf64 float64 = 3.14159265359.
 
-    val dml money = 12.34.
-    val aint huge = 999999999999999999999999.
+    val cdml money = 12.34.
+    val caint huge = 999999999999999999999999.
 
-    // null initialisation
+    // null initialisation then modified
     val mui8 counter.
     counter += 1.
 
@@ -116,7 +116,7 @@ fc main()!void {
 
     do {
 
-        val f32 average = calculate_average(
+        val cf32 average = calculate_average(
             student::grades
         ).
 
@@ -124,12 +124,10 @@ fc main()!void {
             average
         ).
 
-        // enum comparison
         if (result == Result::Pass) {
 
         }
 
-        // boolean operators
         if (
             passed &&
             average > 0 ||
@@ -138,7 +136,7 @@ fc main()!void {
 
         }
 
-        // while
+        // modified in loop
         val mui8 attempts = 3.
 
         while (attempts > 0) {
@@ -154,37 +152,30 @@ fc main()!void {
             attempts -= 1.
         }
 
-        // casts
-        val str age_text =
-            student::age >> str.
+        val cstr age_text =
+            student::age >> cstr.
 
-        // indexing
-        val str first_letter =
-            student::name[0] >> str.
+        val cstr first_letter =
+            student::name[0] >> cstr.
 
-        // recursion
-        val ui8 fact = factorial(5).
+        val cui8 fact = factorial(5).
 
-        // default args
-        val str msg1 = greet().
+        val cstr msg1 = greet().
 
-        // normal args
-        val str msg2 =
+        val cstr msg2 =
             greet("Alex").
 
-        // overloads
-        val ui8 a =
+        val cui8 a =
             overloaded(5).
 
-        val str b =
+        val cstr b =
             overloaded("hello").
 
-        // operator overload
         val Student merged =
             student + student.
 
-        // arithmetic
-        val ui8 math =
+        // modified later
+        val mui8 math =
             (5 + 2) * 3.
 
         math /= 2.
@@ -192,7 +183,6 @@ fc main()!void {
         math -= 1.
         math += 1.
 
-        // comparisons
         if (math == 10) {}
         if (math ~= 10) {}
         if (math > 10) {}
@@ -204,7 +194,7 @@ fc main()!void {
 
     fail(TestError e) {
 
-        val str error_text =
+        val cstr error_text =
             e::message.
 
     }

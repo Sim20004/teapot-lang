@@ -31,6 +31,7 @@ class Parser:
         self.DATATYPES_MUTABILITY = {
             "mstr": True,
             "mbln": True,
+            "mchar": True,
             "msi8": True,
             "msi16": True,
             "msi32": True,
@@ -58,11 +59,15 @@ class Parser:
             "cf64": False,
             "cdml": False,
             "void": False,
+            "cchar": False,
         }
 
 
     def current_token(self):
-        return self.tokens[self.position]
+        if self.at_end():
+            return tokens.Token(tokens.TokenType.EOF)
+        else:
+            return self.tokens[self.position]
 
     def at_end(self):
         return self.position >= len(self.tokens)
@@ -153,17 +158,9 @@ class Parser:
         return ast.Operator(name, args, body, return_type, public)
 
     def handle_exit(self):
-        datatype = self.expect(tokens.TokenType.TYPE).value
-        mutable = self.DATATYPES_MUTABILITY.get(datatype)
-        if mutable is None:
-            raise ParserError (
-                "Invalid datatype",
-                self.current_token(),
-                self.position
-            )
         value = self.handle_expression()
         self.expect(tokens.TokenType.PERIOD)
-        return ast.Return(value, datatype)
+        return ast.Return(value)
 
     def handle_operator_block(self):
         self.expect(tokens.TokenType.OPEN_BRACE)
@@ -291,15 +288,42 @@ class Parser:
         elifs = []
         while self.current_token().type == tokens.TokenType.ELSEIF:
             self.expect(tokens.TokenType.ELSEIF)
+            self.expect(tokens.TokenType.OPEN_PAREN)
             condition = self.handle_expression()
+            self.expect(tokens.TokenType.CLOSE_PAREN)
             body = self.handle_block()
             elifs.append(ast.Elif(condition, body))
         return elifs
-
+    
     def handle_else(self):
+        self.advance()
         body = self.handle_block()
         return ast.Else(body)
+
+    def handle_reassignement(self):
+        target = self.handle_expression()
+        operator = self.current_token()
+        if operator.type not in [
+            tokens.TokenType.ASSIGN,
+            tokens.TokenType.ASSIGN_DIVIDE,
+            tokens.TokenType.ASSIGN_MINUS,
+            tokens.TokenType.ASSIGN_MULTIPLY,
+            tokens.TokenType.ASSIGN_PLUS,
+        ]:
+            raise ParserError("Expected assignment operator", self.current_token(), self.position)
+        self.advance()
+        value = self.handle_expression()
+        self.expect(tokens.TokenType.PERIOD)
+        return ast.Assignment(target, operator, value)
           
+    def handle_for(self):
+        self.expect(tokens.TokenType.OPEN_PAREN)
+        variable = self.expect(tokens.TokenType.IDENTIFIER).value
+        self.expect(tokens.TokenType.COLON)
+        iterable = self.handle_expression()
+        self.expect(tokens.TokenType.CLOSE_PAREN)
+        body = self.handle_block()
+        return ast.For(variable, iterable, body)
 
     def handle_function(self, public):
         args = []
@@ -310,7 +334,7 @@ class Parser:
         self.expect(tokens.TokenType.CLOSE_PAREN)
         self.expect(tokens.TokenType.EXCLAMATION)
 
-        if self.current_token().type == tokens.TokenType.TYPE:
+        if self.current_token().type in [tokens.TokenType.TYPE, tokens.TokenType.IDENTIFIER]:
             return_type = self.advance().value
         else:
             raise ParserError(
@@ -336,7 +360,48 @@ class Parser:
             )
         return self.advance()
 
+    def handle_struct_instantiation(self):
+        args = []
+        struct_name = self.expect(tokens.TokenType.IDENTIFIER)
+        identifier = self.expect(tokens.TokenType.IDENTIFIER)
+        self.expect(tokens.TokenType.ASSIGN)
+        self.expect(tokens.TokenType.IDENTIFIER)
+        self.expect(tokens.TokenType.OPEN_PAREN)
+
+        if not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_PAREN:
+            if self.current_token().type in [
+                tokens.TokenType.INTEGER,
+                tokens.TokenType.STRING,
+                tokens.TokenType.BOOLEAN,
+                tokens.TokenType.FLOAT,
+                tokens.TokenType.IDENTIFIER,
+            ]:
+                args.append(self.current_token().value)
+                self.advance()
+            else:
+                raise ParserError("Invalid struct instantiation argument", self.current_token(), self.position)
+
+        while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_PAREN:
+            self.expect(tokens.TokenType.COMMA)
+            if self.current_token().type in [
+                tokens.TokenType.INTEGER,
+                tokens.TokenType.STRING,
+                tokens.TokenType.BOOLEAN,
+                tokens.TokenType.FLOAT,
+                tokens.TokenType.IDENTIFIER,
+            ]:
+                args.append(self.current_token().value)
+                self.advance()
+            else:
+                raise ParserError("Invalid struct instantiation argument", self.current_token(), self.position)
+        self.expect(tokens.TokenType.CLOSE_PAREN)
+        self.expect(tokens.TokenType.PERIOD)
+        return ast.StructInstantiation(struct_name, args, identifier)
+
     def handle_variable(self):
+        if self.current_token().type == tokens.TokenType.IDENTIFIER:
+            return self.handle_struct_instantiation()
+
         datatype = self.expect(tokens.TokenType.TYPE).value
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
 
@@ -374,10 +439,16 @@ class Parser:
                 self.advance()
                 elements.append(self.handle_expression())
         self.expect(tokens.TokenType.CLOSE_BRACKET)
-        return elements
+        return ast.ArrayLiteral(elements)
 
     def handle_primary(self):
+        negative = False
         token = self.current_token()
+
+        if token.type == tokens.TokenType.MINUS:
+            negative = True
+            self.advance()
+            token = self.current_token()
         if token.type in [
             tokens.TokenType.INTEGER,
             tokens.TokenType.FLOAT,
@@ -389,7 +460,10 @@ class Parser:
             if token.type == tokens.TokenType.IDENTIFIER:
                 side = ast.Identifier(token.value)
             else:
-                side = ast.Literal(token.value)
+                if negative:
+                    side = ast.Literal(token.value - token.value * 2)
+                else:
+                    side = ast.Literal(token.value)
         elif token.type == tokens.TokenType.OPEN_PAREN:
             self.advance()
             expr = self.handle_expression()
@@ -415,8 +489,20 @@ class Parser:
 
         left_side = self.handle_primary()
 
-        while self.current_token().type == tokens.TokenType.OPEN_PAREN:
-            left_side = self.handle_postfix(left_side)
+        while True:
+            if self.current_token().type == tokens.TokenType.OPEN_PAREN:
+                left_side = self.handle_postfix(left_side)
+            elif self.current_token().type == tokens.TokenType.CAST:
+                self.advance()
+                datatype = self.expect(tokens.TokenType.TYPE).value
+                left_side = ast.Cast(left_side, datatype)
+            elif self.current_token().type == tokens.TokenType.DOUBLE_COLON:
+                while self.current_token().type == tokens.TokenType.DOUBLE_COLON:
+                    self.advance()
+                    member = self.expect(tokens.TokenType.IDENTIFIER).value
+                    left_side = ast.MemberAccess(left_side, member)
+            else:
+                break
 
         if unary:
             left_side = ast.UnaryExpression(operator, left_side)
@@ -464,6 +550,16 @@ class Parser:
             self.advance()
     
         token = self.current_token()
+
+        if token.type == tokens.TokenType.IDENTIFIER and self.tokens[self.position + 1].type in [
+            tokens.TokenType.ASSIGN,
+            tokens.TokenType.ASSIGN_PLUS,
+            tokens.TokenType.ASSIGN_MINUS,
+            tokens.TokenType.ASSIGN_MULTIPLY,
+            tokens.TokenType.ASSIGN_DIVIDE,
+        ]:
+            return self.handle_reassignement()
+
         handler = self.STMT_HANDLERS.get(token.type)
 
         if handler is None:
@@ -502,6 +598,7 @@ class Parser:
         tokens.TokenType.OPERATOR: handle_operator,
         tokens.TokenType.EXIT: handle_exit,
         tokens.TokenType.IF: handle_if,
+        tokens.TokenType.FOR: handle_for,
     }
 
     def parse(self):

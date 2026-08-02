@@ -34,6 +34,12 @@ class Function(ASTNode):
         self.public = public
 
 
+class StructInstantiation(ASTNode):
+    def __init__(self, struct_name, arguments, identifier):
+        self.struct_name = struct_name
+        self.arguments = arguments
+        self.identifier = identifier
+
 @dataclass
 class FunctionArgument(ASTNode):
     def __init__(self, identifier, datatype, default=None):
@@ -46,7 +52,6 @@ class FunctionArgument(ASTNode):
 class Return(ASTNode):
     def __init__(self, value=None, datatype=None):
         self.value = value
-        self.datatype = datatype
 
 class CallExpression(ASTNode):
     def __init__(self, callee, arguments):
@@ -252,7 +257,7 @@ class StructField(ASTNode):
 
 @dataclass
 class ArrayType(ASTNode):
-    def __init__(self, datatype, elements):
+    def __init__(self, datatype):
         self.datatype = datatype
 
 @dataclass

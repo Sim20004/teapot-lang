@@ -203,6 +203,8 @@ TYPE_KEYWORDS = {
     "cf32",
     "cf64",
     "cdml",
+    "cchar",
+    "mchar",
 }
 
 
