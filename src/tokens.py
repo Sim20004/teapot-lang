@@ -7,6 +7,7 @@ if __name__ == "__main__":
         "Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler"
     )
 
+
 class TokenType(Enum):
     # Memory management
     DIRECTIVE = auto()

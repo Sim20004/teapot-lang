@@ -6,6 +6,7 @@ if __name__ == "__main__":
         "Cannot run this file directly! Run `python main.py -h` for info on how to start the compiler"
     )
 
+
 @dataclass
 class ASTError(Exception):
     pass
@@ -40,6 +41,7 @@ class StructInstantiation(ASTNode):
         self.arguments = arguments
         self.identifier = identifier
 
+
 @dataclass
 class FunctionArgument(ASTNode):
     def __init__(self, identifier, datatype, default=None):
@@ -53,20 +55,24 @@ class Return(ASTNode):
     def __init__(self, value=None, datatype=None):
         self.value = value
 
+
 class CallExpression(ASTNode):
     def __init__(self, callee, arguments):
         self.callee = callee
         self.arguments = arguments
+
 
 class MemberAccess(ASTNode):
     def __init__(self, obj, member):
         self.obj = obj
         self.member = member
 
+
 class OperatorArgument(ASTNode):
     def __init__(self, name, datatype):
         self.name = name
         self.datatype = datatype
+
 
 @dataclass
 class Operator(ASTNode):
@@ -77,11 +83,14 @@ class Operator(ASTNode):
         self.public = public
         self.return_type = return_type
 
+
 class ErrorMember(ASTNode):
     def __init__(self, name, datatype, mutable=False):
         self.name = name
         self.datatype = datatype
         self.mutable = mutable
+
+
 @dataclass
 class Cast(ASTNode):
     def __init__(self, expression, datatype):
@@ -192,6 +201,7 @@ class Struct(ASTNode):
         self.identifier = identifier
         self.public = public
 
+
 @dataclass
 class Enum(ASTNode):
     def __init__(self, identifier, body, public=False):
@@ -255,19 +265,25 @@ class StructField(ASTNode):
         self.identifier = identifier
         self.datatype = datatype
 
+
 @dataclass
 class ArrayType(ASTNode):
     def __init__(self, datatype):
         self.datatype = datatype
 
+
 @dataclass
 class EnumMember(ASTNode):
     def __init__(self, name):
         self.name = name
+
+
 @dataclass
 class ArrayLiteral(ASTNode):
     def __init__(self, values):
         self.values = values
+
+
 @dataclass
 class Reference(ASTNode):
     def __init__(self, expression):

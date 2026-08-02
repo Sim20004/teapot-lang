@@ -1,5 +1,6 @@
 import builtins
 
+
 def print(*args, **kwargs):
     text = " ".join(str(arg) for arg in args)
 
