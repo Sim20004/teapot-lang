@@ -1215,4 +1215,4 @@ CLOSE_BRACE
 CLOSE_BRACE
 EOF
 
-Parser error at token Token(type=<TokenType.IDENTIFIER: 32>, value='student', line=94, col=5) at position 283: Invalid statement
+Parser error at token TokenType.TYPE at position 297: Expected token TokenType.TYPE, found Token(type=<TokenType.IDENTIFIER: 32>, value='Student', line=97, col=13) instead.

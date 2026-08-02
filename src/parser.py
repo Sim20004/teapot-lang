@@ -422,10 +422,16 @@ class Parser:
         return ast.StructInstantiation(struct_name, args, identifier)
 
     def handle_variable(self):
+        reference = False
         if self.current_token().type == tokens.TokenType.IDENTIFIER:
             return self.handle_struct_instantiation()
 
+        if self.current_token().type == tokens.TokenType.REFERENCE:
+            reference = True
+            self.expect(tokens.TokenType.REFERENCE)
+
         datatype = self.expect(tokens.TokenType.TYPE).value
+
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
 
         if self.current_token().type == tokens.TokenType.ASSIGN:
@@ -438,7 +444,7 @@ class Parser:
         mutable = self.DATATYPES_MUTABILITY.get(datatype)
         if mutable is None:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
-        datatype = ast.Type(datatype, mutable)
+        datatype = ast.Type(datatype, mutable, reference)
         return ast.DeclareVariable(identifier, datatype, value)
 
     def handle_postfix(self, callee):
@@ -568,6 +574,7 @@ class Parser:
             )
 
     def handle_statement(self):
+        start = self.position
         public = False
 
         if self.current_token().type == tokens.TokenType.PUBLIC:
@@ -576,17 +583,22 @@ class Parser:
 
         token = self.current_token()
 
-        if token.type == tokens.TokenType.IDENTIFIER and self.tokens[
-            self.position + 1
-        ].type in [
-            tokens.TokenType.ASSIGN,
-            tokens.TokenType.ASSIGN_PLUS,
-            tokens.TokenType.ASSIGN_MINUS,
-            tokens.TokenType.ASSIGN_MULTIPLY,
-            tokens.TokenType.ASSIGN_DIVIDE,
-        ]:
-            return self.handle_reassignement()
+        if self.current_token().type == tokens.TokenType.IDENTIFIER:
+            expr = self.handle_expression()
 
+            if self.current_token().type in [
+                tokens.TokenType.ASSIGN,
+                tokens.TokenType.ASSIGN_DIVIDE,
+                tokens.TokenType.ASSIGN_MINUS,
+                tokens.TokenType.ASSIGN_PLUS,
+                tokens.TokenType.ASSIGN_MULTIPLY,
+            ]:
+                operator = self.advance()
+                value = self.handle_expression()
+                self.expect(tokens.TokenType.PERIOD)
+                return ast.Assignment(expr, operator, value)
+            self.position = start
+    
         handler = self.STMT_HANDLERS.get(token.type)
 
         if handler is None:
