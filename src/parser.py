@@ -244,7 +244,7 @@ class Parser:
         default = None
         datatype = self.expect(tokens.TokenType.TYPE).value
         if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
-            datatype = self.handle_array_literal()
+            datatype = self.handle_array_type(datatype)
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
         default = self.handle_default_argument()
         args.append(ast.FunctionArgument(identifier, datatype, default))
@@ -253,6 +253,8 @@ class Parser:
             default = None
             self.advance()
             datatype = self.expect(tokens.TokenType.TYPE).value
+            if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
+                datatype = self.handle_array_type(datatype)
             identifier = self.expect(tokens.TokenType.IDENTIFIER).value
             default = self.handle_default_argument()
 
@@ -260,22 +262,16 @@ class Parser:
 
         return args
 
+    def handle_array_type(self, datatype):
+        self.expect(tokens.TokenType.OPEN_BRACKET)
+        self.expect(tokens.TokenType.CLOSE_BRACKET)
+        return ast.ArrayType(datatype)
+
     def handle_default_argument(self):
-        if self.current_token().type == tokens.TokenType.ASSIGN:
-            self.advance()
-            if self.current_token().type in [
-                tokens.TokenType.INTEGER,
-                tokens.TokenType.FLOAT,
-                tokens.TokenType.BOOLEAN,
-                tokens.TokenType.STRING,
-                tokens.TokenType.IDENTIFIER,
-            ]:
-                default = self.expect(self.current_token().type).value
-            else:
-                raise ParserError(
-                    "Invalid default value", self.current_token(), self.position
-                )
-            return default
+        if self.current_token().type != tokens.TokenType.ASSIGN:
+            return None
+        self.advance()
+        return self.handle_expression()
 
     def handle_if(self):
         elifs = []
@@ -422,16 +418,21 @@ class Parser:
         return ast.StructInstantiation(struct_name, args, identifier)
 
     def handle_variable(self):
+        identifier = False
         reference = False
-        if self.current_token().type == tokens.TokenType.IDENTIFIER:
+        if self.current_token().type == tokens.TokenType.IDENTIFIER and not self.at_end() and self.tokens[self.position + 1].type == tokens.TokenType.IDENTIFIER:
             return self.handle_struct_instantiation()
 
         if self.current_token().type == tokens.TokenType.REFERENCE:
             reference = True
             self.expect(tokens.TokenType.REFERENCE)
-
-        datatype = self.expect(tokens.TokenType.TYPE).value
-
+        if self.current_token().type == tokens.TokenType.TYPE:
+            datatype = self.expect(tokens.TokenType.TYPE).value
+        elif self.current_token().type == tokens.TokenType.IDENTIFIER:
+            datatype = self.expect(tokens.TokenType.IDENTIFIER).value
+            identifier = True
+        else:
+            raise ParserError("Invalid datatype", self.current_token(), self.position)
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
 
         if self.current_token().type == tokens.TokenType.ASSIGN:
@@ -442,7 +443,7 @@ class Parser:
 
         self.expect(tokens.TokenType.PERIOD)
         mutable = self.DATATYPES_MUTABILITY.get(datatype)
-        if mutable is None:
+        if mutable is None and not identifier:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
         datatype = ast.Type(datatype, mutable, reference)
         return ast.DeclareVariable(identifier, datatype, value)
@@ -598,7 +599,7 @@ class Parser:
                 self.expect(tokens.TokenType.PERIOD)
                 return ast.Assignment(expr, operator, value)
             self.position = start
-    
+
         handler = self.STMT_HANDLERS.get(token.type)
 
         if handler is None:
