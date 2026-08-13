@@ -1,6 +1,6 @@
-# Teapot Programming Language
+# TeapotLang
 
-Teapot is a statically typed programming language and compiler project written in Python.
+TeapotLang is a statically typed programming language and compiler project written in Python.
 
 The project exists both as a learning exercise in compiler development and as an experiment in language design. The compiler is being built from the ground up, including lexing, parsing, abstract syntax trees, semantic analysis, and code generation.
 
