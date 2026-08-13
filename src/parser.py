@@ -1,5 +1,5 @@
 from sys import exit as leave
-
+from dataclasses import is_dataclass
 from src.debug import print
 
 if __name__ == "__main__":
@@ -668,8 +668,6 @@ class Parser:
         program = ast.Program(self.ast_tree, self.memory_mode)
         return program
 
-
-from dataclasses import is_dataclass
 
 
 def print_ast(node, indent=0, visited=None):
