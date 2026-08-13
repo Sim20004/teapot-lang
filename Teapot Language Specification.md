@@ -449,7 +449,7 @@ y >> str
 
 ## Operator Precedence
 
-Arithmetic operations are evaluated strictly in the order written (left to right), **not** by standard mathematical precedence:
+Arithmetic operations are evaluated using mathematical precedence:
 ```
 5 + 2 * 3
 ```

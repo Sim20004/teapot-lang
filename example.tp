@@ -96,12 +96,6 @@ fc main()!void {
     // references
     val ref Student student_ref = student.
 
-    // tuple
-    val pair = (
-        10,
-        "hello"
-    ).
-
     // list
     val list<ui8> numbers.
 

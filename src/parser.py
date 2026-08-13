@@ -320,6 +320,13 @@ class Parser:
         self.expect(tokens.TokenType.PERIOD)
         return ast.Assignment(target, operator, value)
 
+    def handle_while(self):
+        self.expect(tokens.TokenType.OPEN_PAREN)
+        expression = self.handle_expression()
+        self.expect(tokens.TokenType.CLOSE_PAREN)
+        body = self.handle_block()
+        return ast.While(expression, body)
+
     def handle_for(self):
         self.expect(tokens.TokenType.OPEN_PAREN)
         variable = self.expect(tokens.TokenType.IDENTIFIER).value
@@ -433,6 +440,10 @@ class Parser:
             identifier = True
         else:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
+
+        if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
+            datatype = self.handle_array_type(datatype)
+        
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
 
         if self.current_token().type == tokens.TokenType.ASSIGN:
@@ -442,7 +453,10 @@ class Parser:
             value = ast.Literal(None)
 
         self.expect(tokens.TokenType.PERIOD)
-        mutable = self.DATATYPES_MUTABILITY.get(datatype)
+        if isinstance(datatype, ast.ArrayType):
+            mutable = self.DATATYPES_MUTABILITY.get(datatype.datatype)
+        else:
+            mutable = self.DATATYPES_MUTABILITY.get(datatype)
         if mutable is None and not identifier:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
         datatype = ast.Type(datatype, mutable, reference)
@@ -643,6 +657,7 @@ class Parser:
         tokens.TokenType.EXIT: handle_exit,
         tokens.TokenType.IF: handle_if,
         tokens.TokenType.FOR: handle_for,
+        tokens.TokenType.WHILE: handle_while,
     }
 
     def parse(self):
@@ -654,30 +669,59 @@ class Parser:
         return program
 
 
-def print_ast(node, indent=0):  # Temporary debugging
+from dataclasses import is_dataclass
+
+
+def print_ast(node, indent=0, visited=None):
+    if visited is None:
+        visited = set()
+
     spacing = " " * indent
 
-    if hasattr(node, "__dict__"):
-        print(f"{spacing}{type(node).__name__}:")
+    # Primitive values
+    if isinstance(node, (str, int, float, bool, type(None))):
+        print(f"{spacing}{repr(node)}")
+        return
 
-        for key, value in vars(node).items():
+    # Recursion protection
+    obj_id = id(node)
+    if obj_id in visited:
+        print(f"{spacing}<recursive reference>")
+        return
+
+    visited.add(obj_id)
+
+    # Dataclass nodes
+    if is_dataclass(node):
+        print(f"{spacing}{type(node).__name__}")
+
+        for field_name in node.__dataclass_fields__:
+            value = getattr(node, field_name)
+
+            print(f"{spacing}  {field_name}:")
+            print_ast(value, indent + 4, visited)
+
+        return
+
+    # Lists / tuples / sets
+    if isinstance(node, (list, tuple, set)):
+        print(f"{spacing}[")
+        for item in node:
+            print_ast(item, indent + 4, visited)
+        print(f"{spacing}]")
+        return
+
+    # Dictionaries
+    if isinstance(node, dict):
+        print(f"{spacing}{{")
+        for key, value in node.items():
             print(f"{spacing}  {key}:")
+            print_ast(value, indent + 4, visited)
+        print(f"{spacing}}}")
+        return
 
-            if hasattr(value, "__dict__"):
-                print_ast(value, indent + 4)
-
-            elif isinstance(value, list):
-                for item in value:
-                    if hasattr(item, "__dict__"):
-                        print_ast(item, indent + 4)
-                    else:
-                        print(f"{spacing}    {item}")
-
-            else:
-                print(f"{spacing}    {value}")
-
-    else:
-        print(f"{spacing}{node}")
+    # Fallback
+    print(f"{spacing}{repr(node)}")
 
 
 def run(tokens_from_lexer, trace_arg):

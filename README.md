@@ -2,48 +2,93 @@
 
 Teapot is a statically typed programming language and compiler project written in Python.
 
-The goal of Teapot is to create a simple, readable language while exploring how programming languages work internally, including lexing, parsing, abstract syntax trees, type systems, and compilation.
+The project exists both as a learning exercise in compiler development and as an experiment in language design. The compiler is being built from the ground up, including lexing, parsing, abstract syntax trees, semantic analysis, and code generation.
 
 ## Features
 
-Currently implemented:
+### Lexer
 
-* Lexer
+- Tokenisation
+- Keywords
+- Operators
+- Literals
+- Identifiers
+- Source location tracking
+- Error reporting
 
-  * Tokenisation of source code
-  * Keywords, operators, literals, and identifiers
-  * Error reporting with line and column information
+### Parser
 
-* Parser
+- Abstract Syntax Tree generation
+- Variable declarations
+- Assignments
+- Binary expressions
+- Unary expressions
+- Function declarations
+- Function calls
+- Default arguments
+- Return statements
+- Struct declarations
+- Struct instantiation
+- Enum declarations
+- Custom error declarations
+- If / Elif / Else
+- While loops
+- For loops
+- Type casting
+- References
+- Array types
+- Array literals
 
-  * AST generation
-  * Variable declarations
-  * Literal expressions
-  * Binary expressions
-  * Unary expressions
+### Type System
 
-* AST system
+Current support includes:
 
-  * Structured representation of Teapot programs
-  * Support for future language features such as functions, structs, control flow, and memory management
+- Signed integers
+- Unsigned integers
+- Booleans
+- Strings
+- References
+- Arrays
+- User-defined structures
+- Enumerations
+
+### Memory Modes
+
+Teapot is being designed with multiple memory management strategies in mind.
+
+Current parser support includes memory mode directives such as:
+
+```teapot
+$MEM-GC
+```
 
 ## Example
 
-Teapot source code:
-
 ```teapot
-val ui8 a = 5 + 3.
+pub struct Person {
+    cstr name.
+    csi32 age.
+}
 
-val ui8 b = a + 10.
+pub fn add(csi32 a, csi32 b = 5) -> csi32 {
+    return a + b.
+}
 
-val str greeting = "Hello " + "World".
+fn main() -> void {
+    csi32 x = 10.
+    csi32 y = 20.
 
-val bool enabled = ~True.
+    if x < y {
+        x += 5.
+    }
+
+    return.
+}
 ```
 
-The compiler transforms this source code through multiple stages:
+## Compilation Pipeline
 
-```
+```text
 Source Code
      |
      v
@@ -59,43 +104,48 @@ Parser
 Abstract Syntax Tree
      |
      v
-Compiler
+Semantic Analysis
+     |
+     v
+Code Generation
 ```
 
-## Language Design
+## Goals
 
-Teapot is designed around:
+Teapot aims to explore:
 
-* Explicit syntax
-* Static typing
-* Readable code
-* Compiler transparency
-* Learning and experimenting with language design
+- Programming language design
+- Compiler implementation
+- Static type systems
+- Memory management
+- Language tooling
+- Runtime design
 
-The language includes concepts such as:
+## Current Status
 
-* Strongly typed variables
-* Signed and unsigned integer types
-* References
-* Structures
-* Functions
-* Manual memory management concepts
+Teapot is currently in alpha development.
 
-## Project Status
+Implemented:
 
-Teapot is currently in active development.
+- Lexer
+- Parser
+- AST system
 
-Current focus:
+In Progress:
 
-* Completing the parser
-* Expanding expression support
-* Adding type checking
-* Building the compiler backend
-* Developing the standard library
+- Semantic analysis
+- Type checking
+- Symbol resolution
 
-The language is not yet production-ready.
+Planned:
 
-## Building and Running
+- Compiler backend
+- Standard library
+- Executable generation
+- Package manager
+- Tooling ecosystem
+
+## Building
 
 Clone the repository:
 
@@ -112,24 +162,22 @@ python main.py
 
 ## File Extension
 
-Teapot source files use:
-
-```
+```text
 .tp
 ```
 
 Example:
 
-```
+```text
 hello.tp
 ```
 
 ## Contributing
 
-Contributions, suggestions, and discussions are welcome.
+Issues, pull requests, and discussions are welcome.
 
-If you are interested in language design, compiler development, or experimenting with programming languages, feel free to open an issue or submit a pull request.
+Whether you're interested in compilers, language design, or systems programming, contributions are appreciated.
 
 ## License
 
-This project is licensed under the MIT License.
+Teapot is licensed under the GNU General Public License v3.0-or-later.

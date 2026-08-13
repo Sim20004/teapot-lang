@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from sys import exit as leave
 
 if __name__ == "__main__":
@@ -19,154 +19,139 @@ class ASTNode:
 
 @dataclass
 class Import(ASTNode):
-    def __init__(self, module, alias=None, imported_object="*"):
-        self.module = module
-        self.alias = alias
-        self.imported_object = imported_object
+    module: str
+    alias: str | None = None
+    imported_object: str = "*"
 
 
 @dataclass
 class Function(ASTNode):
-    def __init__(self, name, arguments, return_type, body, public=False):
-        self.name = name
-        self.arguments = arguments
-        self.return_type = return_type
-        self.body = body
-        self.public = public
+    name: str
+    arguments: list
+    return_type: object
+    body: list
+    public: bool = False
 
 
+@dataclass
 class StructInstantiation(ASTNode):
-    def __init__(self, struct_name, arguments, identifier):
-        self.struct_name = struct_name
-        self.arguments = arguments
-        self.identifier = identifier
+    struct_name: object
+    arguments: list
+    identifier: object
 
 
 @dataclass
 class FunctionArgument(ASTNode):
-    def __init__(self, identifier, datatype, default=None):
-        self.identifier = identifier
-        self.datatype = datatype
-        self.default = default
+    identifier: str
+    datatype: object
+    default: object = None
 
 
 @dataclass
 class Return(ASTNode):
-    def __init__(self, value=None, datatype=None):
-        self.value = value
+    value: object = None
+    datatype: object = None
 
 
+@dataclass
 class CallExpression(ASTNode):
-    def __init__(self, callee, arguments):
-        self.callee = callee
-        self.arguments = arguments
+    callee: object
+    arguments: list
 
 
+@dataclass
 class MemberAccess(ASTNode):
-    def __init__(self, obj, member):
-        self.obj = obj
-        self.member = member
+    obj: object
+    member: str
 
 
+@dataclass
 class OperatorArgument(ASTNode):
-    def __init__(self, name, datatype):
-        self.name = name
-        self.datatype = datatype
+    name: object
+    datatype: object
 
 
 @dataclass
 class Operator(ASTNode):
-    def __init__(self, symbol, arguments, body, return_type, public=False):
-        self.symbol = symbol
-        self.arguments = arguments
-        self.body = body
-        self.public = public
-        self.return_type = return_type
+    symbol: str
+    arguments: list
+    body: list
+    return_type: object
+    public: bool = False
 
 
+@dataclass
 class ErrorMember(ASTNode):
-    def __init__(self, name, datatype, mutable=False):
-        self.name = name
-        self.datatype = datatype
-        self.mutable = mutable
+    name: str
+    datatype: object
+    mutable: bool = False
 
 
 @dataclass
 class Cast(ASTNode):
-    def __init__(self, expression, datatype):
-        self.expression = expression
-        self.datatype = datatype
+    expression: object
+    datatype: object
 
 
 @dataclass
 class DeclareVariable(ASTNode):
-    def __init__(self, identifier, datatype, value=None):
-        self.identifier = identifier
-        self.datatype = datatype
-        self.value = value
+    identifier: str
+    datatype: object
+    value: object = None
 
 
 @dataclass
 class FreeMemory(ASTNode):
-    def __init__(self, expression):
-        self.expression = expression
+    expression: object
 
 
 @dataclass
 class Identifier(ASTNode):
-    def __init__(self, name):
-        self.name = name
+    name: str
 
 
 @dataclass
 class If(ASTNode):
-    def __init__(self, condition, body, elifs=None, else_body=None):
-        self.condition = condition
-        self.body = body
-        self.elifs = elifs or []
-        self.else_body = else_body
+    condition: object
+    body: list
+    elifs: list = field(default_factory=list)
+    else_body: object = None
 
 
 @dataclass
 class Elif(ASTNode):
-    def __init__(self, condition, body):
-        self.condition = condition
-        self.body = body
+    condition: object
+    body: list
 
 
 @dataclass
 class Else(ASTNode):
-    def __init__(self, body):
-        self.body = body
+    body: list
 
 
 @dataclass
 class Block(ASTNode):
-    def __init__(self, statements):
-        self.statements = statements
+    statements: list
 
 
 @dataclass
 class While(ASTNode):
-    def __init__(self, condition, body):
-        self.condition = condition
-        self.body = body
+    condition: object
+    body: list
 
 
 @dataclass
 class For(ASTNode):
-    def __init__(self, variable, iterable, body):
-        self.variable = variable
-        self.iterable = iterable
-        self.body = body
+    variable: str
+    iterable: object
+    body: list
 
 
 @dataclass
 class Assignment(ASTNode):
-    def __init__(self, target, operator, value):
-        self.target = target
-        self.operator = operator
-        self.value = value
+    target: object
+    operator: object
+    value: object
 
 
 @dataclass
@@ -181,131 +166,112 @@ class Continue(ASTNode):
 
 @dataclass
 class Do(ASTNode):
-    def __init__(self, body, fail):
-        self.body = body
-        self.fail = fail
+    body: list
+    fail: object
 
 
 @dataclass
 class Fail(ASTNode):
-    def __init__(self, body, error, identifier):
-        self.body = body
-        self.error = error
-        self.identifier = identifier
+    body: list
+    error: object
+    identifier: str
 
 
 @dataclass
 class Struct(ASTNode):
-    def __init__(self, identifier, body, public=False):
-        self.body = body
-        self.identifier = identifier
-        self.public = public
+    identifier: str
+    body: list
+    public: bool = False
 
 
 @dataclass
 class Enum(ASTNode):
-    def __init__(self, identifier, body, public=False):
-        self.body = body
-        self.identifier = identifier
-        self.public = public
+    identifier: str
+    body: list
+    public: bool = False
 
 
 @dataclass
 class ListLiteral(ASTNode):
-    def __init__(self, values):
-        self.values = values
+    values: list
 
 
 @dataclass
 class MapLiteral(ASTNode):
-    def __init__(self, entries):
-        self.entries = entries
+    entries: dict
 
 
 @dataclass
 class Literal(ASTNode):
-    def __init__(self, value):
-        self.value = value
+    value: object
 
 
 @dataclass
 class BinaryExpression(ASTNode):
-    def __init__(self, left, operator, right):
-        self.left = left
-        self.operator = operator
-        self.right = right
+    left: object
+    operator: object
+    right: object
 
 
 @dataclass
 class UnaryExpression(ASTNode):
-    def __init__(self, operator, value):
-        self.operator = operator
-        self.value = value
+    operator: object
+    value: object
 
 
 @dataclass
 class FunctionCall(ASTNode):
-    def __init__(self, function, arguments):
-        self.function = function
-        self.arguments = arguments
+    function: object
+    arguments: list
 
 
 @dataclass
 class Type(ASTNode):
-    def __init__(self, name, mutable=False, reference=False, subtype=None):
-        self.name = name
-        self.mutable = mutable
-        self.reference = reference
-        self.subtype = subtype
+    name: str
+    mutable: bool = False
+    reference: bool = False
+    subtype: object = None
 
 
 @dataclass
 class StructField(ASTNode):
-    def __init__(self, identifier, datatype):
-        self.identifier = identifier
-        self.datatype = datatype
+    identifier: str
+    datatype: object
 
 
 @dataclass
 class ArrayType(ASTNode):
-    def __init__(self, datatype):
-        self.datatype = datatype
+    datatype: object
 
 
 @dataclass
 class EnumMember(ASTNode):
-    def __init__(self, name):
-        self.name = name
+    name: str
 
 
 @dataclass
 class ArrayLiteral(ASTNode):
-    def __init__(self, values):
-        self.values = values
+    values: list
 
 
 @dataclass
 class Reference(ASTNode):
-    def __init__(self, expression):
-        self.expression = expression
+    expression: object
 
 
 @dataclass
 class Error(ASTNode):
-    def __init__(self, identifier, body, public=False):
-        self.identifier = identifier
-        self.body = body
-        self.public = public
+    identifier: str
+    body: list
+    public: bool = False
 
 
 @dataclass
 class Directive(ASTNode):
-    def __init__(self, name):
-        self.name = name
+    name: str
 
 
 @dataclass
 class Program(ASTNode):
-    def __init__(self, statements, memory_mode):
-        self.statements = statements
-        self.memory_mode = memory_mode
+    statements: list
+    memory_mode: str

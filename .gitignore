@@ -8,6 +8,9 @@ src/parser/__pycache__/
 # C extensions
 *.so
 
+# Other
+diff.txt
+
 # Distribution / packaging
 .Python
 build/
