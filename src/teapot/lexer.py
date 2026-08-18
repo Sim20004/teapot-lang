@@ -1,7 +1,7 @@
 from sys import exit
 
-from src.parser import run as run_parser
-from src.tokens import (
+from src.teapot.parser import run as run_parser
+from src.teapot.tokens import (
     BOOLEAN_LITERALS,
     DIRECTIVES,
     KEYWORDS,
@@ -10,7 +10,7 @@ from src.tokens import (
     Token,
     TokenType,
 )
-from src.debug import print
+from src.teapot.debug import print
 
 if __name__ == "__main__":
     exit(
@@ -35,6 +35,7 @@ if trace:
 class Lexer:
     def __init__(self, source):
         if trace:
+            print("========= BEGIN LEXICAL ANALYSIS =========")
             print("Creating Lexer object")
         if trace:
             print(f"Original source: {source!r}")
@@ -387,5 +388,7 @@ def run(source, trace):
     for token in tokens:
         if trace:
             print(str(token.type).replace("TokenType.", ""))
+
+    print("========= END LEXICAL ANALYSIS =========")
 
     return run_parser(tokens, trace)

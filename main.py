@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import shutil
 
-from src import lexer
+from src.teapot import lexer
 
 class TeapotError(Exception):
     def __init__(self, msg):

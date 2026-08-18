@@ -1,6 +1,7 @@
 from sys import exit as leave
 from dataclasses import is_dataclass
-from src.debug import print
+from src.teapot.debug import print
+from src.teapot.semantic import analyse
 
 if __name__ == "__main__":
     leave(
@@ -8,8 +9,8 @@ if __name__ == "__main__":
     )
 
 
-import src.teapot_ast as ast
-from src import tokens
+import src.teapot.teapot_ast as ast
+from src.teapot import tokens
 
 trace = False
 
@@ -724,9 +725,16 @@ def print_ast(node, indent=0, visited=None):
 
 def run(tokens_from_lexer, trace_arg):
     trace = trace_arg
+    if trace:
+        print("========= BEGIN ABSTRACT SYNTAX TREE CONSTRUCTION =========")
     parser = Parser(tokens_from_lexer)
     ast_tree = parser.parse()
 
     if trace:
         print("\nAST Tree:\n")
         print_ast(ast_tree)
+
+    if trace:
+        print("========= END ABSTRACT SYNTAX TREE CONSTRUCTION =========")
+
+    return analyse(ast_tree, trace_arg)

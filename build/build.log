@@ -416,6 +416,8 @@ INTEGER
 PERIOD
 CLOSE_BRACE
 EOF
+========= END LEXICAL ANALYSIS =========
+========= BEGIN ABSTRACT SYNTAX TREE CONSTRUCTION =========
 
 AST Tree:
 
@@ -955,3 +957,4 @@ Program
     ]
   memory_mode:
     '$MEM-GC'
+========= END ABSTRACT SYNTAX TREE CONSTRUCTION =========
