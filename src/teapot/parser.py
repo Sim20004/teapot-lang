@@ -1,7 +1,7 @@
 from sys import exit as leave
 from dataclasses import is_dataclass
-from src.teapot.debug import print
-from src.teapot.semantic import analyse
+from teapot.debug import print
+from teapot.semantic import analyse
 
 if __name__ == "__main__":
     leave(
@@ -9,8 +9,8 @@ if __name__ == "__main__":
     )
 
 
-import src.teapot.teapot_ast as ast
-from src.teapot import tokens
+import teapot.teapot_ast as ast
+from teapot import tokens
 
 trace = False
 

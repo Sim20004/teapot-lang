@@ -1,7 +1,7 @@
 from sys import exit
 
-from src.teapot.parser import run as run_parser
-from src.teapot.tokens import (
+from teapot.parser import run as run_parser
+from teapot.tokens import (
     BOOLEAN_LITERALS,
     DIRECTIVES,
     KEYWORDS,
@@ -10,7 +10,7 @@ from src.teapot.tokens import (
     Token,
     TokenType,
 )
-from src.teapot.debug import print
+from teapot.debug import print
 
 if __name__ == "__main__":
     exit(
@@ -389,6 +389,7 @@ def run(source, trace):
         if trace:
             print(str(token.type).replace("TokenType.", ""))
 
-    print("========= END LEXICAL ANALYSIS =========")
+    if trace: 
+        print("========= END LEXICAL ANALYSIS =========")
 
     return run_parser(tokens, trace)
