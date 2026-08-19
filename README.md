@@ -1,92 +1,58 @@
 # TeapotLang
 
-TeapotLang is a statically typed programming language and compiler project written in Python.
+TeapotLang is an experimental statically typed programming language and compiler written in Python. It is a learning project for exploring language design, lexing, parsing, abstract syntax trees, semantic analysis, and memory management.
 
-The project exists both as a learning exercise in compiler development and as an experiment in language design. The compiler is being built from the ground up, including lexing, parsing, abstract syntax trees, semantic analysis, and code generation.
+The project is in alpha. The lexer, parser, and AST pipeline are implemented; semantic analysis currently walks the AST, while code generation, an executable runtime, and a standard library are still planned.
 
-## Features
+## Quick start
 
-### Lexer
+TeapotLang requires Python 3.10 or newer.
 
-- Tokenisation
-- Keywords
-- Operators
-- Literals
-- Identifiers
-- Source location tracking
-- Error reporting
-
-### Parser
-
-- Abstract Syntax Tree generation
-- Variable declarations
-- Assignments
-- Binary expressions
-- Unary expressions
-- Function declarations
-- Function calls
-- Default arguments
-- Return statements
-- Struct declarations
-- Struct instantiation
-- Enum declarations
-- Custom error declarations
-- If / Elif / Else
-- While loops
-- For loops
-- Type casting
-- References
-- Array types
-- Array literals
-
-### Type System
-
-Current support includes:
-
-- Signed integers
-- Unsigned integers
-- Booleans
-- Strings
-- References
-- Arrays
-- User-defined structures
-- Enumerations
-
-### Memory Modes
-
-Teapot is being designed with multiple memory management strategies in mind.
-
-Current parser support includes memory mode directives such as:
-
-```teapot
-$MEM-GC
+```bash
+git clone https://github.com/Sim20004/teapot-lang.git
+cd teapot-lang
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pip install -e .
+python main.py --input examples/parser_curr_test.tp
 ```
+
+Use `--trace` to print tokens and the AST while the source is processed:
+
+```bash
+python main.py --input examples/parser_curr_test.tp --trace
+```
+
+The CLI accepts `.tp` files and recreates the `build/` directory on each run. It currently lexes and parses source, then performs a shallow semantic traversal; it does not generate an executable. See [Development](docs/development.md) for tests and project structure.
 
 ## Example
 
 ```teapot
-pub struct Person {
-    cstr name.
-    csi32 age.
+$MEM-GC
+
+pub sct Person {
+     cstr name.
+     csi32 age.
 }
 
-pub fn add(csi32 a, csi32 b = 5) -> csi32 {
-    return a + b.
+pub fc add(csi32 a, csi32 b = 5)!csi32 {
+     exit a + b.
 }
 
-fn main() -> void {
-    csi32 x = 10.
-    csi32 y = 20.
+fc main()!void {
+     val msi32 x = 10.
+     val msi32 y = 20.
 
-    if x < y {
-        x += 5.
-    }
-
-    return.
+     if (x < y) {
+          x += 5.
+     }
 }
 ```
 
-## Compilation Pipeline
+Every source file currently begins with either `$MEM-GC` or `$MEM-MANUAL`. Statements are terminated with a period. The complete syntax overview is in [Language reference](docs/language-reference.md).
+
+## Compilation pipeline
 
 ```text
 Source Code
@@ -105,78 +71,13 @@ Abstract Syntax Tree
      |
      v
 Semantic Analysis
-     |
-     v
-Code Generation
 ```
 
-## Goals
-
-Teapot aims to explore:
-
-- Programming language design
-- Compiler implementation
-- Static type systems
-- Memory management
-- Language tooling
-- Runtime design
-
-## Current Status
-
-Teapot is currently in alpha development.
-
-Implemented:
-
-- Lexer
-- Parser
-- AST system
-
-In Progress:
-
-- Semantic analysis
-- Type checking
-- Symbol resolution
-
-Planned:
-
-- Compiler backend
-- Standard library
-- Executable generation
-- Package manager
-- Tooling ecosystem
-
-## Building
-
-Clone the repository:
-
-```bash
-git clone https://github.com/Sim20004/teapot-lang.git
-cd teapot-lang
-```
-
-Run the compiler:
-
-```bash
-python main.py
-```
-
-## File Extension
-
-```text
-.tp
-```
-
-Example:
-
-```text
-hello.tp
-```
+The semantic-analysis stage currently visits top-level AST nodes only. The [language reference](docs/language-reference.md) documents the syntax available at the lexer/parser boundary; the [language specification](docs/language-specification.md) records the broader intended design.
 
 ## Contributing
 
-Issues, pull requests, and discussions are welcome.
-
-Whether you're interested in compilers, language design, or systems programming, contributions are appreciated.
+Issues, pull requests, and discussions are welcome. Read [Contributing](CONTRIBUTING.md) before making changes.
 
 ## License
 
