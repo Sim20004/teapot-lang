@@ -44,7 +44,7 @@
 
 An identifier is **invalid** if it:
 - Starts with a number
-- Contains a non-alphanumeric character other than `_` or `-`
+- Contains a non-alphanumeric character other than `_`
 - Starts with any non-alphabetic character
 - Exactly matches a reserved word
 

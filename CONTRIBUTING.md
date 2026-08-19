@@ -548,6 +548,8 @@ A contribution may be declined if it:
 * Duplicates existing functionality.
 * Makes the language less consistent.
 * Has insufficient justification.
+* Does not pass all tests
+* Has not added appropriate tests for the added features
 
 A rejected contribution is not a rejection of the contributor.
 
