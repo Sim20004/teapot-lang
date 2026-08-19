@@ -1,6 +1,7 @@
 from teapot.lexer import Lexer
 import teapot.tokens as tokens
 import pytest
+from teapot.lexer import LexerError
 
 def test_empty_source():
     lexer = Lexer("")
@@ -178,3 +179,107 @@ def test_float_followed_by_symbol():
     assert tokens_list[0].value == 2.4
     assert tokens_list[1].type == tokens.TokenType.PERIOD
     assert tokens_list[2].type == tokens.TokenType.EOF
+
+def test_duplicate_decimal_point():
+    lexer = Lexer("1.2.3")
+
+    with pytest.raises(LexerError):
+        lexer.tokenise()
+
+def test_string():
+    lexer = Lexer('"foo"')
+    tokens_list = lexer.tokenise()
+
+    assert tokens_list[0].type == tokens.TokenType.STRING
+    assert tokens_list[0].value == "foo"
+
+def test_empty_string():
+    lexer = Lexer('""')
+    tokens_list = lexer.tokenise()
+
+    assert tokens_list[0].type == tokens.TokenType.STRING
+    assert tokens_list[0].value == ""
+
+def test_string_with_spaces():
+    lexer = Lexer('"foo bar baz"')
+    tokens_list = lexer.tokenise()
+
+    assert tokens_list[0].type == tokens.TokenType.STRING
+    assert tokens_list[0].value == "foo bar baz"
+
+def test_string_with_symbols():
+    lexer = Lexer('"foo*bar.baz|qux"')
+    tokens_list = lexer.tokenise()
+
+    assert tokens_list[0].type == tokens.TokenType.STRING
+    assert tokens_list[0].value == "foo*bar.baz|qux"
+
+def test_unterminated_string():
+    lexer = Lexer('"foo')
+    with pytest.raises(LexerError):
+        lexer.tokenise()
+
+def test_single_character_symbols():
+    single_character_symbols = {
+        "+": tokens.TokenType.PLUS,
+        "-": tokens.TokenType.MINUS,
+        "*": tokens.TokenType.MULTIPLY,
+        "/": tokens.TokenType.DIVIDE,
+        "%": tokens.TokenType.MODULO,
+        ">": tokens.TokenType.GREATER,
+        "<": tokens.TokenType.LESS,
+        "~": tokens.TokenType.NOT,
+        "=": tokens.TokenType.ASSIGN,
+        "(": tokens.TokenType.OPEN_PAREN,
+        ")": tokens.TokenType.CLOSE_PAREN,
+        "{": tokens.TokenType.OPEN_BRACE,
+        "}": tokens.TokenType.CLOSE_BRACE,
+        "[": tokens.TokenType.OPEN_BRACKET,
+        "]": tokens.TokenType.CLOSE_BRACKET,
+        ",": tokens.TokenType.COMMA,
+        ".": tokens.TokenType.PERIOD,
+        "|": tokens.TokenType.PIPE,
+        ":": tokens.TokenType.COLON,
+        "!": tokens.TokenType.EXCLAMATION,
+    }
+
+    lexer = Lexer("+-*/%><~ =(){}[],.|:!")
+    tokens_list = lexer.tokenise()
+
+    for _, expected_type in single_character_symbols.items():
+        assert tokens_list.pop(0).type == expected_type
+
+def test_two_character_symbols_and_precedence():
+    two_character_symbols = {
+        "**": tokens.TokenType.POWER,
+        "==": tokens.TokenType.EQUALS,
+        ">=": tokens.TokenType.GREATER_EQUAL,
+        "<=": tokens.TokenType.LESS_EQUAL,
+        "~=": tokens.TokenType.NOT_EQUAL,
+        "&&": tokens.TokenType.AND,
+        "||": tokens.TokenType.OR,
+        "+=": tokens.TokenType.ASSIGN_PLUS,
+        "-=": tokens.TokenType.ASSIGN_MINUS,
+        "*=": tokens.TokenType.ASSIGN_MULTIPLY,
+        "/=": tokens.TokenType.ASSIGN_DIVIDE,
+        "::": tokens.TokenType.DOUBLE_COLON,
+        ">>": tokens.TokenType.CAST,
+    }
+
+    lexer = Lexer("**  ==  >=  <=  ~=  &&  ||  +=  -=  *=  /=  ::  >>")
+    tokens_list = lexer.tokenise()
+
+    for _, expected_type in two_character_symbols.items():
+        assert tokens_list.pop(0).type == expected_type
+
+def test_invalid_symbol():
+    lexer = Lexer("£")
+    with pytest.raises(LexerError):
+        lexer.tokenise()
+
+def test_directive():
+    lexer = Lexer("$MEM-MANUAL")
+    tokens_list = lexer.tokenise()
+
+    assert tokens_list[0].type == tokens.TokenType.DIRECTIVE
+    assert tokens_list[0].value == "$MEM-MANUAL"

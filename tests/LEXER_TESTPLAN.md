@@ -18,17 +18,17 @@
 | `test_float`                               | Decimal numbers are parsed correctly               | X
 | `test_multiple_numbers`                    | Multiple numeric tokens are separated correctly    | X
 | `test_float_followed_by_symbol`            | `1.5.` doesn't incorrectly consume the final `.`   | X
-| `test_duplicate_decimal_point`             | Invalid numbers such as `1.2.3` raise `LexerError` |
-| `test_string`                              | Basic strings work                                 |
-| `test_empty_string`                        | `""` works                                         |
-| `test_string_with_spaces`                  | Spaces inside strings are preserved                |
-| `test_string_with_symbols`                 | Symbols inside strings aren't tokenised separately |
-| `test_unterminated_string`                 | Missing closing `"` raises `LexerError`            |
-| `test_single_character_symbols`            | Every single-character symbol works                |
-| `test_two_character_symbols`               | Every two-character symbol works                   |
-| `test_two_character_symbol_precedence`     | `==`, `<=`, etc. aren't split into two tokens      |
-| `test_invalid_symbol`                      | Unknown symbols raise `LexerError`                 |
-| `test_directive`                           | Valid directives are recognised                    |
+| `test_duplicate_decimal_point`             | Invalid numbers such as `1.2.3` raise `LexerError` | X
+| `test_string`                              | Basic strings work                                 | X
+| `test_empty_string`                        | `""` works                                         | X
+| `test_string_with_spaces`                  | Spaces inside strings are preserved                | X
+| `test_string_with_symbols`                 | Symbols inside strings aren't tokenised separately | X
+| `test_unterminated_string`                 | Missing closing `"` raises `LexerError`            | X
+| `test_single_character_symbols`            | Every single-character symbol works                | X
+| `test_two_character_symbols`               | Every two-character symbol works                   | X
+| `test_two_character_symbol_precedence`     | `==`, `<=`, etc. aren't split into two tokens      | X (merged with above test)
+| `test_invalid_symbol`                      | Unknown symbols raise `LexerError`                 | X
+| `test_directive`                           | Valid directives are recognised                    | 
 | `test_invalid_directive`                   | Unknown `$...` directives raise `LexerError`       |
 | `test_duplicate_directive`                 | Two directives raise `LexerError`                  |
 | `test_directive_value`                     | Directive token contains the correct value         |
