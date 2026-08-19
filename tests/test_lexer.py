@@ -1,8 +1,9 @@
 from teapot.lexer import Lexer
+import teapot.tokens as tokens
 
 def test_empty_source():
     lexer = Lexer("")
-    tokens = lexer.tokenise()
+    tokens_list = lexer.tokenise()
 
-    assert len(tokens) == 1
-    assert tokens[0].type == tokens.TokenType.EOF
+    assert len(tokens_list) == 1
+    assert tokens_list[0].type == tokens.TokenType.EOF
