@@ -336,3 +336,98 @@ def test_empty_enum():
     statement = program.statements[0]
 
     assert not statement.body
+
+# Enum members must be terminated with a period
+def test_missing_enum_member_terminator():
+    tokens_list = lex("$MEM-GC\nenm Foo { Bar }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Enums must be closed with a closing brace
+def test_missing_enum_close_brace():
+    tokens_list = lex("$MEM-GC\nenm Foo { Bar. ")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Public enums have the public flag set to True
+def test_public_enum():
+    tokens_list = lex("$MEM-GC\npub enm Foo { Bar. Baz. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.public is True
+
+# Error declaration must produce correct AST
+def test_error_declaration():
+    tokens_list = lex("$MEM-GC\nerr Foo { mstr bar. mui8 baz. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.Error)
+    assert statement.identifier == "Foo"
+    assert statement.body[0].datatype == "mstr"
+    assert statement.body[0].name == "bar"
+    assert statement.body[1].datatype == "mui8"
+    assert statement.body[1].name == "baz"
+
+# Empty error must be accepted
+def test_empty_error():
+    tokens_list = lex("$MEM-GC\nerr Foo { }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert not statement.body
+    assert statement.identifier == "Foo"
+
+# Invalid Error datatype must raise ParserError
+def test_invalid_error_datatype():
+    tokens_list = lex("$MEM-GC\nerr Foo { bar baz. }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Missing Error member terminator must raise ParserError
+def test_missing_error_member_terminator():
+    tokens_list = lex("$MEM-GC\nerr Foo { mui8 bar }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Missing Error close brace must raise ParserError
+def test_missing_error_close_brace():
+    tokens_list = lex("$MEM-GC\nerr Foo { mui8 bar. ")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Public errors have the public flag set to True
+def test_public_error():
+    tokens_list = lex("$MEM-GC\npub err Foo { mui8 bar. cstr baz. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.public is True
+
+# NOT IMPLEMENTED IN PARSER
+"""
+# Structs can be instantiated with the correct AST
+def test_struct_instantiation():
+    tokens_list = lex('$MEM-GC\nval Foo bar = Foo(1, "baz").')
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.DeclareVariable)
+    assert isinstance(statement.value, ast.StructInstantiation)
+    assert statement.identifier == "bar"
+    assert statement.datatype.name == "Foo"
+"""
+
+# Function declaration must produce valid AST
+def test_function_declaration():
+    tokens_list = lex("$MEM-GC\nfc foo()!void { val mui8 foo = 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.Function)
+    assert statement.name == "foo"
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].datatype.mutable == True
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
