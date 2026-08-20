@@ -29,6 +29,7 @@ class Parser:
         self.position = 0
         self.ast_tree = []
         self.memory_mode = None
+        # The first datatype letter is reflected here as an explicit semantic flag.
         self.DATATYPES_MUTABILITY = {
             "mstr": True,
             "mbln": True,
@@ -64,6 +65,7 @@ class Parser:
         }
 
     def current_token(self):
+        # Return a synthetic EOF token if callers move beyond the token list.
         if self.at_end():
             return tokens.Token(tokens.TokenType.EOF)
         else:
@@ -79,6 +81,7 @@ class Parser:
         return token
 
     def handle_struct(self, public=False):
+        # Struct fields are currently restricted to primitive datatype tokens.
         name = self.expect(tokens.TokenType.IDENTIFIER).value
         self.expect(tokens.TokenType.OPEN_BRACE)
         body = []
@@ -133,6 +136,7 @@ class Parser:
         return ast.Error(name, body, public)
 
     def handle_operator(self, public=False):
+        # Operators may use a symbol token or an identifier as their name.
         operator_tokens = [
             tokens.TokenType.PLUS,
             tokens.TokenType.MINUS,
@@ -210,6 +214,7 @@ class Parser:
         return args
 
     def handle_block(self):
+        # Blocks recursively parse statements until their closing brace.
         self.expect(tokens.TokenType.OPEN_BRACE)
         block = []
         while (
@@ -221,6 +226,7 @@ class Parser:
         return block
 
     def get_precedence(self, token):
+        # Higher values bind more tightly in the precedence-climbing parser.
         PRECEDENCES = {
             tokens.TokenType.OR: 0,
             tokens.TokenType.AND: 1,
@@ -426,6 +432,7 @@ class Parser:
         return ast.StructInstantiation(struct_name, args, identifier)
 
     def handle_variable(self):
+        # A pair of identifiers at the start denotes a user-defined struct value.
         identifier = False
         reference = False
         if self.current_token().type == tokens.TokenType.IDENTIFIER and not self.at_end() and self.tokens[self.position + 1].type == tokens.TokenType.IDENTIFIER:
@@ -458,6 +465,7 @@ class Parser:
             mutable = self.DATATYPES_MUTABILITY.get(datatype.datatype)
         else:
             mutable = self.DATATYPES_MUTABILITY.get(datatype)
+        # Unknown primitive names are errors, but user-defined types are valid here.
         if mutable is None and not identifier:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
         datatype = ast.Type(datatype, mutable, reference)
@@ -528,6 +536,7 @@ class Parser:
         return side
 
     def handle_expression(self, min_precedence=0):
+        # Parse primary values, postfix operators, unary NOT, then binary operators.
         operator = None
         token = self.current_token()
         unary = False
@@ -590,6 +599,7 @@ class Parser:
             )
 
     def handle_statement(self):
+        # Identifiers need a short speculative parse to distinguish assignment.
         start = self.position
         public = False
 
@@ -613,6 +623,7 @@ class Parser:
                 value = self.handle_expression()
                 self.expect(tokens.TokenType.PERIOD)
                 return ast.Assignment(expr, operator, value)
+            # It was not an assignment, so let the normal statement dispatcher retry.
             self.position = start
 
         handler = self.STMT_HANDLERS.get(token.type)
@@ -662,6 +673,7 @@ class Parser:
     }
 
     def parse(self):
+        # The memory directive is mandatory and must precede every top-level node.
         self.expect_directive()
         while not self.at_end() and self.current_token().type != tokens.TokenType.EOF:
             self.ast_tree.append(self.handle_statement())

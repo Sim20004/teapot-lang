@@ -91,6 +91,7 @@ class TokenType(Enum):
     EOF = auto()
 
 
+# Lexical spellings that map directly to parser statement and expression tokens.
 KEYWORDS = {
     "attach": TokenType.IMPORT,
     "as": TokenType.AS,
@@ -118,6 +119,7 @@ KEYWORDS = {
     "map": TokenType.MAP,
 }
 
+# Longer operators are checked before their one-character prefixes by the lexer.
 SYMBOLS = {
     "+": TokenType.PLUS,
     "-": TokenType.MINUS,
@@ -154,11 +156,13 @@ SYMBOLS = {
     ">>": TokenType.CAST,
 }
 
+# A source file must select exactly one memory-management strategy.
 DIRECTIVES = {
     "$MEM-GC": TokenType.DIRECTIVE,
     "$MEM-MANUAL": TokenType.DIRECTIVE,
 }
 
+# Prefixes beginning with m/c encode mutable/constant primitive types.
 TYPE_KEYWORDS = {
     "void",
     "str",
@@ -209,6 +213,7 @@ TYPE_KEYWORDS = {
 }
 
 
+# These are converted from source words to Python booleans during lexing.
 BOOLEAN_LITERALS = {
     "true",
     "false",
@@ -217,6 +222,7 @@ BOOLEAN_LITERALS = {
 
 @dataclass
 class Token:
+    # Source coordinates are retained so lexer and parser errors can be precise.
     type: TokenType
     value: str | None = None
     line: int | None = None

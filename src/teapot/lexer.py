@@ -40,6 +40,7 @@ class Lexer:
         if trace:
             print(f"Original source: {source!r}")
 
+        # Normalise Windows newlines before tracking line and column positions.
         self.source = source.replace("\r\n", "\n")
 
         if self.source != source:
@@ -103,6 +104,7 @@ class Lexer:
             char = self.current_character()
 
             if char == "$":
+                # Directives consume their whole line and are allowed only once.
                 start_line = self.line
                 start_col = self.col
                 value = ""
@@ -133,6 +135,7 @@ class Lexer:
                 and self.position + 1 < len(self.source)
                 and self.source[self.position + 1] == "/"
             ):
+                # Comments are discarded before slash can be interpreted as divide.
                 if trace:
                     print("Found comment")
                 while (
@@ -256,6 +259,8 @@ class Lexer:
         value = ""
         flt = False
 
+        # A period belongs to a number only when it starts a fractional part;
+        # this leaves declaration terminators such as `8.` as separate tokens.
         while self.current_character() and (
             self.current_character().isdigit()
             or (
@@ -321,6 +326,7 @@ class Lexer:
         if trace:
             print(f"Second symbol character: {second!r}")
 
+        # Prefer the longest matching operator, such as `>=` over `>`.
         if second is not None:
             two_char = first + second
 
@@ -371,6 +377,7 @@ class Lexer:
 
 
 def run(source, trace):
+    # This convenience entry point is used by the command-line compiler flow.
     lexer = Lexer(source)
 
     tokens = lexer.tokenise()

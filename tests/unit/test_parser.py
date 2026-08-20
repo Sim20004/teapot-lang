@@ -6,17 +6,20 @@ import teapot.tokens as tokens
 from teapot.tokens import Token
 import pytest
 
+# Lex each source snippet through the same entry point used by parser tests.
 def lex(source):
     lexer = Lexer(source)
     tokens = lexer.tokenise()
     return tokens
 
+# A valid program starts with a memory-management directive.
 def test_parser_init():
     tokens = lex("$MEM-GC")
     program = Parser(tokens).parse()
     assert program.statements == []
     assert program.memory_mode == "$MEM-GC"
 
+# Every datatype prefix controls whether the resulting declaration is mutable.
 def test_datatype_mutability():
     tokens_list = lex("""
     $MEM-GC
@@ -71,6 +74,7 @@ def test_datatype_mutability():
 
     program = Parser(tokens_list).parse()
 
+    # Keep the expected mutability contract explicit for all supported types.
     expected = [
         ("mstr", True),
         ("cstr", False),
@@ -108,10 +112,12 @@ def test_datatype_mutability():
     assert len(program.statements) == len(expected)
 
     for statement, (datatype, mutable) in zip(program.statements, expected):
+        # Parsing should preserve both the datatype name and its mutability.
         assert isinstance(statement, ast.DeclareVariable)
         assert statement.datatype.name == datatype
         assert statement.datatype.mutable is mutable
 
+    # The parser exposes the token currently under its cursor.
 def test_current_token():
     tokens_list = lex("$MEM-GC")
     parser = Parser(tokens_list)
@@ -120,6 +126,7 @@ def test_current_token():
     assert parser.current_token().type == tokens.TokenType.DIRECTIVE
     assert parser.current_token().value == "$MEM-GC"
 
+# Once parsing finishes, the cursor remains positioned at the EOF sentinel.
 def test_current_token_at_eof():
     tokens_list = lex("$MEM-GC")
     parser = Parser(tokens_list)
@@ -127,6 +134,7 @@ def test_current_token_at_eof():
 
     assert parser.current_token().type == tokens.TokenType.EOF
 
+# EOF is not considered an unfinished token stream after a complete parse.
 def test_at_end():
     tokens_list = lex("$MEM-GC")
     parser = Parser(tokens_list)
@@ -135,9 +143,11 @@ def test_at_end():
 
     parser.parse()
 
+    # The parser deliberately keeps EOF available for callers to inspect.
     assert not parser.at_end()
     assert parser.current_token().type == tokens.TokenType.EOF
 
+# Advance follows the lexical order of a declaration without parsing it.
 def test_advance():
     tokens_list = lex("$MEM-GC\nval mui8 foo = 8")
     parser = Parser(tokens_list)
@@ -149,6 +159,7 @@ def test_advance():
     assert parser.advance().type == tokens.TokenType.ASSIGN
     assert parser.advance().type == tokens.TokenType.INTEGER
 
+# Advancing past the final token is stable and continues to return EOF.
 def test_advance_at_eof():
     tokens_list = lex("$MEM-GC\nval mui8 foo = 8.")
     parser = Parser(tokens_list)
@@ -156,6 +167,7 @@ def test_advance_at_eof():
 
     assert parser.advance().type == tokens.TokenType.EOF
 
+# Each supported memory directive is copied to the parsed program.
 def test_memory_directive_gc():
     tokens_list = lex("$MEM-GC")
     parser = Parser(tokens_list)
@@ -163,6 +175,7 @@ def test_memory_directive_gc():
 
     assert program.memory_mode == "$MEM-GC"
 
+# Manual memory management is accepted as an alternative directive.
 def test_memory_directive_manual():
     tokens_list = lex("$MEM-MANUAL")
     parser = Parser(tokens_list)
@@ -170,6 +183,7 @@ def test_memory_directive_manual():
 
     assert program.memory_mode == "$MEM-MANUAL"
 
+# A program without a memory directive is rejected before declarations parse.
 def test_missing_directive():
     tokens_list = lex("val mui8 foo = 8.")
     parser = Parser(tokens_list)
@@ -177,6 +191,7 @@ def test_missing_directive():
     with pytest.raises(ParserError):
         program = parser.parse()
 
+# Constant declarations retain their non-mutable datatype metadata.
 def test_mutable_datatype():
     tokens_list = lex("$MEM-GC\nval cui16 foo = 16.")
 

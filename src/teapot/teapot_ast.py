@@ -7,16 +7,19 @@ if __name__ == "__main__":
     )
 
 
+# Base exception used when an AST operation cannot represent the source program.
 @dataclass
 class ASTError(Exception):
     pass
 
 
+# All syntax nodes share this marker so consumers can type-check AST values.
 @dataclass
 class ASTNode:
     pass
 
 
+# Declarations and executable statements.
 @dataclass
 class Import(ASTNode):
     module: str
@@ -164,6 +167,7 @@ class Continue(ASTNode):
     pass
 
 
+# Structured error-handling and user-defined type declarations.
 @dataclass
 class Do(ASTNode):
     body: list
@@ -191,6 +195,7 @@ class Enum(ASTNode):
     public: bool = False
 
 
+# Literal and operator expression nodes.
 @dataclass
 class ListLiteral(ASTNode):
     values: list
@@ -225,6 +230,7 @@ class FunctionCall(ASTNode):
     arguments: list
 
 
+# Type metadata is kept in the AST so later phases can enforce mutability and references.
 @dataclass
 class Type(ASTNode):
     name: str
@@ -233,6 +239,7 @@ class Type(ASTNode):
     subtype: object = None
 
 
+# Remaining type, reference, directive, and program nodes.
 @dataclass
 class StructField(ASTNode):
     identifier: str

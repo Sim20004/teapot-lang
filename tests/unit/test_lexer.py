@@ -3,6 +3,7 @@ import teapot.tokens as tokens
 import pytest
 from teapot.lexer import LexerError
 
+# Basic cursor behavior and source normalization.
 def test_empty_source():
     lexer = Lexer("")
     tokens_list = lexer.tokenise()
@@ -50,6 +51,7 @@ def test_comment_at_eof():
     assert tokens_list[0].type == tokens.TokenType.DIRECTIVE
     assert tokens_list[1].type == tokens.TokenType.EOF
 
+# Words are classified as identifiers, keywords, datatypes, or literals.
 def test_identifier():
     lexer = Lexer("val mui8 foo = 8.")
     tokens_list = lexer.tokenise()
@@ -125,6 +127,7 @@ def test_boolean_literals():
 
     assert tokens_list[2].type == tokens.TokenType.EOF
 
+# Numeric scanning separates declaration periods from decimal points.
 def test_integer():
     lexer = Lexer("val mui8 foo = 8.")
     tokens_list = lexer.tokenise()
@@ -186,6 +189,7 @@ def test_duplicate_decimal_point():
     with pytest.raises(LexerError):
         lexer.tokenise()
 
+# Strings preserve their contents and report missing closing quotes.
 def test_string():
     lexer = Lexer('"foo"')
     tokens_list = lexer.tokenise()
@@ -219,6 +223,7 @@ def test_unterminated_string():
     with pytest.raises(LexerError):
         lexer.tokenise()
 
+# Symbol matching covers both single-character punctuation and compound operators.
 def test_single_character_symbols():
     single_character_symbols = {
         "+": tokens.TokenType.PLUS,
@@ -299,6 +304,7 @@ def test_multiple_directive():
     with pytest.raises(LexerError):
         lexer.tokenise()
 
+# Token coordinates are measured from one-based line and column positions.
 def test_line_and_col_tracking():
     lexer = Lexer(
         "$MEM-MANUAL\n" \
@@ -341,6 +347,7 @@ def test_error_position():
     assert err_line == 2
     assert err_col == 1
 
+# This fixture exercises the lexer across a representative complete source file.
 def test_mixed_source():
     lexer = Lexer(
         """
