@@ -379,65 +379,10 @@ class Parser:
             )
         return self.advance()
 
-    def handle_struct_instantiation(self):
-        args = []
-        struct_name = self.expect(tokens.TokenType.IDENTIFIER)
-        identifier = self.expect(tokens.TokenType.IDENTIFIER)
-        self.expect(tokens.TokenType.ASSIGN)
-        self.expect(tokens.TokenType.IDENTIFIER)
-        self.expect(tokens.TokenType.OPEN_PAREN)
-
-        if (
-            not self.at_end()
-            and self.current_token().type != tokens.TokenType.CLOSE_PAREN
-        ):
-            if self.current_token().type in [
-                tokens.TokenType.INTEGER,
-                tokens.TokenType.STRING,
-                tokens.TokenType.BOOLEAN,
-                tokens.TokenType.FLOAT,
-                tokens.TokenType.IDENTIFIER,
-            ]:
-                args.append(self.current_token().value)
-                self.advance()
-            else:
-                raise ParserError(
-                    "Invalid struct instantiation argument",
-                    self.current_token(),
-                    self.position,
-                )
-
-        while (
-            not self.at_end()
-            and self.current_token().type != tokens.TokenType.CLOSE_PAREN
-        ):
-            self.expect(tokens.TokenType.COMMA)
-            if self.current_token().type in [
-                tokens.TokenType.INTEGER,
-                tokens.TokenType.STRING,
-                tokens.TokenType.BOOLEAN,
-                tokens.TokenType.FLOAT,
-                tokens.TokenType.IDENTIFIER,
-            ]:
-                args.append(self.current_token().value)
-                self.advance()
-            else:
-                raise ParserError(
-                    "Invalid struct instantiation argument",
-                    self.current_token(),
-                    self.position,
-                )
-        self.expect(tokens.TokenType.CLOSE_PAREN)
-        self.expect(tokens.TokenType.PERIOD)
-        return ast.StructInstantiation(struct_name, args, identifier)
-
     def handle_variable(self):
         # A pair of identifiers at the start denotes a user-defined struct value.
         identifier = False
         reference = False
-        if self.current_token().type == tokens.TokenType.IDENTIFIER and not self.at_end() and self.tokens[self.position + 1].type == tokens.TokenType.IDENTIFIER:
-            return self.handle_struct_instantiation()
-
         if self.current_token().type == tokens.TokenType.REFERENCE:
             reference = True
             self.expect(tokens.TokenType.REFERENCE)

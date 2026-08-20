@@ -4,7 +4,7 @@ from teapot.lexer import Lexer
 import teapot.teapot_ast as ast
 import teapot.tokens as tokens
 from teapot.tokens import Token
-import pytest
+from pytest import raises
 
 # Lex each source snippet through the same entry point used by parser tests.
 def lex(source):
@@ -135,7 +135,7 @@ def test_current_token_at_eof():
     assert parser.current_token().type == tokens.TokenType.EOF
 
 # EOF is not considered an unfinished token stream after a complete parse.
-def test_at_end():
+def test_at_end_at_eof():
     tokens_list = lex("$MEM-GC")
     parser = Parser(tokens_list)
 
@@ -188,11 +188,23 @@ def test_missing_directive():
     tokens_list = lex("val mui8 foo = 8.")
     parser = Parser(tokens_list)
 
-    with pytest.raises(ParserError):
-        program = parser.parse()
+    with raises(ParserError):
+        parser.parse()
+
+# Mutable declarations retain their mutable datatype metadata.
+def test_mutable_datatype():
+    tokens_list = lex("$MEM-GC\nval mui16 foo = 16.")
+
+    program = Parser(tokens_list).parse()
+
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.DeclareVariable)
+    assert statement.datatype.name == "mui16"
+    assert statement.datatype.mutable is True
 
 # Constant declarations retain their non-mutable datatype metadata.
-def test_mutable_datatype():
+def test_constant_datatype():
     tokens_list = lex("$MEM-GC\nval cui16 foo = 16.")
 
     program = Parser(tokens_list).parse()
@@ -202,3 +214,125 @@ def test_mutable_datatype():
     assert isinstance(statement, ast.DeclareVariable)
     assert statement.datatype.name == "cui16"
     assert statement.datatype.mutable is False
+
+# Uninitialised variables gets ast.Literal(None)
+def test_uninitialised_variable():
+    tokens_list = lex("$MEM-GC\nval mui8 foo.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.value == ast.Literal(None)
+
+# References correctly set the `ref` flag to True
+def test_reference_variable():
+    tokens_list = lex("$MEM-GC\nval ref mui8 foo = 3.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.datatype.reference is True
+
+# User-defined datatypes are accepted
+def test_user_defined_datatype():
+    tokens_list = lex("$MEM-GC\nval Foo bar = Foo().")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.datatype.name == "Foo"
+
+# Array datatype produces the correct ast.ArrayType
+def test_array_variable_type():
+    tokens_list = lex("$MEM-GC\nval mui8[] foo = [2, 3, 4].")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.datatype, ast.Type)
+    assert isinstance(statement.datatype.name, ast.ArrayType)
+    assert statement.datatype.name.datatype == "mui8"
+
+# Array variable can be initialised with values
+def test_initialised_array_variable():
+    tokens_list = lex("$MEM-GC\nval mui8[] foo = [2, 3, 4].")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.ArrayLiteral)
+    assert statement.value.values[0].value == 2
+    assert statement.value.values[1].value == 3
+    assert statement.value.values[2].value == 4
+
+# A variable without a variable name raises ParserError
+def test_missing_variable_name():
+    tokens_list = lex("$MEM-GC\n val mui8 = 4")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# A variable declaration that is not terminated with a period raises ParserError
+def test_missing_declaration_terminator():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = 8")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Struct declaration is handled correctly
+def test_struct_declaration_handling():
+    tokens_list = lex("$MEM-GC\nsct Foo {" \
+                      "    mui8 bar." \
+                      "    cstr baz." \
+                      "}")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.identifier == "Foo"
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].datatype.mutable is True
+    assert statement.body[0].identifier == "bar"
+    assert statement.body[1].datatype.name == "cstr"
+    assert statement.body[1].datatype.mutable == False
+    assert statement.body[1].identifier == "baz"
+
+# Empty structs are allowed
+def test_empty_struct():
+    tokens_list = lex("$MEM-GC\nsct Foo { }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.identifier == "Foo"
+    assert not statement.body
+
+# Struct fields must end with periods
+def test_missing_struct_field_terminator():
+    tokens_list = lex("$MEM-GC\nsct Foo { mui8 bar }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Structs must be closed with a closing brace
+def test_missing_struct_close_brace():
+    tokens_list = lex("$MEM-GC\nsct Foo { mui8 bar.")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Public structs have the public flag set to True
+def test_public_struct():
+    tokens_list = lex("$MEM-GC\npub sct Foo { mui8 bar. cstr baz. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.public is True
+
+# Enums must produce valid AST
+def test_enum():
+    tokens_list = lex("$MEM-GC\nenm Foo { Bar. Baz. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.Enum)
+    assert statement.identifier == "Foo"
+    assert statement.body[0].name == "Bar"
+    assert statement.body[1].name == "Baz"
+
+# Empty enums must be accepted
+def test_empty_enum():
+    tokens_list = lex("$MEM-GC\nenm Foo { }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert not statement.body
