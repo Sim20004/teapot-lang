@@ -1,7 +1,7 @@
 import builtins
 from pathlib import Path
 
-
+# Shadows built-in print() function with one that prints and writes to build/build.log.
 def print(*args, **kwargs):
     text = " ".join(str(arg) for arg in args)
 
