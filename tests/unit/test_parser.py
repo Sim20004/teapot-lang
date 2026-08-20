@@ -3,6 +3,7 @@ from teapot.parser import ParserError
 from teapot.lexer import Lexer
 import teapot.teapot_ast as ast
 import teapot.tokens as tokens
+from teapot.tokens import Token
 import pytest
 
 def lex(source):
@@ -147,3 +148,42 @@ def test_advance():
     assert parser.advance().type == tokens.TokenType.IDENTIFIER
     assert parser.advance().type == tokens.TokenType.ASSIGN
     assert parser.advance().type == tokens.TokenType.INTEGER
+
+def test_advance_at_eof():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = 8.")
+    parser = Parser(tokens_list)
+    parser.parse()
+
+    assert parser.advance().type == tokens.TokenType.EOF
+
+def test_memory_directive_gc():
+    tokens_list = lex("$MEM-GC")
+    parser = Parser(tokens_list)
+    program = parser.parse()
+
+    assert program.memory_mode == "$MEM-GC"
+
+def test_memory_directive_manual():
+    tokens_list = lex("$MEM-MANUAL")
+    parser = Parser(tokens_list)
+    program = parser.parse()
+
+    assert program.memory_mode == "$MEM-MANUAL"
+
+def test_missing_directive():
+    tokens_list = lex("val mui8 foo = 8.")
+    parser = Parser(tokens_list)
+
+    with pytest.raises(ParserError):
+        program = parser.parse()
+
+def test_mutable_datatype():
+    tokens_list = lex("$MEM-GC\nval cui16 foo = 16.")
+
+    program = Parser(tokens_list).parse()
+
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.DeclareVariable)
+    assert statement.datatype.name == "cui16"
+    assert statement.datatype.mutable is False
