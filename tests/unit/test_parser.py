@@ -439,21 +439,6 @@ def test_public_error():
     assert statement.public is True
 
 
-# NOT IMPLEMENTED IN PARSER
-"""
-# Structs can be instantiated with the correct AST
-def test_struct_instantiation():
-    tokens_list = lex('$MEM-GC\nval Foo bar = Foo(1, "baz").')
-    program = Parser(tokens_list).parse()
-    statement = program.statements[0]
-
-    assert isinstance(statement, ast.DeclareVariable)
-    assert isinstance(statement.value, ast.StructInstantiation)
-    assert statement.identifier == "bar"
-    assert statement.datatype.name == "Foo"
-"""
-
-
 # Function declaration must produce valid AST
 def test_function_declaration():
     tokens_list = lex("$MEM-GC\nfc foo()!void { val mui8 foo = 8. }")
