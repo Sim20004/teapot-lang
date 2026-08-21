@@ -431,3 +431,56 @@ def test_function_declaration():
     assert statement.body[0].datatype.mutable == True
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
+
+# Function arguments must be valid and in source order
+def test_function_args():
+    tokens_list = lex("$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.arguments[0].datatype == "mui8"
+    assert statement.arguments[0].identifier == "bar"
+    assert statement.arguments[1].datatype == "cstr"
+    assert statement.arguments[1].identifier == "baz"
+
+# Array function arguments must produce valid AST
+def test_function_array_arg():
+    tokens_list = lex("$MEM-GC\nfc foo(mui8[] bar, cstr baz)!void { val mui8 qux = 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.arguments[0].datatype, ast.ArrayType)
+    assert statement.arguments[0].datatype.datatype == "mui8"
+    assert statement.arguments[0].identifier == "bar"
+
+# Default function arguments must produce valid AST
+def test_function_default_arg():
+    tokens_list = lex('$MEM-GC\nfc foo(mui8 bar=8, cstr baz)!void { val mui8 qux = 8. }')
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.arguments[0].datatype == "mui8"
+    assert statement.arguments[0].default.value == 8
+    assert statement.arguments[0].identifier == "bar"
+
+# Built-in and user-defined return types produce valid AST
+def test_return_type():
+    tokens_list = lex("$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. val Quux corge = Quux(). exit qux.}")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.body[2].value.name == "qux"
+
+    tokens_list = lex("$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. val Quux corge = Quux(). exit quux.}")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.body[2].value.name == "quux"
+
+# Public functions are parsed correctly
+def test_public_function():
+    tokens_list = lex("$MEM-GC\npub fc foo()!void { exit 1. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.public == True

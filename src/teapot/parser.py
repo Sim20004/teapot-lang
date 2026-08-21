@@ -695,3 +695,5 @@ def run(tokens_from_lexer, trace_arg):
         print("========= END ABSTRACT SYNTAX TREE CONSTRUCTION =========")
 
     return analyse(ast_tree, trace_arg)
+
+# TODO: Struct instantiation handling
