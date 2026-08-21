@@ -3,7 +3,7 @@ import os
 import shutil
 from pathlib import Path
 
-from teapot import lexer
+from teapot import __version__, lexer
 
 
 class TeapotError(Exception):
@@ -17,6 +17,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help="Input source file", required=True)
 
 parser.add_argument("-t", "--trace", help="Enable debug output", action="store_true")
+
+# argparse's version action prints and exits 0 while parsing, so --version works
+# on its own despite --input being required.
+parser.add_argument(
+    "--version",
+    help="Show the TeapotLang version and exit",
+    action="version",
+    version=f"TeapotLang {__version__}",
+)
 
 
 args = parser.parse_args()
