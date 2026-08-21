@@ -78,15 +78,13 @@ serialize
 For example:
 
 ```python
-class SemanticAnalyser:
-    ...
+class SemanticAnalyser: ...
 ```
 
 and:
 
 ```python
-def analyse(self, ast_tree):
-    ...
+def analyse(self, ast_tree): ...
 ```
 
 ### Exceptions
@@ -112,14 +110,13 @@ Use descriptive names.
 Classes should use `PascalCase`:
 
 ```python
-class Parser:
-    ...
+class Parser: ...
 
-class ParserError(Exception):
-    ...
 
-class SemanticAnalyser:
-    ...
+class ParserError(Exception): ...
+
+
+class SemanticAnalyser: ...
 ```
 
 ### Functions and Methods
@@ -127,14 +124,13 @@ class SemanticAnalyser:
 Functions and methods should use `snake_case`:
 
 ```python
-def handle_expression():
-    ...
+def handle_expression(): ...
 
-def handle_function_argument():
-    ...
 
-def current_token():
-    ...
+def handle_function_argument(): ...
+
+
+def current_token(): ...
 ```
 
 Use names that describe what the function actually does.
@@ -286,8 +282,7 @@ Use specific exception classes for compiler errors.
 For example:
 
 ```python
-class ParserError(Exception):
-    ...
+class ParserError(Exception): ...
 ```
 
 Semantic analysis should have its own error type rather than reusing `ParserError`.
@@ -295,8 +290,7 @@ Semantic analysis should have its own error type rather than reusing `ParserErro
 For example:
 
 ```python
-class SemanticError(Exception):
-    ...
+class SemanticError(Exception): ...
 ```
 
 Do not silently catch compiler errors unless there is a meaningful reason to do so.
@@ -400,10 +394,7 @@ Avoid extremely long lines where breaking them improves readability.
 For example:
 
 ```python
-if (
-    not self.at_end()
-    and self.current_token().type != tokens.TokenType.CLOSE_BRACE
-):
+if not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_BRACE:
     ...
 ```
 

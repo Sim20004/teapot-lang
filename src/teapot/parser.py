@@ -147,7 +147,10 @@ class Parser:
             tokens.TokenType.DIVIDE,
         ]
 
-        if self.current_token().type in operator_tokens or self.current_token().type == tokens.TokenType.IDENTIFIER:
+        if (
+            self.current_token().type in operator_tokens
+            or self.current_token().type == tokens.TokenType.IDENTIFIER
+        ):
             name = self.advance().value
 
         else:
@@ -395,7 +398,7 @@ class Parser:
 
         if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
             datatype = self.handle_array_type(datatype)
-        
+
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
 
         if self.current_token().type == tokens.TokenType.ASSIGN:
@@ -626,7 +629,6 @@ class Parser:
         return program
 
 
-
 def print_ast(node, indent=0, visited=None):
     if visited is None:
         visited = set()
@@ -694,5 +696,6 @@ def run(tokens_from_lexer, trace_arg):
         print("========= END ABSTRACT SYNTAX TREE CONSTRUCTION =========")
 
     return analyse(ast_tree, trace_arg)
+
 
 # TODO: Struct instantiation handling

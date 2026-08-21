@@ -12,6 +12,7 @@ def test_empty_source():
     assert len(tokens_list) == 1
     assert tokens_list[0].type == tokens.TokenType.EOF
 
+
 def test_eof_position():
     lexer = Lexer("foo")
     tokens_list = lexer.tokenise()
@@ -19,6 +20,7 @@ def test_eof_position():
     assert tokens_list[-1].type == tokens.TokenType.EOF
     assert tokens_list[-1].line == 1
     assert tokens_list[-1].col == 4
+
 
 def test_whitespace_is_ignored():
     lexer = Lexer("foo bar baz qux quux")
@@ -28,6 +30,7 @@ def test_whitespace_is_ignored():
 
     for token in tokens_list[:-1]:
         assert token.type == tokens.TokenType.IDENTIFIER
+
 
 def test_crlf_is_normalised():
     lexer = Lexer("foo\r\nbar")
@@ -39,11 +42,13 @@ def test_crlf_is_normalised():
     assert tokens_list[1].col == 1
     assert tokens_list[2].type == tokens.TokenType.EOF
 
+
 def test_single_line_comment_is_ignored():
     lexer = Lexer("// foo,\n// bar\n// baz\n// qux?\n$MEM-GC")
     tokens_list = lexer.tokenise()
 
     assert tokens_list[0].type == tokens.TokenType.DIRECTIVE
+
 
 def test_comment_at_eof():
     lexer = Lexer("$MEM-GC\n// foo")
@@ -52,6 +57,7 @@ def test_comment_at_eof():
     assert tokens_list[0].type == tokens.TokenType.DIRECTIVE
     assert tokens_list[1].type == tokens.TokenType.EOF
 
+
 # Words are classified as identifiers, keywords, datatypes, or literals.
 def test_identifier():
     lexer = Lexer("val mui8 foo = 8.")
@@ -59,6 +65,7 @@ def test_identifier():
 
     assert tokens_list[2].type == tokens.TokenType.IDENTIFIER
     assert tokens_list[2].value == "foo"
+
 
 def test_identifier_with_underscores():
     lexer = Lexer("val cui16 foo_bar_baz = 12.")
@@ -71,6 +78,7 @@ def test_identifier_with_underscores():
     assert tokens_list[4].type == tokens.TokenType.INTEGER
     assert tokens_list[5].type == tokens.TokenType.PERIOD
     assert tokens_list[6].type == tokens.TokenType.EOF
+
 
 def test_identifier_starting_with_underscore():
     lexer = Lexer('val mstr _foo = "bar".')
@@ -85,6 +93,7 @@ def test_identifier_starting_with_underscore():
     assert tokens_list[5].type == tokens.TokenType.PERIOD
     assert tokens_list[6].type == tokens.TokenType.EOF
 
+
 def test_identifier_with_numbers():
     lexer = Lexer('val cstr foo2bar3 = "baz".')
     tokens_list = lexer.tokenise()
@@ -98,6 +107,7 @@ def test_identifier_with_numbers():
     assert tokens_list[5].type == tokens.TokenType.PERIOD
     assert tokens_list[6].type == tokens.TokenType.EOF
 
+
 def test_keywords():
     lexer = Lexer(" ".join(tokens.KEYWORDS.keys()))
     tokens_list = lexer.tokenise()
@@ -108,6 +118,7 @@ def test_keywords():
         assert token.type == expected_type
         assert token.value == keyword
 
+
 def test_datatypes():
     lexer = Lexer(" ".join(tokens.TYPE_KEYWORDS))
     tokens_list = lexer.tokenise()
@@ -115,6 +126,7 @@ def test_datatypes():
     for token, datatype in zip(tokens_list[:-1], tokens.TYPE_KEYWORDS):
         assert token.type == tokens.TokenType.TYPE
         assert token.value == datatype
+
 
 def test_boolean_literals():
     lexer = Lexer("true false")
@@ -127,6 +139,7 @@ def test_boolean_literals():
     assert tokens_list[1].value is False
 
     assert tokens_list[2].type == tokens.TokenType.EOF
+
 
 # Numeric scanning separates declaration periods from decimal points.
 def test_integer():
@@ -142,8 +155,11 @@ def test_integer():
     assert tokens_list[5].type == tokens.TokenType.PERIOD
     assert tokens_list[6].type == tokens.TokenType.EOF
 
+
 def test_float():
-    lexer = Lexer("val cdml foo = 0.1.\nval mdml bar = 0.2.\nval cf32 baz = 0.3.\nval mf32 qux = 0.4.\nval cf64 quux = 0.5.\nval mf64 corge = 0.6.")
+    lexer = Lexer(
+        "val cdml foo = 0.1.\nval mdml bar = 0.2.\nval cf32 baz = 0.3.\nval mf32 qux = 0.4.\nval cf64 quux = 0.5.\nval mf64 corge = 0.6."
+    )
     tokens_list = lexer.tokenise()
 
     count = 0.1
@@ -161,6 +177,7 @@ def test_float():
 
     assert tokens_list[-1].type == tokens.TokenType.EOF
 
+
 def test_multiple_numbers():
     lexer = Lexer("10 + 20 * 30")
     tokens_list = lexer.tokenise()
@@ -175,6 +192,7 @@ def test_multiple_numbers():
     assert tokens_list[4].value == 30
     assert tokens_list[5].type == tokens.TokenType.EOF
 
+
 def test_float_followed_by_symbol():
     lexer = Lexer("2.4.")
     tokens_list = lexer.tokenise()
@@ -184,11 +202,13 @@ def test_float_followed_by_symbol():
     assert tokens_list[1].type == tokens.TokenType.PERIOD
     assert tokens_list[2].type == tokens.TokenType.EOF
 
+
 def test_duplicate_decimal_point():
     lexer = Lexer("1.2.3")
 
     with pytest.raises(LexerError):
         lexer.tokenise()
+
 
 # Strings preserve their contents and report missing closing quotes.
 def test_string():
@@ -198,12 +218,14 @@ def test_string():
     assert tokens_list[0].type == tokens.TokenType.STRING
     assert tokens_list[0].value == "foo"
 
+
 def test_empty_string():
     lexer = Lexer('""')
     tokens_list = lexer.tokenise()
 
     assert tokens_list[0].type == tokens.TokenType.STRING
     assert tokens_list[0].value == ""
+
 
 def test_string_with_spaces():
     lexer = Lexer('"foo bar baz"')
@@ -212,6 +234,7 @@ def test_string_with_spaces():
     assert tokens_list[0].type == tokens.TokenType.STRING
     assert tokens_list[0].value == "foo bar baz"
 
+
 def test_string_with_symbols():
     lexer = Lexer('"foo*bar.baz|qux"')
     tokens_list = lexer.tokenise()
@@ -219,10 +242,12 @@ def test_string_with_symbols():
     assert tokens_list[0].type == tokens.TokenType.STRING
     assert tokens_list[0].value == "foo*bar.baz|qux"
 
+
 def test_unterminated_string():
     lexer = Lexer('"foo')
     with pytest.raises(LexerError):
         lexer.tokenise()
+
 
 # Symbol matching covers both single-character punctuation and compound operators.
 def test_single_character_symbols():
@@ -255,6 +280,7 @@ def test_single_character_symbols():
     for expected_type in single_character_symbols.values():
         assert tokens_list.pop(0).type == expected_type
 
+
 def test_two_character_symbols_and_precedence():
     two_character_symbols = {
         "**": tokens.TokenType.POWER,
@@ -278,10 +304,12 @@ def test_two_character_symbols_and_precedence():
     for expected_type in two_character_symbols.values():
         assert tokens_list.pop(0).type == expected_type
 
+
 def test_invalid_symbol():
     lexer = Lexer("£")
     with pytest.raises(LexerError):
         lexer.tokenise()
+
 
 def test_directives():
     lexer = Lexer("$MEM-MANUAL")
@@ -295,23 +323,22 @@ def test_directives():
     assert tokens_list[0].type == tokens.TokenType.DIRECTIVE
     assert tokens_list[0].value == "$MEM-GC"
 
+
 def test_invalid_directive():
     lexer = Lexer("$FOO")
     with pytest.raises(LexerError):
         lexer.tokenise()
+
 
 def test_multiple_directive():
     lexer = Lexer("$MEM-GC\n$MEM-MANUAL")
     with pytest.raises(LexerError):
         lexer.tokenise()
 
+
 # Token coordinates are measured from one-based line and column positions.
 def test_line_and_col_tracking():
-    lexer = Lexer(
-        "$MEM-MANUAL\n" \
-        "val mui8 foo = 8\n" \
-        "val mui8 bar = 10\n"
-    )
+    lexer = Lexer("$MEM-MANUAL\nval mui8 foo = 8\nval mui8 bar = 10\n")
     tokens_list = lexer.tokenise()
 
     assert tokens_list[0].line == 1
@@ -339,6 +366,7 @@ def test_line_and_col_tracking():
     assert tokens_list[10].line == 3
     assert tokens_list[10].col == 16
 
+
 def test_error_position():
     lexer = Lexer("val mui8 foo = 8\n$FOO")
     with pytest.raises(LexerError) as err_info:
@@ -347,6 +375,7 @@ def test_error_position():
     err_col = err_info.value.col
     assert err_line == 2
     assert err_col == 1
+
 
 # This fixture exercises the lexer across a representative complete source file.
 def test_mixed_source():
@@ -417,7 +446,7 @@ def test_mixed_source():
             exit 1.
         }
         """
-        )
+    )
 
     tokens_list = lexer.tokenise()
 

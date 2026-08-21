@@ -12,12 +12,14 @@ def lex(source):
     tokens = lexer.tokenise()
     return tokens
 
+
 # A valid program starts with a memory-management directive.
 def test_parser_init():
     tokens = lex("$MEM-GC")
     program = Parser(tokens).parse()
     assert program.statements == []
     assert program.memory_mode == "$MEM-GC"
+
 
 # Every datatype prefix controls whether the resulting declaration is mutable.
 def test_datatype_mutability():
@@ -118,6 +120,8 @@ def test_datatype_mutability():
         assert statement.datatype.mutable is mutable
 
     # The parser exposes the token currently under its cursor.
+
+
 def test_current_token():
     tokens_list = lex("$MEM-GC")
     parser = Parser(tokens_list)
@@ -126,6 +130,7 @@ def test_current_token():
     assert parser.current_token().type == tokens.TokenType.DIRECTIVE
     assert parser.current_token().value == "$MEM-GC"
 
+
 # Once parsing finishes, the cursor remains positioned at the EOF sentinel.
 def test_current_token_at_eof():
     tokens_list = lex("$MEM-GC")
@@ -133,6 +138,7 @@ def test_current_token_at_eof():
     parser.parse()
 
     assert parser.current_token().type == tokens.TokenType.EOF
+
 
 # EOF is not considered an unfinished token stream after a complete parse.
 def test_at_end_at_eof():
@@ -147,6 +153,7 @@ def test_at_end_at_eof():
     assert not parser.at_end()
     assert parser.current_token().type == tokens.TokenType.EOF
 
+
 # Advance follows the lexical order of a declaration without parsing it.
 def test_advance():
     tokens_list = lex("$MEM-GC\nval mui8 foo = 8")
@@ -159,6 +166,7 @@ def test_advance():
     assert parser.advance().type == tokens.TokenType.ASSIGN
     assert parser.advance().type == tokens.TokenType.INTEGER
 
+
 # Advancing past the final token is stable and continues to return EOF.
 def test_advance_at_eof():
     tokens_list = lex("$MEM-GC\nval mui8 foo = 8.")
@@ -166,6 +174,7 @@ def test_advance_at_eof():
     parser.parse()
 
     assert parser.advance().type == tokens.TokenType.EOF
+
 
 # Each supported memory directive is copied to the parsed program.
 def test_memory_directive_gc():
@@ -175,6 +184,7 @@ def test_memory_directive_gc():
 
     assert program.memory_mode == "$MEM-GC"
 
+
 # Manual memory management is accepted as an alternative directive.
 def test_memory_directive_manual():
     tokens_list = lex("$MEM-MANUAL")
@@ -183,6 +193,7 @@ def test_memory_directive_manual():
 
     assert program.memory_mode == "$MEM-MANUAL"
 
+
 # A program without a memory directive is rejected before declarations parse.
 def test_missing_directive():
     tokens_list = lex("val mui8 foo = 8.")
@@ -190,6 +201,7 @@ def test_missing_directive():
 
     with raises(ParserError):
         parser.parse()
+
 
 # Mutable declarations retain their mutable datatype metadata.
 def test_mutable_datatype():
@@ -203,6 +215,7 @@ def test_mutable_datatype():
     assert statement.datatype.name == "mui16"
     assert statement.datatype.mutable is True
 
+
 # Constant declarations retain their non-mutable datatype metadata.
 def test_constant_datatype():
     tokens_list = lex("$MEM-GC\nval cui16 foo = 16.")
@@ -215,6 +228,7 @@ def test_constant_datatype():
     assert statement.datatype.name == "cui16"
     assert statement.datatype.mutable is False
 
+
 # Uninitialised variables gets ast.Literal(None)
 def test_uninitialised_variable():
     tokens_list = lex("$MEM-GC\nval mui8 foo.")
@@ -222,6 +236,7 @@ def test_uninitialised_variable():
     statement = program.statements[0]
 
     assert statement.value == ast.Literal(None)
+
 
 # References correctly set the `ref` flag to True
 def test_reference_variable():
@@ -231,6 +246,7 @@ def test_reference_variable():
 
     assert statement.datatype.reference is True
 
+
 # User-defined datatypes are accepted
 def test_user_defined_datatype():
     tokens_list = lex("$MEM-GC\nval Foo bar = Foo().")
@@ -238,6 +254,7 @@ def test_user_defined_datatype():
     statement = program.statements[0]
 
     assert statement.datatype.name == "Foo"
+
 
 # Array datatype produces the correct ast.ArrayType
 def test_array_variable_type():
@@ -248,6 +265,7 @@ def test_array_variable_type():
     assert isinstance(statement.datatype, ast.Type)
     assert isinstance(statement.datatype.name, ast.ArrayType)
     assert statement.datatype.name.datatype == "mui8"
+
 
 # Array variable can be initialised with values
 def test_initialised_array_variable():
@@ -260,11 +278,13 @@ def test_initialised_array_variable():
     assert statement.value.values[1].value == 3
     assert statement.value.values[2].value == 4
 
+
 # A variable without a variable name raises ParserError
 def test_missing_variable_name():
     tokens_list = lex("$MEM-GC\n val mui8 = 4")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # A variable declaration that is not terminated with a period raises ParserError
 def test_missing_declaration_terminator():
@@ -272,12 +292,10 @@ def test_missing_declaration_terminator():
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # Struct declaration is handled correctly
 def test_struct_declaration_handling():
-    tokens_list = lex("$MEM-GC\nsct Foo {" \
-                      "    mui8 bar." \
-                      "    cstr baz." \
-                      "}")
+    tokens_list = lex("$MEM-GC\nsct Foo {    mui8 bar.    cstr baz.}")
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
@@ -289,6 +307,7 @@ def test_struct_declaration_handling():
     assert statement.body[1].datatype.mutable is False
     assert statement.body[1].identifier == "baz"
 
+
 # Empty structs are allowed
 def test_empty_struct():
     tokens_list = lex("$MEM-GC\nsct Foo { }")
@@ -298,17 +317,20 @@ def test_empty_struct():
     assert statement.identifier == "Foo"
     assert not statement.body
 
+
 # Struct fields must end with periods
 def test_missing_struct_field_terminator():
     tokens_list = lex("$MEM-GC\nsct Foo { mui8 bar }")
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # Structs must be closed with a closing brace
 def test_missing_struct_close_brace():
     tokens_list = lex("$MEM-GC\nsct Foo { mui8 bar.")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # Public structs have the public flag set to True
 def test_public_struct():
@@ -317,6 +339,7 @@ def test_public_struct():
     statement = program.statements[0]
 
     assert statement.public is True
+
 
 # Enums must produce valid AST
 def test_enum():
@@ -329,6 +352,7 @@ def test_enum():
     assert statement.body[0].name == "Bar"
     assert statement.body[1].name == "Baz"
 
+
 # Empty enums must be accepted
 def test_empty_enum():
     tokens_list = lex("$MEM-GC\nenm Foo { }")
@@ -337,17 +361,20 @@ def test_empty_enum():
 
     assert not statement.body
 
+
 # Enum members must be terminated with a period
 def test_missing_enum_member_terminator():
     tokens_list = lex("$MEM-GC\nenm Foo { Bar }")
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # Enums must be closed with a closing brace
 def test_missing_enum_close_brace():
     tokens_list = lex("$MEM-GC\nenm Foo { Bar. ")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # Public enums have the public flag set to True
 def test_public_enum():
@@ -356,6 +383,7 @@ def test_public_enum():
     statement = program.statements[0]
 
     assert statement.public is True
+
 
 # Error declaration must produce correct AST
 def test_error_declaration():
@@ -370,6 +398,7 @@ def test_error_declaration():
     assert statement.body[1].datatype == "mui8"
     assert statement.body[1].name == "baz"
 
+
 # Empty error must be accepted
 def test_empty_error():
     tokens_list = lex("$MEM-GC\nerr Foo { }")
@@ -379,11 +408,13 @@ def test_empty_error():
     assert not statement.body
     assert statement.identifier == "Foo"
 
+
 # Invalid Error datatype must raise ParserError
 def test_invalid_error_datatype():
     tokens_list = lex("$MEM-GC\nerr Foo { bar baz. }")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # Missing Error member terminator must raise ParserError
 def test_missing_error_member_terminator():
@@ -391,11 +422,13 @@ def test_missing_error_member_terminator():
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # Missing Error close brace must raise ParserError
 def test_missing_error_close_brace():
     tokens_list = lex("$MEM-GC\nerr Foo { mui8 bar. ")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # Public errors have the public flag set to True
 def test_public_error():
@@ -404,6 +437,7 @@ def test_public_error():
     statement = program.statements[0]
 
     assert statement.public is True
+
 
 # NOT IMPLEMENTED IN PARSER
 """
@@ -419,6 +453,7 @@ def test_struct_instantiation():
     assert statement.datatype.name == "Foo"
 """
 
+
 # Function declaration must produce valid AST
 def test_function_declaration():
     tokens_list = lex("$MEM-GC\nfc foo()!void { val mui8 foo = 8. }")
@@ -432,6 +467,7 @@ def test_function_declaration():
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
 
+
 # Function arguments must be valid and in source order
 def test_function_args():
     tokens_list = lex("$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. }")
@@ -443,9 +479,12 @@ def test_function_args():
     assert statement.arguments[1].datatype == "cstr"
     assert statement.arguments[1].identifier == "baz"
 
+
 # Array function arguments must produce valid AST
 def test_function_array_arg():
-    tokens_list = lex("$MEM-GC\nfc foo(mui8[] bar, cstr baz)!void { val mui8 qux = 8. }")
+    tokens_list = lex(
+        "$MEM-GC\nfc foo(mui8[] bar, cstr baz)!void { val mui8 qux = 8. }"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
@@ -453,9 +492,12 @@ def test_function_array_arg():
     assert statement.arguments[0].datatype.datatype == "mui8"
     assert statement.arguments[0].identifier == "bar"
 
+
 # Default function arguments must produce valid AST
 def test_function_default_arg():
-    tokens_list = lex('$MEM-GC\nfc foo(mui8 bar=8, cstr baz)!void { val mui8 qux = 8. }')
+    tokens_list = lex(
+        "$MEM-GC\nfc foo(mui8 bar=8, cstr baz)!void { val mui8 qux = 8. }"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
@@ -463,19 +505,25 @@ def test_function_default_arg():
     assert statement.arguments[0].default.value == 8
     assert statement.arguments[0].identifier == "bar"
 
+
 # Built-in and user-defined return types produce valid AST
 def test_return_type():
-    tokens_list = lex("$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. val Quux corge = Quux(). exit qux.}")
+    tokens_list = lex(
+        "$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. val Quux corge = Quux(). exit qux.}"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
     assert statement.body[2].value.name == "qux"
 
-    tokens_list = lex("$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. val Quux corge = Quux(). exit quux.}")
+    tokens_list = lex(
+        "$MEM-GC\nfc foo(mui8 bar, cstr baz)!void { val mui8 qux = 8. val Quux corge = Quux(). exit quux.}"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
     assert statement.body[2].value.name == "quux"
+
 
 # Public functions are parsed correctly
 def test_public_function():
@@ -485,6 +533,7 @@ def test_public_function():
 
     assert statement.public is True
 
+
 # Missing function closing parenthesis must raise ParserError
 def test_function_parenthesis_missing():
     tokens_list = lex("$MEM-GC\npub fc foo(!void { exit 1. }")
@@ -492,12 +541,14 @@ def test_function_parenthesis_missing():
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # Missing function closing brace must raise ParserError
 def test_missing_function_closing_brace():
     tokens_list = lex("$MEM-GC\npub fc foo()!void { exit 1.")
 
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # Operator declaration must be parsed correctly
 def test_operator_declaration():
@@ -513,6 +564,7 @@ def test_operator_declaration():
     assert statement.return_type.value == "cui8"
     assert statement.body[0].value.value == 8
 
+
 # Operator declaration must be parsed correctly where the name is a symbol
 def test_operator_declaration_with_symbol():
     tokens_list = lex("$MEM-GC\noperator +(mui8 foo, mui8 bar)!cui8 { exit 8. }")
@@ -526,6 +578,7 @@ def test_operator_declaration_with_symbol():
     assert statement.arguments[1].name.value == "bar"
     assert statement.return_type.value == "cui8"
     assert statement.body[0].value.value == 8
+
 
 # Public operator declaration must be parsed correctly
 def test_public_operator_declaration():
@@ -542,11 +595,13 @@ def test_public_operator_declaration():
     assert statement.return_type.value == "cui8"
     assert statement.body[0].value.value == 8
 
+
 # Missing return period raises ParserError
 def test_missing_return_period():
     tokens_list = lex("$MEM-GC\nfc foo()!void { exit 1 }")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # If statements produce valid AST
 def test_if_statement():
@@ -558,15 +613,18 @@ def test_if_statement():
     assert statement.condition.left.value == 1
     assert statement.condition.operator == "=="
     assert statement.condition.right.value == 1
-    
+
     assert isinstance(statement.body[0], ast.DeclareVariable)
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
 
+
 # If statements produce valid AST with elif
 def test_if_elif():
-    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. }")
+    tokens_list = lex(
+        "$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. }"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
@@ -574,7 +632,7 @@ def test_if_elif():
     assert statement.condition.left.value == 1
     assert statement.condition.operator == "=="
     assert statement.condition.right.value == 1
-    
+
     assert isinstance(statement.body[0], ast.DeclareVariable)
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
@@ -590,9 +648,12 @@ def test_if_elif():
     assert statement.elifs[0].body[0].identifier == "foo"
     assert statement.elifs[0].body[0].value.value == 9
 
+
 # If statements produce valid AST with multiple elifs
 def test_if_multiple_elif():
-    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. } elif (3 == 3) { val mui8 foo = 10. }")
+    tokens_list = lex(
+        "$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. } elif (3 == 3) { val mui8 foo = 10. }"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
@@ -600,7 +661,7 @@ def test_if_multiple_elif():
     assert statement.condition.left.value == 1
     assert statement.condition.operator == "=="
     assert statement.condition.right.value == 1
-    
+
     assert isinstance(statement.body[0], ast.DeclareVariable)
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
@@ -626,9 +687,12 @@ def test_if_multiple_elif():
     assert statement.elifs[1].body[0].identifier == "foo"
     assert statement.elifs[1].body[0].value.value == 10
 
+
 # If statements produce valid AST with else
 def test_if_else():
-    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } else { val mui8 foo = 9. }")
+    tokens_list = lex(
+        "$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } else { val mui8 foo = 9. }"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
@@ -636,7 +700,7 @@ def test_if_else():
     assert statement.condition.left.value == 1
     assert statement.condition.operator == "=="
     assert statement.condition.right.value == 1
-    
+
     assert isinstance(statement.body[0], ast.DeclareVariable)
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
@@ -648,9 +712,12 @@ def test_if_else():
     assert statement.else_body.body[0].identifier == "foo"
     assert statement.else_body.body[0].value.value == 9
 
+
 # If-elif-else statements produce valid AST
 def test_if_elif_else():
-    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. } else { val mui8 foo = 10. }")
+    tokens_list = lex(
+        "$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. } else { val mui8 foo = 10. }"
+    )
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
@@ -658,7 +725,7 @@ def test_if_elif_else():
     assert statement.condition.left.value == 1
     assert statement.condition.operator == "=="
     assert statement.condition.right.value == 1
-    
+
     assert isinstance(statement.body[0], ast.DeclareVariable)
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
@@ -680,17 +747,20 @@ def test_if_elif_else():
     assert statement.else_body.body[0].identifier == "foo"
     assert statement.else_body.body[0].value.value == 10
 
+
 # Missing if parenthesis raise ParserError
 def test_missing_if_close_parenthesis():
     tokens_list = lex("$MEM-GC\nif (1 == 1 { val mui8 foo = 8. }")
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # Missing if body raises ParserError
 def test_missing_if_body():
     tokens_list = lex("$MEM-GC\nif (1 == 1)")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # While loop produces valid AST
 def test_while_loop():
@@ -706,6 +776,7 @@ def test_while_loop():
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
+
 
 # While loop with complex condition produces valid AST
 def test_while_complex_condition():
@@ -727,17 +798,20 @@ def test_while_complex_condition():
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
 
+
 # While loop with missing closing parenthesis raises ParserError
 def test_while_missing_close_paren():
     tokens_list = lex("$MEM-GC\nwhile (1 > 10 { val mui8 foo = 8. }")
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # While loop with missing body raises ParserError
 def test_while_missing_body():
     tokens_list = lex("$MEM-GC\nwhile (1 > 10)")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # For loop produces valid AST
 def test_for_loop():
@@ -752,6 +826,7 @@ def test_for_loop():
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
+
 
 # For loop produces valid AST when the iterable is an expression
 def test_for_iterable_expression():
@@ -768,18 +843,21 @@ def test_for_iterable_expression():
     assert statement.body[0].datatype.name == "mui8"
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
-    
+
+
 # For loop with missing colon raises ParserError
 def test_for_missing_colon():
     tokens_list = lex("$MEM-GC\nfor (foo  bar) { val mui8 foo = 8. }")
     with raises(ParserError):
         Parser(tokens_list).parse()
 
+
 # For loop with missing closing parenthesis raises ParserError
 def test_for_missing_close_paren():
     tokens_list = lex("$MEM-GC\nfor (foo : bar { val mui8 foo = 8. }")
     with raises(ParserError):
         Parser(tokens_list).parse()
+
 
 # For loop with empty block produces False when checking the truthiness of body
 def test_for_empty_block():

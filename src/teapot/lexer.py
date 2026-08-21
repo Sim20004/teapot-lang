@@ -269,7 +269,6 @@ class Lexer:
                 and self.source[self.position + 1].isdigit()
             )
         ):
-
             char = self.current_character()
 
             if trace:
@@ -396,7 +395,7 @@ def run(source, trace):
         if trace:
             print(str(token.type).replace("TokenType.", ""))
 
-    if trace: 
+    if trace:
         print("========= END LEXICAL ANALYSIS =========")
 
     return run_parser(tokens, trace)

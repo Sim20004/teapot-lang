@@ -11,21 +11,12 @@ class TeapotError(Exception):
         super().__init__(f"Teapot error: {msg}")
         self.msg = msg
 
+
 parser = argparse.ArgumentParser()
 
-parser.add_argument(
-    "-i",
-    "--input",
-    help="Input source file",
-    required=True
-)
+parser.add_argument("-i", "--input", help="Input source file", required=True)
 
-parser.add_argument(
-    "-t",
-    "--trace",
-    help="Enable debug output",
-    action="store_true"
-)
+parser.add_argument("-t", "--trace", help="Enable debug output", action="store_true")
 
 
 args = parser.parse_args()

@@ -13,6 +13,7 @@ class SemanticAnalyser:
             if self.trace:
                 print(type(node).__name__)
 
+
 def analyse(ast_tree, trace_arg):
     # Keep phase banners in one place for callers that enable compiler tracing.
     trace = trace_arg
