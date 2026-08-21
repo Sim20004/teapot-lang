@@ -286,7 +286,7 @@ def test_struct_declaration_handling():
     assert statement.body[0].datatype.mutable is True
     assert statement.body[0].identifier == "bar"
     assert statement.body[1].datatype.name == "cstr"
-    assert statement.body[1].datatype.mutable == False
+    assert statement.body[1].datatype.mutable is False
     assert statement.body[1].identifier == "baz"
 
 # Empty structs are allowed
@@ -428,7 +428,7 @@ def test_function_declaration():
     assert isinstance(statement, ast.Function)
     assert statement.name == "foo"
     assert statement.body[0].datatype.name == "mui8"
-    assert statement.body[0].datatype.mutable == True
+    assert statement.body[0].datatype.mutable is True
     assert statement.body[0].identifier == "foo"
     assert statement.body[0].value.value == 8
 
@@ -483,4 +483,216 @@ def test_public_function():
     program = Parser(tokens_list).parse()
     statement = program.statements[0]
 
-    assert statement.public == True
+    assert statement.public is True
+
+# Missing function closing parenthesis must raise ParserError
+def test_function_parenthesis_missing():
+    tokens_list = lex("$MEM-GC\npub fc foo(!void { exit 1. }")
+
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Missing function closing brace must raise ParserError
+def test_missing_function_closing_brace():
+    tokens_list = lex("$MEM-GC\npub fc foo()!void { exit 1.")
+
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Operator declaration must be parsed correctly
+def test_operator_declaration():
+    tokens_list = lex("$MEM-GC\noperator foo(mui8 bar, mui8 baz)!cui8 { exit 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.symbol == "foo"
+    assert statement.arguments[0].datatype.value == "mui8"
+    assert statement.arguments[0].name.value == "bar"
+    assert statement.arguments[1].datatype.value == "mui8"
+    assert statement.arguments[1].name.value == "baz"
+    assert statement.return_type.value == "cui8"
+    assert statement.body[0].value.value == 8
+
+# Operator declaration must be parsed correctly where the name is a symbol
+def test_operator_declaration_with_symbol():
+    tokens_list = lex("$MEM-GC\noperator +(mui8 foo, mui8 bar)!cui8 { exit 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.symbol == "+"
+    assert statement.arguments[0].datatype.value == "mui8"
+    assert statement.arguments[0].name.value == "foo"
+    assert statement.arguments[1].datatype.value == "mui8"
+    assert statement.arguments[1].name.value == "bar"
+    assert statement.return_type.value == "cui8"
+    assert statement.body[0].value.value == 8
+
+# Public operator declaration must be parsed correctly
+def test_public_operator_declaration():
+    tokens_list = lex("$MEM-GC\npub operator foo(mui8 bar, mui8 baz)!cui8 { exit 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.symbol == "foo"
+    assert statement.public is True
+    assert statement.arguments[0].datatype.value == "mui8"
+    assert statement.arguments[0].name.value == "bar"
+    assert statement.arguments[1].datatype.value == "mui8"
+    assert statement.arguments[1].name.value == "baz"
+    assert statement.return_type.value == "cui8"
+    assert statement.body[0].value.value == 8
+
+# Missing return period raises ParserError
+def test_missing_return_period():
+    tokens_list = lex("$MEM-GC\nfc foo()!void { exit 1 }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# If statements produce valid AST
+def test_if_statement():
+    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.If)
+    assert statement.condition.left.value == 1
+    assert statement.condition.operator == "=="
+    assert statement.condition.right.value == 1
+    
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+# If statements produce valid AST with elif
+def test_if_elif():
+    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.If)
+    assert statement.condition.left.value == 1
+    assert statement.condition.operator == "=="
+    assert statement.condition.right.value == 1
+    
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+    assert isinstance(statement.elifs[0], ast.Elif)
+    assert statement.elifs[0].condition.left.value == 2
+    assert statement.elifs[0].condition.operator == "=="
+    assert statement.elifs[0].condition.right.value == 2
+
+    assert isinstance(statement.elifs[0].body[0], ast.DeclareVariable)
+    assert statement.elifs[0].body[0].datatype.name == "mui8"
+    assert statement.elifs[0].body[0].identifier == "foo"
+    assert statement.elifs[0].body[0].value.value == 9
+
+# If statements produce valid AST with multiple elifs
+def test_if_multiple_elif():
+    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. } elif (3 == 3) { val mui8 foo = 10. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.If)
+    assert statement.condition.left.value == 1
+    assert statement.condition.operator == "=="
+    assert statement.condition.right.value == 1
+    
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+    assert isinstance(statement.elifs[0], ast.Elif)
+    assert statement.elifs[0].condition.left.value == 2
+    assert statement.elifs[0].condition.operator == "=="
+    assert statement.elifs[0].condition.right.value == 2
+
+    assert isinstance(statement.elifs[0].body[0], ast.DeclareVariable)
+    assert statement.elifs[0].body[0].datatype.name == "mui8"
+    assert statement.elifs[0].body[0].identifier == "foo"
+    assert statement.elifs[0].body[0].value.value == 9
+
+    assert isinstance(statement.elifs[0], ast.Elif)
+    assert statement.elifs[1].condition.left.value == 3
+    assert statement.elifs[1].condition.operator == "=="
+    assert statement.elifs[1].condition.right.value == 3
+
+    assert isinstance(statement.elifs[0].body[0], ast.DeclareVariable)
+    assert statement.elifs[1].body[0].datatype.name == "mui8"
+    assert statement.elifs[1].body[0].identifier == "foo"
+    assert statement.elifs[1].body[0].value.value == 10
+
+# If statements produce valid AST with else
+def test_if_else():
+    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } else { val mui8 foo = 9. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.If)
+    assert statement.condition.left.value == 1
+    assert statement.condition.operator == "=="
+    assert statement.condition.right.value == 1
+    
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+    assert isinstance(statement.else_body, ast.Else)
+    assert isinstance(statement.else_body.body[0], ast.DeclareVariable)
+    assert statement.else_body.body[0].datatype.name == "mui8"
+    assert statement.else_body.body[0].identifier == "foo"
+    assert statement.else_body.body[0].value.value == 9
+
+# If-elif-else statements produce valid AST
+def test_if_elif_else():
+    tokens_list = lex("$MEM-GC\nif (1 == 1) { val mui8 foo = 8. } elif (2 == 2) { val mui8 foo = 9. } else { val mui8 foo = 10. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.If)
+    assert statement.condition.left.value == 1
+    assert statement.condition.operator == "=="
+    assert statement.condition.right.value == 1
+    
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+    assert isinstance(statement.elifs[0], ast.Elif)
+    assert statement.elifs[0].condition.left.value == 2
+    assert statement.elifs[0].condition.operator == "=="
+    assert statement.elifs[0].condition.right.value == 2
+
+    assert isinstance(statement.elifs[0].body[0], ast.DeclareVariable)
+    assert statement.elifs[0].body[0].datatype.name == "mui8"
+    assert statement.elifs[0].body[0].identifier == "foo"
+    assert statement.elifs[0].body[0].value.value == 9
+
+    assert isinstance(statement.else_body, ast.Else)
+    assert isinstance(statement.else_body.body[0], ast.DeclareVariable)
+    assert statement.else_body.body[0].datatype.name == "mui8"
+    assert statement.else_body.body[0].identifier == "foo"
+    assert statement.else_body.body[0].value.value == 10
+
+# Missing if parenthesis raise ParserError
+def test_missing_if_close_parenthesis():
+    tokens_list = lex("$MEM-GC\nif (1 == 1 { val mui8 foo = 8. }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# Missing if body raises ParserError
+def test_missing_if_body():
+    tokens_list = lex("$MEM-GC\nif (1 == 1)")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# While loop produces valid AST
+def test_while_loop():
+    tokens_list = lex("$MEM-GC\nwhile (1 == 1) { val mui8 foo = 8. }")
+    # TODO: Continue this test
