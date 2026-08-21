@@ -2,4 +2,4 @@
 
 # Single source of truth for the project version: pyproject.toml reads it from
 # here, and the CLI's --version reports it, so the two cannot drift.
-__version__ = "0.1.0"
+__version__ = "0.3.0-alpha"
