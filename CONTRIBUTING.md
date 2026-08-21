@@ -145,15 +145,13 @@ serialize
 For example:
 
 ```python
-class SemanticAnalyser:
-    ...
+class SemanticAnalyser: ...
 ```
 
 and:
 
 ```python
-def analyse(self, ast_tree):
-    ...
+def analyse(self, ast_tree): ...
 ```
 
 ### Exceptions
@@ -185,16 +183,13 @@ Avoid unnecessary abbreviations.
 Classes should use `PascalCase`:
 
 ```python
-class Parser:
-    ...
+class Parser: ...
 
 
-class ParserError(Exception):
-    ...
+class ParserError(Exception): ...
 
 
-class SemanticAnalyser:
-    ...
+class SemanticAnalyser: ...
 ```
 
 Class names should describe the concept represented by the class.
@@ -204,16 +199,13 @@ Class names should describe the concept represented by the class.
 Functions and methods should use `snake_case`:
 
 ```python
-def handle_expression():
-    ...
+def handle_expression(): ...
 
 
-def handle_function_argument():
-    ...
+def handle_function_argument(): ...
 
 
-def current_token():
-    ...
+def current_token(): ...
 ```
 
 Use names that describe what the function actually does.
@@ -478,15 +470,13 @@ Use specific exception classes for different compiler stages.
 For example:
 
 ```python
-class ParserError(Exception):
-    ...
+class ParserError(Exception): ...
 ```
 
 Semantic analysis should have its own error type rather than reusing `ParserError`:
 
 ```python
-class SemanticError(Exception):
-    ...
+class SemanticError(Exception): ...
 ```
 
 Different compiler stages should not raise unrelated exception types simply because they already exist.
