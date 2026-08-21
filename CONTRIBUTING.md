@@ -550,6 +550,7 @@ A contribution may be declined if it:
 * Has insufficient justification.
 * Does not pass all tests
 * Has not added appropriate tests for the added features
+* Is written using AI (Maintainer's discretion)
 
 A rejected contribution is not a rejection of the contributor.
 
