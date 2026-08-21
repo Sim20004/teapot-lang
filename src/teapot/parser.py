@@ -24,23 +24,6 @@ class ParserError(Exception):
 
 
 class Parser:
-    PRECEDENCES = {
-        tokens.TokenType.OR: 0,
-        tokens.TokenType.AND: 1,
-        tokens.TokenType.EQUALS: 2,
-        tokens.TokenType.NOT_EQUAL: 2,
-        tokens.TokenType.LESS: 3,
-        tokens.TokenType.LESS_EQUAL: 3,
-        tokens.TokenType.GREATER: 3,
-        tokens.TokenType.GREATER_EQUAL: 3,
-        tokens.TokenType.PLUS: 4,
-        tokens.TokenType.MINUS: 4,
-        tokens.TokenType.MODULO: 5,
-        tokens.TokenType.DIVIDE: 5,
-        tokens.TokenType.MULTIPLY: 5,
-        tokens.TokenType.POWER: 6,
-    }
-
     def __init__(self, tokens):
         self.tokens = tokens
         self.position = 0
@@ -82,6 +65,7 @@ class Parser:
         }
 
     def current_token(self):
+        # Return a synthetic EOF token if callers move beyond the token list.
         if self.at_end():
             return tokens.Token(tokens.TokenType.EOF)
         else:
@@ -97,6 +81,7 @@ class Parser:
         return token
 
     def handle_struct(self, public=False):
+        # Struct fields are currently restricted to primitive datatype tokens.
         name = self.expect(tokens.TokenType.IDENTIFIER).value
         self.expect(tokens.TokenType.OPEN_BRACE)
         body = []
@@ -151,6 +136,7 @@ class Parser:
         return ast.Error(name, body, public)
 
     def handle_operator(self, public=False):
+        # Operators may use a symbol token or an identifier as their name.
         operator_tokens = [
             tokens.TokenType.PLUS,
             tokens.TokenType.MINUS,
@@ -161,8 +147,10 @@ class Parser:
 
         if self.current_token().type in operator_tokens:
             name = self.advance().value
+
         elif self.current_token().type == tokens.TokenType.IDENTIFIER:
             name = self.advance().value
+
         else:
             raise ParserError(
                 "Invalid operator name", self.current_token(), self.position
@@ -196,15 +184,27 @@ class Parser:
         args = []
         self.expect(tokens.TokenType.OPEN_PAREN)
         if self.current_token().type != tokens.TokenType.CLOSE_PAREN:
-            if self.current_token().type in [tokens.TokenType.TYPE, tokens.TokenType.IDENTIFIER]:
+            if self.current_token().type in [
+                tokens.TokenType.TYPE,
+                tokens.TokenType.IDENTIFIER,
+            ]:
                 datatype = self.expect(self.current_token().type)
             else:
                 raise ParserError("Invalid type", self.current_token(), self.position)
+
         identifier = self.expect(tokens.TokenType.IDENTIFIER)
+
         args.append(ast.OperatorArgument(identifier, datatype))
-        while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_PAREN:
+
+        while (
+            not self.at_end()
+            and self.current_token().type != tokens.TokenType.CLOSE_PAREN
+        ):
             self.expect(tokens.TokenType.COMMA)
-            if self.current_token().type in [tokens.TokenType.TYPE, tokens.TokenType.IDENTIFIER]:
+            if self.current_token().type in [
+                tokens.TokenType.TYPE,
+                tokens.TokenType.IDENTIFIER,
+            ]:
                 datatype = self.expect(self.current_token().type)
             else:
                 raise ParserError("Invalid type", self.current_token(), self.position)
@@ -214,15 +214,37 @@ class Parser:
         return args
 
     def handle_block(self):
+        # Blocks recursively parse statements until their closing brace.
         self.expect(tokens.TokenType.OPEN_BRACE)
         block = []
-        while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_BRACE:
+        while (
+            not self.at_end()
+            and self.current_token().type != tokens.TokenType.CLOSE_BRACE
+        ):
             block.append(self.handle_statement())
         self.expect(tokens.TokenType.CLOSE_BRACE)
         return block
 
     def get_precedence(self, token):
-        return self.PRECEDENCES.get(token.type, -1)
+        # Higher values bind more tightly in the precedence-climbing parser.
+        PRECEDENCES = {
+            tokens.TokenType.OR: 0,
+            tokens.TokenType.AND: 1,
+            tokens.TokenType.EQUALS: 2,
+            tokens.TokenType.NOT_EQUAL: 2,
+            tokens.TokenType.LESS: 3,
+            tokens.TokenType.LESS_EQUAL: 3,
+            tokens.TokenType.GREATER: 3,
+            tokens.TokenType.GREATER_EQUAL: 3,
+            tokens.TokenType.PLUS: 4,
+            tokens.TokenType.MINUS: 4,
+            tokens.TokenType.MODULO: 5,
+            tokens.TokenType.DIVIDE: 5,
+            tokens.TokenType.MULTIPLY: 5,
+            tokens.TokenType.POWER: 6,
+        }
+
+        return PRECEDENCES.get(token.type, -1)
 
     def handle_function_argument(self):
         args = []
@@ -233,6 +255,7 @@ class Parser:
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
         default = self.handle_default_argument()
         args.append(ast.FunctionArgument(identifier, datatype, default))
+
         while self.current_token().type == tokens.TokenType.COMMA:
             default = None
             self.advance()
@@ -241,7 +264,9 @@ class Parser:
                 datatype = self.handle_array_type(datatype)
             identifier = self.expect(tokens.TokenType.IDENTIFIER).value
             default = self.handle_default_argument()
+
             args.append(ast.FunctionArgument(identifier, datatype, default))
+
         return args
 
     def handle_array_type(self, datatype):
@@ -287,8 +312,16 @@ class Parser:
     def handle_reassignement(self):
         target = self.handle_expression()
         operator = self.current_token()
-        if operator.type not in [tokens.TokenType.ASSIGN, tokens.TokenType.ASSIGN_DIVIDE, tokens.TokenType.ASSIGN_MINUS, tokens.TokenType.ASSIGN_MULTIPLY, tokens.TokenType.ASSIGN_PLUS]:
-            raise ParserError("Expected assignment operator", self.current_token(), self.position)
+        if operator.type not in [
+            tokens.TokenType.ASSIGN,
+            tokens.TokenType.ASSIGN_DIVIDE,
+            tokens.TokenType.ASSIGN_MINUS,
+            tokens.TokenType.ASSIGN_MULTIPLY,
+            tokens.TokenType.ASSIGN_PLUS,
+        ]:
+            raise ParserError(
+                "Expected assignment operator", self.current_token(), self.position
+            )
         self.advance()
         value = self.handle_expression()
         self.expect(tokens.TokenType.PERIOD)
@@ -318,21 +351,36 @@ class Parser:
             args = self.handle_function_argument()
         self.expect(tokens.TokenType.CLOSE_PAREN)
         self.expect(tokens.TokenType.EXCLAMATION)
-        if self.current_token().type in [tokens.TokenType.TYPE, tokens.TokenType.IDENTIFIER]:
+
+        if self.current_token().type in [
+            tokens.TokenType.TYPE,
+            tokens.TokenType.IDENTIFIER,
+        ]:
             return_type = self.advance().value
         else:
-            raise ParserError("Invalid return type", self.current_token(), self.position)
+            raise ParserError(
+                "Invalid return type", self.current_token(), self.position
+            )
+
         body = self.handle_block()
+
         return ast.Function(name, args, return_type, body, public)
 
     def expect(self, token):
         if self.at_end():
-            raise ParserError("Tried to expect a nonexistent token", token, self.position)
+            raise ParserError(
+                "Tried to expect a nonexistent token", token, self.position
+            )
         if self.current_token().type != token:
-            raise ParserError(f"Expected token {token}, found {self.current_token()} instead.", token, self.position)
+            raise ParserError(
+                f"Expected token {token}, found {self.current_token()} instead.",
+                token,
+                self.position,
+            )
         return self.advance()
 
     def handle_variable(self):
+        # A pair of identifiers at the start denotes a user-defined struct value.
         identifier = False
         reference = False
         if self.current_token().type == tokens.TokenType.REFERENCE:
@@ -345,19 +393,24 @@ class Parser:
             identifier = True
         else:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
+
         if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
             datatype = self.handle_array_type(datatype)
+        
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
+
         if self.current_token().type == tokens.TokenType.ASSIGN:
             self.advance()
             value = self.handle_expression()
         else:
             value = ast.Literal(None)
+
         self.expect(tokens.TokenType.PERIOD)
         if isinstance(datatype, ast.ArrayType):
             mutable = self.DATATYPES_MUTABILITY.get(datatype.datatype)
         else:
             mutable = self.DATATYPES_MUTABILITY.get(datatype)
+        # Unknown primitive names are errors, but user-defined types are valid here.
         if mutable is None and not identifier:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
         datatype = ast.Type(datatype, mutable, reference)
@@ -368,7 +421,10 @@ class Parser:
         self.expect(tokens.TokenType.OPEN_PAREN)
         if self.current_token().type != tokens.TokenType.CLOSE_PAREN:
             args.append(self.handle_expression())
-            while not self.at_end() and self.current_token().type != tokens.TokenType.CLOSE_PAREN:
+            while (
+                not self.at_end()
+                and self.current_token().type != tokens.TokenType.CLOSE_PAREN
+            ):
                 self.expect(tokens.TokenType.COMMA)
                 args.append(self.handle_expression())
         self.expect(tokens.TokenType.CLOSE_PAREN)
@@ -376,8 +432,12 @@ class Parser:
 
     def handle_array_literal(self):
         elements = []
+
         self.expect(tokens.TokenType.OPEN_BRACKET)
-        if self.current_token().type != tokens.TokenType.CLOSE_BRACKET and not self.at_end():
+        if (
+            self.current_token().type != tokens.TokenType.CLOSE_BRACKET
+            and not self.at_end()
+        ):
             elements.append(self.handle_expression())
             while self.current_token().type == tokens.TokenType.COMMA:
                 self.advance()
@@ -388,11 +448,18 @@ class Parser:
     def handle_primary(self):
         negative = False
         token = self.current_token()
+
         if token.type == tokens.TokenType.MINUS:
             negative = True
             self.advance()
             token = self.current_token()
-        if token.type in [tokens.TokenType.INTEGER, tokens.TokenType.FLOAT, tokens.TokenType.BOOLEAN, tokens.TokenType.STRING, tokens.TokenType.IDENTIFIER]:
+        if token.type in [
+            tokens.TokenType.INTEGER,
+            tokens.TokenType.FLOAT,
+            tokens.TokenType.BOOLEAN,
+            tokens.TokenType.STRING,
+            tokens.TokenType.IDENTIFIER,
+        ]:
             self.advance()
             if token.type == tokens.TokenType.IDENTIFIER:
                 side = ast.Identifier(token.value)
@@ -410,18 +477,23 @@ class Parser:
             return self.handle_array_literal()
         else:
             raise ParserError("Invalid expression", token, self.position)
+
         return side
 
     def handle_expression(self, min_precedence=0):
+        # Parse primary values, postfix operators, unary NOT, then binary operators.
         operator = None
         token = self.current_token()
         unary = False
+
         if token.type == tokens.TokenType.NOT:
             unary = True
             operator = token.value
             self.advance()
             token = self.current_token()
+
         left_side = self.handle_primary()
+
         while True:
             if self.current_token().type == tokens.TokenType.OPEN_PAREN:
                 left_side = self.handle_postfix(left_side)
@@ -436,51 +508,101 @@ class Parser:
                     left_side = ast.MemberAccess(left_side, member)
             else:
                 break
+
         if unary:
             left_side = ast.UnaryExpression(operator, left_side)
+
         while True:
             token = self.current_token()
             precedence = self.get_precedence(token)
+
             if precedence < min_precedence:
                 break
+
             operator = token.value
             self.advance()
+
             right_side = self.handle_expression(precedence + 1)
+
             left_side = ast.BinaryExpression(left_side, operator, right_side)
+
         return left_side
 
     def expect_directive(self):
         token = self.current_token()
-        if token.type == tokens.TokenType.DIRECTIVE and token.value in ["$MEM-MANUAL", "$MEM-GC"]:
+        if token.type == tokens.TokenType.DIRECTIVE and token.value in [
+            "$MEM-MANUAL",
+            "$MEM-GC",
+        ]:
             self.memory_mode = token.value
             self.advance()
         else:
-            raise ParserError("No directive found. Specify $MEM-GC for garbage collection or $MEM-MANUAL for manual memory freeing.", token, self.position)
+            raise ParserError(
+                "No directive found. Specify $MEM-GC for garbage collection or $MEM-MANUAL for manual memory freeing.",
+                token,
+                self.position,
+            )
 
     def handle_statement(self):
+        # Identifiers need a short speculative parse to distinguish assignment.
         start = self.position
         public = False
+
         if self.current_token().type == tokens.TokenType.PUBLIC:
             public = True
             self.advance()
+
         token = self.current_token()
+
         if self.current_token().type == tokens.TokenType.IDENTIFIER:
             expr = self.handle_expression()
-            if self.current_token().type in [tokens.TokenType.ASSIGN, tokens.TokenType.ASSIGN_DIVIDE, tokens.TokenType.ASSIGN_MINUS, tokens.TokenType.ASSIGN_PLUS, tokens.TokenType.ASSIGN_MULTIPLY]:
+
+            if self.current_token().type in [
+                tokens.TokenType.ASSIGN,
+                tokens.TokenType.ASSIGN_DIVIDE,
+                tokens.TokenType.ASSIGN_MINUS,
+                tokens.TokenType.ASSIGN_PLUS,
+                tokens.TokenType.ASSIGN_MULTIPLY,
+            ]:
                 operator = self.advance()
                 value = self.handle_expression()
                 self.expect(tokens.TokenType.PERIOD)
                 return ast.Assignment(expr, operator, value)
+            # It was not an assignment, so let the normal statement dispatcher retry.
             self.position = start
+
         handler = self.STMT_HANDLERS.get(token.type)
+
         if handler is None:
             raise ParserError("Invalid statement", token, self.position)
-        if public and token.type not in [tokens.TokenType.FUNCTION, tokens.TokenType.STRUCT, tokens.TokenType.ENUM, tokens.TokenType.ERROR, tokens.TokenType.OPERATOR]:
-            raise ParserError("Only functions, structs, enums, operators, and errors can be public.", token, self.position)
+
+        if public and token.type not in [
+            tokens.TokenType.FUNCTION,
+            tokens.TokenType.STRUCT,
+            tokens.TokenType.ENUM,
+            tokens.TokenType.ERROR,
+            tokens.TokenType.OPERATOR,
+        ]:
+            raise ParserError(
+                "Only functions, structs, enums, operators, and errors can be public.",
+                token,
+                self.position,
+            )
+
+        if handler is None:
+            raise ParserError("Invalid statement", token, self.position)
         self.advance()
-        if token.type in [tokens.TokenType.FUNCTION, tokens.TokenType.STRUCT, tokens.TokenType.ENUM, tokens.TokenType.ERROR, tokens.TokenType.OPERATOR]:
+
+        if token.type in [
+            tokens.TokenType.FUNCTION,
+            tokens.TokenType.STRUCT,
+            tokens.TokenType.ENUM,
+            tokens.TokenType.ERROR,
+            tokens.TokenType.OPERATOR,
+        ]:
             return handler(self, public)
-        return handler(self)
+        else:
+            return handler(self)
 
     STMT_HANDLERS = {
         tokens.TokenType.VAL: handle_variable,
@@ -496,38 +618,56 @@ class Parser:
     }
 
     def parse(self):
+        # The memory directive is mandatory and must precede every top-level node.
         self.expect_directive()
         while not self.at_end() and self.current_token().type != tokens.TokenType.EOF:
             self.ast_tree.append(self.handle_statement())
+
         program = ast.Program(self.ast_tree, self.memory_mode)
         return program
+
 
 
 def print_ast(node, indent=0, visited=None):
     if visited is None:
         visited = set()
+
     spacing = " " * indent
+
+    # Primitive values
     if isinstance(node, (str, int, float, bool, type(None))):
         print(f"{spacing}{repr(node)}")
         return
+
+    # Recursion protection
     obj_id = id(node)
     if obj_id in visited:
         print(f"{spacing}<recursive reference>")
         return
+
     visited.add(obj_id)
+
+    # Dataclass nodes
     if is_dataclass(node):
         print(f"{spacing}{type(node).__name__}")
+
         for field_name in node.__dataclass_fields__:
             value = getattr(node, field_name)
+
             print(f"{spacing}  {field_name}:")
             print_ast(value, indent + 4, visited)
+
         return
+
+    # Lists / tuples / sets
     if isinstance(node, (list, tuple, set)):
         print(f"{spacing}[")
         for item in node:
             print_ast(item, indent + 4, visited)
         print(f"{spacing}]")
         return
+
+    # Dictionaries
     if isinstance(node, dict):
         print(f"{spacing}{{")
         for key, value in node.items():
@@ -535,6 +675,8 @@ def print_ast(node, indent=0, visited=None):
             print_ast(value, indent + 4, visited)
         print(f"{spacing}}}")
         return
+
+    # Fallback
     print(f"{spacing}{repr(node)}")
 
 
@@ -544,9 +686,12 @@ def run(tokens_from_lexer, trace_arg):
         print("========= BEGIN ABSTRACT SYNTAX TREE CONSTRUCTION =========")
     parser = Parser(tokens_from_lexer)
     ast_tree = parser.parse()
+
     if trace:
         print("\nAST Tree:\n")
         print_ast(ast_tree)
+
     if trace:
         print("========= END ABSTRACT SYNTAX TREE CONSTRUCTION =========")
+
     return analyse(ast_tree, trace_arg)
