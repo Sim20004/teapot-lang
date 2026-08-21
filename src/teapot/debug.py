@@ -8,7 +8,7 @@ def print(*args, **kwargs):
 
     Path("build").mkdir(parents=True, exist_ok=True)
 
-    with open("build/build.log", "at") as file:
+    with open("build/build.log", "at", encoding="utf-8") as file:
         file.write(text + "\n")
 
     builtins.print(*args, **kwargs)
