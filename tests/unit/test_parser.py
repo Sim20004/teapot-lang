@@ -869,3 +869,672 @@ def test_for_empty_block():
     assert statement.variable == "foo"
     assert statement.iterable.name == "bar"
     assert not statement.body
+
+
+# For loop with multiple statements is parsed correctly in source order
+def test_for_multiple_statements_in_block():
+    tokens_list = lex(
+        "$MEM-GC\nfor (foo : bar) { val mui8 baz = 1. val mui8 qux = 2. val mui8 quux = 3. }"
+    )
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.For)
+    assert statement.variable == "foo"
+    assert statement.iterable.name == "bar"
+
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "baz"
+    assert statement.body[0].value.value == 1
+
+    assert isinstance(statement.body[1], ast.DeclareVariable)
+    assert statement.body[1].datatype.name == "mui8"
+    assert statement.body[1].identifier == "qux"
+    assert statement.body[1].value.value == 2
+
+    assert isinstance(statement.body[2], ast.DeclareVariable)
+    assert statement.body[2].datatype.name == "mui8"
+    assert statement.body[2].identifier == "quux"
+    assert statement.body[2].value.value == 3
+
+
+# Nested blocks must produce correct AST
+def test_nested_blocks():
+    tokens_list = lex("$MEM-GC\nfc foo()!void { fc bar()!void { fc baz()!void { } } }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.Function)
+    assert statement.name == "foo"
+    assert statement.return_type == "void"
+
+    assert isinstance(statement.body[0], ast.Function)
+    assert statement.body[0].name == "bar"
+    assert statement.body[0].return_type == "void"
+
+    assert isinstance(statement.body[0].body[0], ast.Function)
+    assert statement.body[0].body[0].name == "baz"
+    assert statement.body[0].body[0].return_type == "void"
+
+
+# Public variables must be rejected
+def test_public_variable():
+    tokens_list = lex("$MEM-GC\npub val mui8 foo = 1.")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+# Public ifs must be rejected
+def test_public_if():
+    tokens_list = lex("$MEM-GC\npub if (1 == 1) { }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+# Public while loops must be rejected
+def test_public_while():
+    tokens_list = lex("$MEM-GC\npub while (1 == 1) { }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+# Public for loops must be rejected
+def test_public_for():
+    tokens_list = lex("$MEM-GC\npub for (foo : bar) { }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+# Public exits must be rejected
+def test_public_exit():
+    tokens_list = lex("$MEM-GC\nfc foo()!void { pub exit 1. }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+# Assignment produces valid AST
+def test_assignment():
+    tokens_list = lex("$MEM-GC\nfoo = 4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.target.name == "foo"
+    assert statement.operator.value == "="
+    assert statement.value.value == 4
+
+
+# Compound assignment produces valid AST
+def test_compound_assignment():
+    tokens_list = lex("$MEM-GC\nfoo += 4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.target.name == "foo"
+    assert statement.operator.value == "+="
+    assert statement.value.value == 4
+
+    tokens_list = lex("$MEM-GC\nfoo -= 4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.target.name == "foo"
+    assert statement.operator.value == "-="
+    assert statement.value.value == 4
+
+    tokens_list = lex("$MEM-GC\nfoo *= 4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.target.name == "foo"
+    assert statement.operator.value == "*="
+    assert statement.value.value == 4
+
+    tokens_list = lex("$MEM-GC\nfoo /= 4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.target.name == "foo"
+    assert statement.operator.value == "/="
+    assert statement.value.value == 4
+
+
+# Member assignment produces valid AST
+def test_member_assignment():
+    tokens_list = lex("$MEM-GC\nfoo::bar = 4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.target.obj.name == "foo"
+    assert statement.target.member == "bar"
+    assert statement.operator.value == "="
+    assert statement.value.value == 4
+
+
+# Invalid assignment operator raises ParserError
+def test_invalid_assignment_operator():
+    tokens_list = lex("$MEM-GC\nfoo .= 4.")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+# Missing assignment terminator period raises ParserError
+def test_missing_assignment_period():
+    tokens_list = lex("$MEM-GC\nfoo = 4")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+# Integer literal produces valid AST
+def test_integer_literal():
+    tokens_list = lex("$MEM-GC\nfoo = 4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Literal)
+    assert statement.value.value == 4
+
+
+# Float literal produces valid AST
+def test_float_literal():
+    tokens_list = lex("$MEM-GC\nfoo = 4.3.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Literal)
+    assert statement.value.value == 4.3
+
+
+# Boolean literal produces valid AST
+def test_boolean_literal():
+    tokens_list = lex("$MEM-GC\nfoo = true.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Literal)
+    assert statement.value.value is True
+
+
+# String literal produces valid AST
+def test_string_literal():
+    tokens_list = lex('$MEM-GC\nfoo = "Bar".')
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Literal)
+    assert statement.value.value == "Bar"
+
+
+# Identifiers produce ast.Identifier
+def test_identifier_expression():
+    tokens_list = lex("$MEM-GC\nval mbln foo = bar && baz.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.value.left.name == "bar"
+    assert statement.value.operator == "&&"
+    assert statement.value.right.name == "baz"
+
+
+# Negative integer literal produces valid AST
+def test_negative_integer():
+    tokens_list = lex("$MEM-GC\nfoo = -4.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Literal)
+    assert statement.value.value == -4
+
+
+# Negative float literal produces valid AST
+def test_negative_float():
+    tokens_list = lex("$MEM-GC\nfoo = -4.3.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Literal)
+    assert statement.value.value == -4.3
+
+
+# Parenthesised expressions produce the correct AST nesting
+def test_parenthesised_expression():
+    tokens_list = lex("$MEM-GC\nfoo = (((3 + 4) * 8) == 8) && (((1 * 4) + 3) == 9).")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert statement.value.left.left.left.left.value == 3
+    assert statement.value.left.left.left.right.value == 4
+    assert statement.value.left.left.operator == "*"
+    assert statement.value.left.left.right.value == 8
+    assert statement.value.left.operator == "=="
+    assert statement.value.left.right.value == 8
+    assert statement.value.operator == "&&"
+    assert statement.value.right.left.left.left.value == 1
+    assert statement.value.right.left.left.operator == "*"
+    assert statement.value.right.left.left.right.value == 4
+    assert statement.value.right.left.operator == "+"
+    assert statement.value.right.left.right.value == 3
+    assert statement.value.right.operator == "=="
+    assert statement.value.right.right.value == 9
+
+
+# Array literals produce the correct ast.ArrayLiteral
+def test_array_literal():
+    tokens_list = lex("$MEM-GC\nval mui8[] foo = [1, 2, 3, 4].")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.ArrayLiteral)
+    assert statement.value.values[0].value == 1
+    assert statement.value.values[1].value == 2
+    assert statement.value.values[2].value == 3
+    assert statement.value.values[3].value == 4
+
+
+# Empty literals produce the correct ast.ArrayLiteral with empty values[]
+def test_empty_array_literal():
+    tokens_list = lex("$MEM-GC\nval mui8[] foo = [].")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.ArrayLiteral)
+    assert not statement.value.values
+
+
+# Unary not produces correct ast.UnaryExpression
+def test_unary_not():
+    tokens_list = lex("$MEM-GC\nval mbln foo = ~bar.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.UnaryExpression)
+    assert statement.value.value.name == "bar"
+    assert statement.value.operator == "~"
+
+
+# Function calls must produce correct ast.CallExpression
+def test_function_call():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = bar(3, 4).")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.CallExpression)
+    assert statement.value.callee.name == "bar"
+    assert statement.value.arguments[0].value == 3
+    assert statement.value.arguments[1].value == 4
+
+
+# Empty function calls must produce correct ast.CallExpression
+def test_empty_function_call():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = bar().")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.CallExpression)
+    assert statement.value.callee.name == "bar"
+    assert not statement.value.arguments
+
+
+# Chained member access creates correct nested ast.MemberAccess
+def test_chained_member_access():
+    tokens_list = lex("$MEM-GC\nfoo::bar::baz::qux::quux::corge = 1.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.target, ast.MemberAccess)
+    assert isinstance(statement.target.obj, ast.MemberAccess)
+    assert isinstance(statement.target.obj.obj, ast.MemberAccess)
+    assert isinstance(statement.target.obj.obj.obj, ast.MemberAccess)
+    assert isinstance(statement.target.obj.obj.obj.obj, ast.MemberAccess)
+    assert statement.target.member == "corge"
+    assert statement.target.obj.member == "quux"
+    assert statement.target.obj.obj.member == "qux"
+    assert statement.target.obj.obj.obj.member == "baz"
+    assert statement.target.obj.obj.obj.obj.member == "bar"
+    assert statement.target.obj.obj.obj.obj.obj.name == "foo"
+
+
+# Casting produces correct ast.Cast
+def test_cast():
+    tokens_list = lex("$MEM-GC\nval mstr foo = 4 >> mstr.")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Cast)
+    assert statement.value.expression.value == 4
+    assert statement.value.datatype == "mstr"
+
+
+# Operator precedence and associativity are parsed correctly
+def test_precedence():
+    tokens_list = lex(
+        "$MEM-GC\n"
+        "foo = (((2 + 3) * 4) ** 2 == 400) && "
+        "((10 - 3 * 2) == 4) || "
+        "((20 - 5 - 3) == 12)."
+    )
+
+    statement = Parser(tokens_list).parse().statements[0]
+
+    assert isinstance(statement.value, ast.BinaryExpression)
+    assert statement.value.operator == "||"
+
+    # && has higher precedence than ||
+    logical_and = statement.value.left
+
+    assert isinstance(logical_and, ast.BinaryExpression)
+    assert logical_and.operator == "&&"
+
+    # == has higher precedence than &&
+    first_comparison = logical_and.left
+
+    assert isinstance(first_comparison, ast.BinaryExpression)
+    assert first_comparison.operator == "=="
+
+    # ** has higher precedence than ==
+    power = first_comparison.left
+
+    assert isinstance(power, ast.BinaryExpression)
+    assert power.operator == "**"
+    assert power.right.value == 2
+
+    # * has higher precedence than **
+    multiplication = power.left
+
+    assert isinstance(multiplication, ast.BinaryExpression)
+    assert multiplication.operator == "*"
+    assert multiplication.right.value == 4
+
+    # Parentheses force 2 + 3 to be evaluated first
+    addition = multiplication.left
+
+    assert isinstance(addition, ast.BinaryExpression)
+    assert addition.operator == "+"
+    assert addition.left.value == 2
+    assert addition.right.value == 3
+
+    assert first_comparison.right.value == 400
+
+    # * has higher precedence than -
+    second_comparison = logical_and.right
+
+    assert isinstance(second_comparison, ast.BinaryExpression)
+    assert second_comparison.operator == "=="
+
+    subtraction = second_comparison.left
+
+    assert isinstance(subtraction, ast.BinaryExpression)
+    assert subtraction.operator == "-"
+    assert subtraction.left.value == 10
+
+    multiplication = subtraction.right
+
+    assert isinstance(multiplication, ast.BinaryExpression)
+    assert multiplication.operator == "*"
+    assert multiplication.left.value == 3
+    assert multiplication.right.value == 2
+
+    assert second_comparison.right.value == 4
+
+    # Equal-precedence subtraction is left-associative:
+    # (20 - 5) - 3, rather than 20 - (5 - 3)
+    third_comparison = statement.value.right
+
+    assert isinstance(third_comparison, ast.BinaryExpression)
+    assert third_comparison.operator == "=="
+    assert third_comparison.right.value == 12
+
+    subtraction = third_comparison.left
+
+    assert isinstance(subtraction, ast.BinaryExpression)
+    assert subtraction.operator == "-"
+
+    assert isinstance(subtraction.left, ast.BinaryExpression)
+    assert subtraction.left.operator == "-"
+    assert subtraction.left.left.value == 20
+    assert subtraction.left.right.value == 5
+    assert subtraction.right.value == 3
+
+
+def test_call_and_member_access():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = bar::baz(3).")
+
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.DeclareVariable)
+    assert isinstance(statement.value, ast.CallExpression)
+
+    call = statement.value
+
+    assert isinstance(call.callee, ast.MemberAccess)
+    assert call.callee.member == "baz"
+
+    assert isinstance(call.callee.obj, ast.Identifier)
+    assert call.callee.obj.name == "bar"
+
+    assert len(call.arguments) == 1
+    assert call.arguments[0].value == 3
+
+
+def test_cast_expression():
+    tokens_list = lex("$MEM-GC\nval mui16 foo = bar >> mui16.")
+
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.DeclareVariable)
+    assert isinstance(statement.value, ast.Cast)
+
+    assert isinstance(statement.value.expression, ast.Identifier)
+    assert statement.value.expression.name == "bar"
+    assert statement.value.datatype == "mui16"
+
+
+def test_member_and_call():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = bar::baz::qux(3, 4).")
+
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.CallExpression)
+
+    call = statement.value
+
+    assert isinstance(call.callee, ast.MemberAccess)
+    assert call.callee.member == "qux"
+
+    assert isinstance(call.callee.obj, ast.MemberAccess)
+    assert call.callee.obj.member == "baz"
+
+    assert isinstance(call.callee.obj.obj, ast.Identifier)
+    assert call.callee.obj.obj.name == "bar"
+
+    assert len(call.arguments) == 2
+    assert call.arguments[0].value == 3
+    assert call.arguments[1].value == 4
+
+
+def test_binary_parentheses():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = (2 + 3) * 4.")
+
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    expression = statement.value
+
+    assert isinstance(expression, ast.BinaryExpression)
+    assert expression.operator == "*"
+
+    assert isinstance(expression.left, ast.BinaryExpression)
+    assert expression.left.operator == "+"
+    assert expression.left.left.value == 2
+    assert expression.left.right.value == 3
+
+    assert expression.right.value == 4
+
+
+def test_unary_binary_expression():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = ~true && false.")
+
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    expression = statement.value
+
+    assert isinstance(expression, ast.BinaryExpression)
+    assert expression.operator == "&&"
+
+    assert isinstance(expression.left, ast.UnaryExpression)
+    assert expression.left.operator == "~"
+    assert expression.left.value.value is True
+
+    assert expression.right.value is False
+
+
+def test_unexpected_eof():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = (3 + 4")
+
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+def test_unexpected_token():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = 3 + * 4.")
+
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+def test_invalid_statement():
+    tokens_list = lex("$MEM-GC\n123.")
+
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+def test_parser_error_position():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = 3 + * 4.")
+
+    parser = Parser(tokens_list)
+
+    with raises(ParserError) as error:
+        parser.parse()
+
+    assert error.value.position is not None
+    assert error.value.position >= 0
+
+
+def test_parser_error_token():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = 3 + * 4.")
+
+    parser = Parser(tokens_list)
+
+    with raises(ParserError) as error:
+        parser.parse()
+
+    assert error.value.token is not None
+    assert isinstance(error.value.token, tokens.Token)
+
+
+def test_lexer_to_parser():
+    tokens_list = Lexer("$MEM-GC\nval mui8 foo = 3 + 4.").tokenise()
+
+    program = Parser(tokens_list).parse()
+
+    assert program.memory_mode == "$MEM-GC"
+    assert len(program.statements) == 1
+
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.DeclareVariable)
+    assert statement.identifier == "foo"
+    assert statement.datatype.name == "mui8"
+
+    assert isinstance(statement.value, ast.BinaryExpression)
+    assert statement.value.operator == "+"
+    assert statement.value.left.value == 3
+    assert statement.value.right.value == 4
+
+
+def test_complete_valid_program():
+    tokens_list = lex(
+        "$MEM-GC\n"
+        "val mui8 foo = 3.\n"
+        "val mui8 bar = foo + 4.\n"
+        "sct Example {\n"
+        "    mui8 value.\n"
+        "}\n"
+        "enm Status {\n"
+        "    Ready.\n"
+        "    Done.\n"
+        "}"
+    )
+
+    program = Parser(tokens_list).parse()
+
+    assert program.memory_mode == "$MEM-GC"
+    assert len(program.statements) == 4
+
+    declaration = program.statements[0]
+
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.identifier == "foo"
+    assert declaration.value.value == 3
+
+    declaration = program.statements[1]
+
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.identifier == "bar"
+    assert isinstance(declaration.value, ast.BinaryExpression)
+    assert declaration.value.operator == "+"
+    assert declaration.value.left.name == "foo"
+    assert declaration.value.right.value == 4
+
+    struct = program.statements[2]
+
+    assert isinstance(struct, ast.Struct)
+    assert struct.identifier == "Example"
+    assert len(struct.body) == 1
+    assert struct.body[0].identifier == "value"
+    assert struct.body[0].datatype.name == "mui8"
+
+    enum = program.statements[3]
+
+    assert isinstance(enum, ast.Enum)
+    assert enum.identifier == "Status"
+    assert enum.body[0].name == "Ready"
+    assert enum.body[1].name == "Done"
+
+
+def test_invalid_complete_program():
+    tokens_list = lex(
+        "$MEM-GC\nval mui8 foo = 3.\nval mui8 bar = 4 + * 2.\nval mui8 baz = 5."
+    )
+
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+
+def test_ast_regression():
+    tokens_list = lex("$MEM-GC\nval mui8 foo = 3 + 4 * 5.")
+
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.DeclareVariable)
+    assert statement.identifier == "foo"
+
+    expression = statement.value
+
+    assert isinstance(expression, ast.BinaryExpression)
+    assert expression.operator == "+"
+
+    assert expression.left.value == 3
+
+    multiplication = expression.right
+
+    assert isinstance(multiplication, ast.BinaryExpression)
+    assert multiplication.operator == "*"
+    assert multiplication.left.value == 4
+    assert multiplication.right.value == 5

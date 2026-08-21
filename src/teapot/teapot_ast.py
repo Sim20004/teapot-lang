@@ -224,12 +224,6 @@ class UnaryExpression(ASTNode):
     value: object
 
 
-@dataclass
-class FunctionCall(ASTNode):
-    function: object
-    arguments: list
-
-
 # Type metadata is kept in the AST so later phases can enforce mutability and references.
 @dataclass
 class Type(ASTNode):
