@@ -1,10 +1,10 @@
-from teapot.parser import Parser
-from teapot.parser import ParserError
-from teapot.lexer import Lexer
-import teapot.teapot_ast as ast
-import teapot.tokens as tokens
-from teapot.tokens import Token
 from pytest import raises
+
+import teapot.teapot_ast as ast
+from teapot import tokens
+from teapot.lexer import Lexer
+from teapot.parser import Parser, ParserError
+
 
 # Lex each source snippet through the same entry point used by parser tests.
 def lex(source):
@@ -695,4 +695,99 @@ def test_missing_if_body():
 # While loop produces valid AST
 def test_while_loop():
     tokens_list = lex("$MEM-GC\nwhile (1 == 1) { val mui8 foo = 8. }")
-    # TODO: Continue this test
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.While)
+    assert statement.condition.left.value == 1
+    assert statement.condition.operator == "=="
+    assert statement.condition.right.value == 1
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+# While loop with complex condition produces valid AST
+def test_while_complex_condition():
+    tokens_list = lex("$MEM-GC\nwhile (1 > 10 && 2 ~= 0) { val mui8 foo = 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.While)
+    assert statement.condition.left.left.value == 1
+    assert statement.condition.left.operator == ">"
+    assert statement.condition.left.right.value == 10
+    assert statement.condition.operator == "&&"
+    assert statement.condition.right.left.value == 2
+    assert statement.condition.right.operator == "~="
+    assert statement.condition.right.right.value == 0
+
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+# While loop with missing closing parenthesis raises ParserError
+def test_while_missing_close_paren():
+    tokens_list = lex("$MEM-GC\nwhile (1 > 10 { val mui8 foo = 8. }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# While loop with missing body raises ParserError
+def test_while_missing_body():
+    tokens_list = lex("$MEM-GC\nwhile (1 > 10)")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# For loop produces valid AST
+def test_for_loop():
+    tokens_list = lex("$MEM-GC\nfor (foo : bar) { val mui8 foo = 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.For)
+    assert statement.variable == "foo"
+    assert statement.iterable.name == "bar"
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+
+# For loop produces valid AST when the iterable is an expression
+def test_for_iterable_expression():
+    tokens_list = lex("$MEM-GC\nfor (foo : 4 + 10) { val mui8 foo = 8. }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.For)
+    assert statement.variable == "foo"
+    assert statement.iterable.left.value == 4
+    assert statement.iterable.operator == "+"
+    assert statement.iterable.right.value == 10
+    assert isinstance(statement.body[0], ast.DeclareVariable)
+    assert statement.body[0].datatype.name == "mui8"
+    assert statement.body[0].identifier == "foo"
+    assert statement.body[0].value.value == 8
+    
+# For loop with missing colon raises ParserError
+def test_for_missing_colon():
+    tokens_list = lex("$MEM-GC\nfor (foo  bar) { val mui8 foo = 8. }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# For loop with missing closing parenthesis raises ParserError
+def test_for_missing_close_paren():
+    tokens_list = lex("$MEM-GC\nfor (foo : bar { val mui8 foo = 8. }")
+    with raises(ParserError):
+        Parser(tokens_list).parse()
+
+# For loop with empty block produces False when checking the truthiness of body
+def test_for_empty_block():
+    tokens_list = lex("$MEM-GC\nfor (foo : bar) { }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.For)
+    assert statement.variable == "foo"
+    assert statement.iterable.name == "bar"
+    assert not statement.body

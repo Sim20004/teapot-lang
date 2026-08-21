@@ -1,5 +1,6 @@
 from sys import exit
 
+from teapot.debug import print
 from teapot.parser import run as run_parser
 from teapot.tokens import (
     BOOLEAN_LITERALS,
@@ -10,7 +11,6 @@ from teapot.tokens import (
     Token,
     TokenType,
 )
-from teapot.debug import print
 
 if __name__ == "__main__":
     exit(

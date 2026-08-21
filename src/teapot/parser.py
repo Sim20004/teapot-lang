@@ -1,5 +1,7 @@
-from sys import exit as leave
 from dataclasses import is_dataclass
+from sys import exit as leave
+from typing import ClassVar
+
 from teapot.debug import print
 from teapot.semantic import analyse
 
@@ -145,10 +147,7 @@ class Parser:
             tokens.TokenType.DIVIDE,
         ]
 
-        if self.current_token().type in operator_tokens:
-            name = self.advance().value
-
-        elif self.current_token().type == tokens.TokenType.IDENTIFIER:
+        if self.current_token().type in operator_tokens or self.current_token().type == tokens.TokenType.IDENTIFIER:
             name = self.advance().value
 
         else:
@@ -604,7 +603,7 @@ class Parser:
         else:
             return handler(self)
 
-    STMT_HANDLERS = {
+    STMT_HANDLERS: ClassVar[dict] = {
         tokens.TokenType.VAL: handle_variable,
         tokens.TokenType.FUNCTION: handle_function,
         tokens.TokenType.STRUCT: handle_struct,
@@ -636,7 +635,7 @@ def print_ast(node, indent=0, visited=None):
 
     # Primitive values
     if isinstance(node, (str, int, float, bool, type(None))):
-        print(f"{spacing}{repr(node)}")
+        print(f"{spacing}{node!r}")
         return
 
     # Recursion protection
@@ -677,7 +676,7 @@ def print_ast(node, indent=0, visited=None):
         return
 
     # Fallback
-    print(f"{spacing}{repr(node)}")
+    print(f"{spacing}{node!r}")
 
 
 def run(tokens_from_lexer, trace_arg):

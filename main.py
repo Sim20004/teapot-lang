@@ -1,9 +1,10 @@
 import argparse
-from pathlib import Path
 import os
 import shutil
+from pathlib import Path
 
 from teapot import lexer
+
 
 class TeapotError(Exception):
     def __init__(self, msg):

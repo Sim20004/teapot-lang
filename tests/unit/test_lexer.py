@@ -1,7 +1,8 @@
-from teapot.lexer import Lexer
-import teapot.tokens as tokens
 import pytest
-from teapot.lexer import LexerError
+
+from teapot import tokens
+from teapot.lexer import Lexer, LexerError
+
 
 # Basic cursor behavior and source normalization.
 def test_empty_source():
@@ -147,7 +148,7 @@ def test_float():
 
     count = 0.1
     offset = 0
-    for i in range(0, 6):
+    for i in range(6):
         assert tokens_list[0 + offset].type == tokens.TokenType.VAL
         assert tokens_list[1 + offset].type == tokens.TokenType.TYPE
         assert tokens_list[2 + offset].type == tokens.TokenType.IDENTIFIER
@@ -251,7 +252,7 @@ def test_single_character_symbols():
     lexer = Lexer("+-*/%><~ =(){}[],.|:!")
     tokens_list = lexer.tokenise()
 
-    for _, expected_type in single_character_symbols.items():
+    for expected_type in single_character_symbols.values():
         assert tokens_list.pop(0).type == expected_type
 
 def test_two_character_symbols_and_precedence():
@@ -274,7 +275,7 @@ def test_two_character_symbols_and_precedence():
     lexer = Lexer("**  ==  >=  <=  ~=  &&  ||  +=  -=  *=  /=  ::  >>")
     tokens_list = lexer.tokenise()
 
-    for _, expected_type in two_character_symbols.items():
+    for _, expected_type in two_character_symbols.values():
         assert tokens_list.pop(0).type == expected_type
 
 def test_invalid_symbol():

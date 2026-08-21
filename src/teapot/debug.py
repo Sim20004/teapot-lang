@@ -1,6 +1,7 @@
 import builtins
 from pathlib import Path
 
+
 # Shadows built-in print() function with one that prints and writes to build/build.log.
 def print(*args, **kwargs):
     # Keep trace output visible while making it available for later inspection.

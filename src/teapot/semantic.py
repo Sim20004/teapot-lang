@@ -1,5 +1,6 @@
 from teapot.debug import print
 
+
 # Semantic validation is currently a traversal scaffold for future checks.
 class SemanticAnalyser:
     def __init__(self, ast_tree, trace):
