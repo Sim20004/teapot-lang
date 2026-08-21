@@ -275,7 +275,7 @@ def test_two_character_symbols_and_precedence():
     lexer = Lexer("**  ==  >=  <=  ~=  &&  ||  +=  -=  *=  /=  ::  >>")
     tokens_list = lexer.tokenise()
 
-    for _, expected_type in two_character_symbols.values():
+    for expected_type in two_character_symbols.values():
         assert tokens_list.pop(0).type == expected_type
 
 def test_invalid_symbol():
