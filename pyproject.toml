@@ -4,8 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "teapot"
-version = "0.1.0"
+dynamic = ["version"]
 requires-python = ">=3.10"
+
+[tool.setuptools.dynamic]
+version = { attr = "teapot.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
