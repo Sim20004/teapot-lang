@@ -1,0 +1,14 @@
+$MEM-GC
+
+// Demonstrates the syntax for declaring a custom operator in TeapotLang.
+// - `operator` keyword followed by the operator symbol (e.g. `+`)
+// - a comma-separated, typed multi-argument parameter list (same style as `fc`)
+// - an explicit return type after `!`
+// - a body that computes and returns a value via `exit`
+//
+// Note: this only demonstrates declaration syntax.
+// Operator overload resolution is out of scope for this example.
+
+pub operator +(csi32 a, csi32 b)!csi32 {
+    exit a + b.
+}
