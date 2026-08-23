@@ -1,6 +1,3 @@
-import struct
-from decimal import Decimal
-
 import teapot.teapot_ast as ast
 from teapot.debug import print
 
@@ -57,46 +54,17 @@ class SemanticAnalyser:
                 case ast.DeclareVariable():
                     self.analyse_variable_declaration(node)
 
+                case _:
+                    raise SemanticError("Unknown node", node)
+
     def analyse_variable_declaration(self, node):
         identifier = node.identifier
         datatype = node.datatype.name
-        value = node.value.value
         symbol = Symbol(identifier, "variable", datatype)
         self.global_scope.define(symbol)
 
-        if not self.check_type(datatype, value):
-            raise SemanticError(
-                f"Variable declaration {identifier}, {datatype} failed during type checking - ensure that the type is correct and the integer (if applicable) does not exceed the bit limit.",
-                node,
-            )
-
         if self.trace:
             print(f"Found valid variable declaration: {identifier}, {datatype}.")
-
-    def check_type(self, type_, value):
-        match type_:
-            case "mui8":
-                return isinstance(value, int) and 0 <= value <= 255
-            case "mstr":
-                return isinstance(value, str)
-            case "mchar":
-                return isinstance(value, str) and len(value) == 1
-            case "mbln":
-                return isinstance(value, bool)
-            case "maint":
-                return isinstance(value, int)
-            case "mdml":
-                return isinstance(value, Decimal)
-            case "mf32":
-                if not isinstance(value, float):
-                    return False
-                try:
-                    struct.pack("f", value)
-                    return True
-                except OverflowError:
-                    return False
-            case "mf64":
-                return isinstance(value, float)
 
 
 def analyse(ast_tree, trace_arg):
