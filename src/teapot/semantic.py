@@ -15,10 +15,12 @@ class SemanticError(Exception):
 
 # Symbol class stores a symbol for the symbol table
 class Symbol:
-    def __init__(self, name, kind, type_):
+    def __init__(self, name, kind, type_, params, scope):
         self.name = name
         self.kind = kind
         self.type = type_
+        self.params = params
+        self.scope = scope
 
 
 # Symbol table stores Symbols
@@ -109,17 +111,42 @@ class SemanticAnalyser:
                     raise SemanticError("Unknown node", node)
 
     def define_function_declaration(self, node):
+
         identifier = node.name
         return_type = node.return_type
-        symbol = Symbol(identifier, "function", return_type)
+
+        function_scope = SymbolTable(parent=self.global_scope)
+
+        symbol = Symbol(
+            identifier,
+            "function",
+            return_type,
+            None,
+            function_scope,
+        )
+
         self.global_scope.define(symbol)
+
+        self.define_function_parameters(node, function_scope)
 
         if self.trace:
             print(f"  - Found valid function declaration: {identifier}.")
 
+    def define_function_parameters(self, node, function_scope):
+
+        for param in node.arguments:
+            function_scope.define(
+                Symbol(
+                    param.identifier,
+                    "function_argument",
+                    param.datatype.name,
+                    None,
+                )
+            )
+
     def define_struct_declaration(self, node):
         identifier = node.identifier
-        symbol = Symbol(identifier, "struct", None)
+        symbol = Symbol(identifier, "struct", None, None, self.global_scope)
         self.global_scope.define(symbol)
 
         if self.trace:
@@ -128,7 +155,7 @@ class SemanticAnalyser:
     def define_variable_declaration(self, node):
         identifier = node.identifier
         datatype = node.datatype.name
-        symbol = Symbol(identifier, "variable", datatype)
+        symbol = Symbol(identifier, "variable", datatype, None, self.global_scope)
 
         self.global_scope.define(symbol)
 
