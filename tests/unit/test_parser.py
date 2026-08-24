@@ -1523,3 +1523,32 @@ def test_ast_regression():
     assert multiplication.operator == "*"
     assert multiplication.left.value == 4
     assert multiplication.right.value == 5
+
+
+# Supported block constructs must handle empty bodies correctly without syntax errors
+def test_empty_function():
+    tokens_list = lex("$MEM-GC\nfc foo()!void { }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.Function)
+    assert statement.name == "foo"
+    assert statement.body == []
+
+
+def test_while_empty_block():
+    tokens_list = lex("$MEM-GC\nwhile (true) { }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.While)
+    assert statement.body == []
+
+
+def test_if_empty_block():
+    tokens_list = lex("$MEM-GC\nif (true) { }")
+    program = Parser(tokens_list).parse()
+    statement = program.statements[0]
+
+    assert isinstance(statement, ast.If)
+    assert statement.body == []
