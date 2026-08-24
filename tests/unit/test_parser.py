@@ -1535,6 +1535,7 @@ def test_empty_function():
     assert statement.name == "foo"
     assert statement.body == []
 
+
 # Empty while blocks must produce body[] is False
 def test_while_empty_block():
     tokens_list = lex("$MEM-GC\nwhile (true) { }")
@@ -1543,6 +1544,7 @@ def test_while_empty_block():
 
     assert isinstance(statement, ast.While)
     assert statement.body == []
+
 
 # Empty if blocks must produce body[] is False
 def test_if_empty_block():
