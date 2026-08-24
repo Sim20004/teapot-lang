@@ -18,7 +18,7 @@ The editable install makes the `src`-layout `teapot` package importable when run
 ## Running the current pipeline
 
 ```bash
-python main.py --input examples/example.tp
+teapot --input examples/example.tp
 ```
 
 The command-line entry point is `main.py`:

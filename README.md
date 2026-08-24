@@ -24,13 +24,13 @@ python -m pip install -e .
 The compiler requires a `.tp` source file passed with `--input` (or `-i`):
 
 ```bash
-python main.py --input examples/parser_curr_test.tp
+teapot --input examples/parser_curr_test.tp
 ```
 
 Use `--trace` (or `-t`) to print tokens, the AST, and semantic-analysis output while the source is processed:
 
 ```bash
-python main.py -i examples/parser_curr_test.tp -t
+teapot -i examples/parser_curr_test.tp -t
 ```
 
 The current compiler lexes and parses the source, then performs a shallow semantic traversal. It recreates the `build/` directory on each run, but it does not produce an executable yet. See [Development](docs/development.md) for tests and project structure.

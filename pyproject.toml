@@ -7,6 +7,9 @@ name = "teapot"
 dynamic = ["version"]
 requires-python = ">=3.10"
 
+[project.scripts]
+teapot = "teapot.main:main"
+
 [tool.setuptools.dynamic]
 version = { attr = "teapot.__version__" }
 

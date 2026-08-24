@@ -1,7 +1,5 @@
 import importlib.metadata
-import os
 import subprocess
-import sys
 from pathlib import Path
 
 import pytest
@@ -13,17 +11,9 @@ SRC = REPO_ROOT / "src"
 
 
 def run_cli(*args, cwd=None):
-    # main.py imports `teapot`, which CI makes importable through pytest's
-    # pythonpath setting rather than by installing the package. A subprocess
-    # does not inherit that, so point it at src/ explicitly.
-    env = dict(os.environ)
-    env["PYTHONPATH"] = os.pathsep.join(
-        [str(SRC), env["PYTHONPATH"]] if env.get("PYTHONPATH") else [str(SRC)]
-    )
     return subprocess.run(
-        [sys.executable, str(REPO_ROOT / "main.py"), *args],
+        ["teapot", *args],
         cwd=cwd or REPO_ROOT,
-        env=env,
         capture_output=True,
         text=True,
         check=False,
