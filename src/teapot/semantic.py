@@ -30,7 +30,8 @@ class SymbolTable:
     def define(self, symbol):
         if symbol.name in self.symbols:
             raise SemanticError(
-                f"{symbol.kind.capitalize()} `{symbol.name}` already declared!", symbol
+                f"{symbol.kind.capitalize()} `{symbol.name}` already declared as a symbol!",
+                symbol,
             )
         self.symbols[symbol.name] = symbol
 
@@ -102,8 +103,19 @@ class SemanticAnalyser:
                     self.define_variable_declaration(node)
                 case ast.Struct():
                     self.define_struct_declaration(node)
+                case ast.Function():
+                    self.define_function_declaration(node)
                 case _:
                     raise SemanticError("Unknown node", node)
+
+    def define_function_declaration(self, node):
+        identifier = node.name
+        return_type = node.return_type
+        symbol = Symbol(identifier, "function", return_type)
+        self.global_scope.define(symbol)
+
+        if self.trace:
+            print(f"  - Found valid function declaration: {identifier}.")
 
     def define_struct_declaration(self, node):
         identifier = node.identifier
@@ -136,10 +148,18 @@ def analyse(ast_tree, trace_arg):
 
     if trace:
         print("\nSYMBOL TABLE:")
+
         headers = ("IDENTIFIER", "KIND", "DATATYPE")
         symbols = list(table.symbols.values())
 
-        rows = [(symbol.name, symbol.kind, symbol.type) for symbol in symbols]
+        rows = [
+            (
+                symbol.name,
+                symbol.kind,
+                symbol.type if symbol.type is not None else "None",
+            )
+            for symbol in symbols
+        ]
 
         widths = [
             max(len(str(row[i])) for row in [headers, *rows])
