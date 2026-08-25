@@ -4,6 +4,7 @@ src/__pycache__/
 src/parser/__pycache__/
 *.py[codz]
 *$py.class
+harper.toml
 
 # C extensions
 *.so
