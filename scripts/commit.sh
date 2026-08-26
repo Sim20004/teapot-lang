@@ -32,7 +32,7 @@ if ! ruff check . ||
     fi
 fi
 
-echo "CI tests passed."
+echo "CI tests completed."
 
 git add .
 
