@@ -7,7 +7,7 @@ echo "Running CI tests..."
 read -rp "WARNING: Will remove the directory build/. Only continue if the folder is disposable. Continue? (y/n) " warn
 
 if [[ "$warn" =~ ^[Yy]$ ]]; then
-    rm -rf build/
+    rm -rf ../build/
 else
     echo "Aborted."
     exit 1
@@ -20,7 +20,7 @@ if ! ruff check . ||
    ! mypy src/teapot ||
    ! python -m pytest ||
    ! python -m build ||
-   ! pip-audit; then
+   ! pip-audit .; then
 
     echo
     echo "WARNING: Some CI tests failed."
