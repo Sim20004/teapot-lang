@@ -258,8 +258,11 @@ def test_function_parameter_definition():
     )
 
     # This currently fails because semantic.py does not pass scope to Symbol().
-    with raises(TypeError):
-        analyser.define_function_parameters(node, function_scope)
+    analyser.define_function_parameters(node, function_scope)
+    assert function_scope.lookup("foo").name == "foo"
+    assert function_scope.lookup("foo").kind == "function_argument"
+    assert function_scope.lookup("foo").type == ast.Type("mui8")
+    assert function_scope.lookup("foo").scope is function_scope
 
 
 # Multiple function parameters should be added to the function scope.
@@ -286,9 +289,10 @@ def test_multiple_function_parameters():
         body=[],
     )
 
-    # This currently fails because semantic.py does not pass scope to Symbol().
-    with raises(TypeError):
-        analyser.define_function_parameters(node, function_scope)
+    analyser.define_function_parameters(node, function_scope)
+
+    assert function_scope.lookup("foo").type == ast.Type("mui8")
+    assert function_scope.lookup("bar").type == ast.Type("mstr")
 
 
 # Duplicate function parameters should raise SemanticError after the scope bug is fixed.
@@ -315,8 +319,7 @@ def test_duplicate_function_parameter():
         body=[],
     )
 
-    # Currently reaches TypeError before duplicate detection.
-    with raises(TypeError):
+    with raises(SemanticError):
         analyser.define_function_parameters(node, function_scope)
 
 

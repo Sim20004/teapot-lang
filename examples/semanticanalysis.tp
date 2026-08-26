@@ -5,6 +5,6 @@ sct Foo {
     mui8 foo.
     mui8 bar.
 }
-fc baz()!void {
+fc baz(mui8 qux, cstr quux)!void {
     
 }

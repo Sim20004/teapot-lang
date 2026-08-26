@@ -139,8 +139,9 @@ class SemanticAnalyser:
                 Symbol(
                     param.identifier,
                     "function_argument",
-                    param.datatype.name,
+                    param.datatype,
                     None,
+                    function_scope,
                 )
             )
 
