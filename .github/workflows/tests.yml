@@ -41,7 +41,7 @@ jobs:
         run: python -m build
 
       - name: Audit dependencies
-        run: pip-audit
+        run: pip-audit .
 
   test:
     name: Tests - Python ${{ matrix.python-version }}
