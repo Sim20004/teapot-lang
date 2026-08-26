@@ -7,13 +7,11 @@ echo "Running CI tests..."
 read -rp "WARNING: Will remove the directory build/. Only continue if the folder is disposable. Continue? (y/n) " warn
 
 if [[ "$warn" =~ ^[Yy]$ ]]; then
-    rm -rf ../build/
+    rm -rf build/
 else
     echo "Aborted."
     exit 1
 fi
-
-rm -rf build/
 
 if ! ruff check . ||
    ! ruff format --check . ||
