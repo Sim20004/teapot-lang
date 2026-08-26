@@ -257,7 +257,6 @@ def test_function_parameter_definition():
         body=[],
     )
 
-    # This currently fails because semantic.py does not pass scope to Symbol().
     analyser.define_function_parameters(node, function_scope)
     assert function_scope.lookup("foo").name == "foo"
     assert function_scope.lookup("foo").kind == "function_argument"
