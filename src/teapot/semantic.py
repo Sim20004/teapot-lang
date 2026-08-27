@@ -28,6 +28,7 @@ class SymbolTable:
     def __init__(self, parent=None):
         self.symbols = {}
         self.parent = parent
+        self.global_scope = None
 
     def define(self, symbol):
         if symbol.name in self.symbols:
@@ -50,7 +51,6 @@ class SemanticAnalyser:
     def __init__(self, ast_tree, trace):
         self.ast_tree = ast_tree
         self.trace = trace
-        self.global_scope = SymbolTable()
 
     """
     datatypes: ClassVar = {
@@ -94,7 +94,22 @@ class SemanticAnalyser:
     def second_pass_type_check(self):
         pass
 
-    def first_pass_symbol_table(self):
+    def first_pass_symbol_table(self, local=None, lnode=None):
+        if local is not None:
+            if self.trace:
+                print(type(lnode).__name__ + ":")
+
+            match lnode:
+                case ast.DeclareVariable():
+                    self.define_variable_declaration(lnode)
+                case ast.Struct():
+                    self.define_struct_declaration(lnode)
+                case ast.Function():
+                    self.define_function_declaration(lnode)
+                case _:
+                    raise SemanticError("Unknown node", lnode)
+
+        global_scope = SymbolTable()
         # Create symbol table by passing over all top-level nodes
         for node in self.ast_tree.statements:
             if self.trace:
@@ -102,20 +117,22 @@ class SemanticAnalyser:
 
             match node:
                 case ast.DeclareVariable():
-                    self.define_variable_declaration(node)
+                    self.define_variable_declaration(node, global_scope)
                 case ast.Struct():
-                    self.define_struct_declaration(node)
+                    self.define_struct_declaration(node, global_scope)
                 case ast.Function():
-                    self.define_function_declaration(node)
+                    self.define_function_declaration(node, global_scope)
                 case _:
                     raise SemanticError("Unknown node", node)
 
-    def define_function_declaration(self, node):
+        self.global_scope = global_scope
+
+    def define_function_declaration(self, node, scope):
 
         identifier = node.name
         return_type = node.return_type
 
-        function_scope = SymbolTable(parent=self.global_scope)
+        function_scope = SymbolTable(parent=scope)
 
         symbol = Symbol(
             identifier,
@@ -125,12 +142,16 @@ class SemanticAnalyser:
             function_scope,
         )
 
-        self.global_scope.define(symbol)
+        scope.define(symbol)
 
         self.define_function_parameters(node, function_scope)
 
         if self.trace:
             print(f"  - Found valid function declaration: {identifier}.")
+
+    def define_function_scope_statements(self, node, function_scope):
+        for statement in node.body:
+            self.first_pass_symbol_table(function_scope, statement)
 
     def define_function_parameters(self, node, function_scope):
 
@@ -145,20 +166,20 @@ class SemanticAnalyser:
                 )
             )
 
-    def define_struct_declaration(self, node):
+    def define_struct_declaration(self, node, scope):
         identifier = node.identifier
-        symbol = Symbol(identifier, "struct", None, None, self.global_scope)
-        self.global_scope.define(symbol)
+        symbol = Symbol(identifier, "struct", None, None, scope)
+        scope.define(symbol)
 
         if self.trace:
             print(f"  - Found valid struct declaration: {identifier}.")
 
-    def define_variable_declaration(self, node):
+    def define_variable_declaration(self, node, scope):
         identifier = node.identifier
         datatype = node.datatype.name
-        symbol = Symbol(identifier, "variable", datatype, None, self.global_scope)
+        symbol = Symbol(identifier, "variable", datatype, None, scope)
 
-        self.global_scope.define(symbol)
+        scope.define(symbol)
 
         if self.trace:
             print(f"  - Found valid variable declaration: {identifier}, {datatype}.")

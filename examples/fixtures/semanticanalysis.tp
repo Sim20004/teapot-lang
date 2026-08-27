@@ -1,0 +1,11 @@
+$MEM-GC
+val mui8 foo = 8.
+
+sct bar {
+    mui8 baz.
+    cstr qux.
+}
+
+fc quux(mui8 corge)!void {
+    val mui8 foo1 = 8.
+}
