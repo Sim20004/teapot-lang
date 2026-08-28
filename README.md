@@ -1,5 +1,3 @@
-[![Discord](https://img.shields.io/discord/1540780981634728098?label=Discord&logo=discord&color=5865F2)](https://discord.gg/3G5A9UA8W)
-
 # TeapotLang
 
 TeapotLang is an experimental statically typed programming language and compiler written in Python. It is a learning project for exploring language design, lexing, parsing, abstract syntax trees, semantic analysis, and memory management.
