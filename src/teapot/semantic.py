@@ -134,17 +134,18 @@ class SemanticAnalyser:
 
         function_scope = SymbolTable(parent=scope)
 
+        params = [(param.identifier, param.datatype) for param in node.arguments]
+
         symbol = Symbol(
             identifier,
             "function",
             return_type,
-            None,
+            params,
             function_scope,
         )
 
         scope.define(symbol)
 
-        self.define_function_parameters(node, function_scope)
         self.define_function_scope_statements(node, function_scope)
 
         if self.trace:
@@ -153,19 +154,6 @@ class SemanticAnalyser:
     def define_function_scope_statements(self, node, function_scope):
         for statement in node.body:
             self.first_pass_symbol_table(function_scope, statement)
-
-    def define_function_parameters(self, node, function_scope):
-
-        for param in node.arguments:
-            function_scope.define(
-                Symbol(
-                    param.identifier,
-                    "function_argument",
-                    param.datatype,
-                    None,
-                    function_scope,
-                )
-            )
 
     def define_struct_declaration(self, node, scope):
         identifier = node.identifier
