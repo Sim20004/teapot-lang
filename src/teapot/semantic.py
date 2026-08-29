@@ -28,7 +28,6 @@ class SymbolTable:
     def __init__(self, parent=None):
         self.symbols = {}
         self.parent = parent
-        self.global_scope = None
 
     def define(self, symbol):
         if symbol.name in self.symbols:
@@ -101,13 +100,14 @@ class SemanticAnalyser:
 
             match lnode:
                 case ast.DeclareVariable():
-                    self.define_variable_declaration(lnode)
+                    self.define_variable_declaration(lnode, local)
                 case ast.Struct():
-                    self.define_struct_declaration(lnode)
+                    self.define_struct_declaration(lnode, local)
                 case ast.Function():
-                    self.define_function_declaration(lnode)
+                    self.define_function_declaration(lnode, local)
                 case _:
                     raise SemanticError("Unknown node", lnode)
+            return
 
         global_scope = SymbolTable()
         # Create symbol table by passing over all top-level nodes
@@ -145,6 +145,7 @@ class SemanticAnalyser:
         scope.define(symbol)
 
         self.define_function_parameters(node, function_scope)
+        self.define_function_scope_statements(node, function_scope)
 
         if self.trace:
             print(f"  - Found valid function declaration: {identifier}.")
@@ -196,34 +197,54 @@ def analyse(ast_tree, trace_arg):
     table = analyser.global_scope
 
     if trace:
+
+        def display_scope(scope, name="GLOBAL", indent=0):
+            prefix = " " * indent
+            print(f"\n{prefix}{name} SCOPE:")
+
+            headers = ("IDENTIFIER", "KIND", "DATATYPE")
+            rows = [
+                (
+                    symbol.name,
+                    symbol.kind,
+                    symbol.type if symbol.type is not None else "None",
+                )
+                for symbol in scope.symbols.values()
+            ]
+
+            if rows:
+                widths = [
+                    max(len(str(row[column])) for row in (headers, *rows))
+                    for column in range(len(headers))
+                ]
+
+                print(
+                    f"{prefix}{headers[0]:<{widths[0]}} | "
+                    f"{headers[1]:<{widths[1]}} | "
+                    f"{headers[2]:<{widths[2]}}"
+                )
+
+                print(
+                    f"{prefix}{'-' * widths[0]}-+-{'-' * widths[1]}-+-{'-' * widths[2]}"
+                )
+
+                for row in rows:
+                    print(
+                        f"{prefix}{row[0]:<{widths[0]}} | "
+                        f"{row[1]:<{widths[1]}} | "
+                        f"{row[2]:<{widths[2]}}"
+                    )
+            else:
+                print(f"{prefix}(empty)")
+
+            for symbol in scope.symbols.values():
+                if symbol.scope is not scope:
+                    display_scope(
+                        symbol.scope,
+                        f"{symbol.name.upper()}",
+                        indent + 2,
+                    )
+
         print("\nSYMBOL TABLE:")
-
-        headers = ("IDENTIFIER", "KIND", "DATATYPE")
-        symbols = list(table.symbols.values())
-
-        rows = [
-            (
-                symbol.name,
-                symbol.kind,
-                symbol.type if symbol.type is not None else "None",
-            )
-            for symbol in symbols
-        ]
-
-        widths = [
-            max(len(str(row[i])) for row in [headers, *rows])
-            for i in range(len(headers))
-        ]
-
-        print(
-            f"{headers[0]:<{widths[0]}} | "
-            f"{headers[1]:<{widths[1]}} | "
-            f"{headers[2]:<{widths[2]}}"
-        )
-
-        for row in rows:
-            print(
-                f"{row[0]:<{widths[0]}} | {row[1]:<{widths[1]}} | {row[2]:<{widths[2]}}"
-            )
-
+        display_scope(table)
         print("========= END SEMANTIC ANALYSIS =========")
