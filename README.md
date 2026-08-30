@@ -38,13 +38,13 @@ teapot --input examples/parser_curr_test.tp
 or:
 
 ```bash
-teapot -i examples/parser_curr_test.tp
+teapot examples/parser_curr_test.tp
 ```
 
 For diagnostic output, use `--trace`:
 
 ```bash
-teapot -i examples/parser_curr_test.tp --trace
+teapot examples/parser_curr_test.tp --trace
 ```
 
 Trace mode can show the tokens produced by the lexer, the parsed AST, and semantic-analysis diagnostics.

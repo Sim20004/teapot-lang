@@ -46,7 +46,7 @@ The CLI accepts:
 For example:
 
 ```bash
-teapot -i examples/hello.tp -t
+teapot examples/hello.tp -t
 ```
 
 Input files must use the `.tp` extension.
@@ -291,7 +291,7 @@ Current symbol-table behaviour should be tested independently from future type-c
 Use `--trace` when investigating compiler behaviour:
 
 ```bash
-teapot -i examples/hello.tp --trace
+teapot examples/hello.tp --trace
 ```
 
 Trace output can expose:
@@ -345,7 +345,7 @@ pytest
 and, for compiler changes:
 
 ```bash
-teapot -i examples/hello.tp -t
+teapot examples/hello.tp -t
 ```
 
 Follow the naming, terminology, British English, and contribution guidance in [CONTRIBUTING.md](../CONTRIBUTING.md).

@@ -557,7 +557,7 @@ Semantic errors use `SemanticError`.
 Compiler tracing can be enabled with:
 
 ```bash
-teapot -i examples/hello.tp --trace
+teapot examples/hello.tp --trace
 ```
 
 ## Current boundaries
