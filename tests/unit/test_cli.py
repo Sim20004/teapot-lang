@@ -1,5 +1,7 @@
 import importlib.metadata
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -11,9 +13,16 @@ SRC = REPO_ROOT / "src"
 
 
 def run_cli(*args, cwd=None):
+    env = os.environ.copy()
+    pythonpath = [str(SRC)]
+    if existing_pythonpath := env.get("PYTHONPATH"):
+        pythonpath.append(existing_pythonpath)
+    env["PYTHONPATH"] = os.pathsep.join(pythonpath)
+
     return subprocess.run(
-        ["teapot", *args],
+        [sys.executable, "-m", "teapot", *args],
         cwd=cwd or REPO_ROOT,
+        env=env,
         capture_output=True,
         text=True,
         check=False,
