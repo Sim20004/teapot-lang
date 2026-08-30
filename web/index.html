@@ -152,6 +152,7 @@
   <link rel="stylesheet" href="css/style.css">
 
   <script src="js/script.js" defer></script>
+  <script src="js/teapot-compiler.js" defer></script>
 </head>
 
 <body>
@@ -175,6 +176,7 @@
         <a href="#about">About</a>
         <a href="#pipeline">Pipeline</a>
         <a href="#syntax">Syntax</a>
+        <a href="#playground">Playground</a>
         <a href="#types">Types</a>
         <a href="#status">Status</a>
         <a href="#faq">FAQ</a>
@@ -797,6 +799,138 @@
       </div>
     </section>
 
+  <!-- Compiler playground -->
+  <section id="playground">
+    <div class="wrap">
+
+      <p class="eyebrow">
+        Interactive compiler
+      </p>
+
+      <h2>
+        Explore the compiler
+      </h2>
+
+      <p class="section-lead">
+        Run TeapotLang directly in your browser. The playground uses the
+        TeapotLang compiler itself through Pyodide and WebAssembly, then
+        exposes the compiler's token stream, abstract syntax tree, and
+        symbol table.
+      </p>
+
+      <div class="project-preview compiler-preview" data-compiler>
+
+        <div class="preview-toolbar">
+          <span class="preview-kicker">
+            LIVE COMPILER
+          </span>
+
+          <span class="preview-status">
+            <i></i>
+            Pyodide WASM backend
+          </span>
+        </div>
+
+        <label class="editor-label" for="teapot-source">
+          main.tp
+        </label>
+
+        <textarea
+          id="teapot-source"
+          spellcheck="false"
+          aria-label="TeapotLang source code"
+        >$MEM-GC
+fc main()!void {
+    val mui8 foo = 1.
+    val mui8 bar = 2.
+    val mui8 baz = foo + bar.
+}
+  </textarea>
+
+        <div class="compiler-actions">
+          <button
+            class="preview-button"
+            type="button"
+          >
+            Compile
+          </button>
+
+          <span
+            class="compile-stage"
+            aria-live="polite"
+          >
+            ready
+          </span>
+        </div>
+
+        <div
+          class="compiler-tabs"
+          role="tablist"
+          aria-label="Compiler output"
+        >
+          <button
+            class="compiler-tab active"
+            type="button"
+            data-view="tokens"
+            role="tab"
+            aria-selected="true"
+          >
+            Token Object list
+          </button>
+
+          <button
+            class="compiler-tab"
+            type="button"
+            data-view="ast"
+            role="tab"
+            aria-selected="false"
+          >
+            AST Tree
+          </button>
+
+          <button
+            class="compiler-tab"
+            type="button"
+            data-view="symbols"
+            role="tab"
+            aria-selected="false"
+          >
+            Symbol table
+          </button>
+        </div>
+
+        <pre
+          class="compiler-output"
+          data-output="tokens"
+          aria-live="polite"
+        >Compile to inspect lexer output.</pre>
+
+        <pre
+          class="compiler-output"
+          data-output="ast"
+          aria-live="polite"
+          hidden
+        >Compile to inspect parser output.</pre>
+
+        <div
+          class="compiler-output symbol-table-output"
+          data-output="symbols"
+          aria-live="polite"
+          hidden
+        >Compile to inspect semantic symbols.</div>
+
+      </div>
+
+      <div class="note">
+        <strong>Browser execution:</strong>
+        The playground downloads the current TeapotLang compiler modules
+        and runs the lexer, parser, and semantic analyser locally through
+        Pyodide. Your source code is processed in the browser rather than
+        sent to a server.
+      </div>
+
+    </div>
+  </section>
 
     <!-- Type system -->
     <section id="types" class="alt">
