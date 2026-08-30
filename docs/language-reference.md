@@ -1,10 +1,30 @@
 # TeapotLang language reference
 
-This is the practical reference for the syntax currently recognised by the lexer and parser. It is not a description of a runnable language: semantic analysis is only a shallow AST traversal and the repository has no code generator. For intended rules and design-level features, see the [language specification](language-specification.md).
+This document describes the syntax currently recognised by the TeapotLang lexer and parser.
 
-## Minimal source file
+It is a **practical language reference**, not a description of a fully executable language. The compiler currently performs lexical analysis, parsing, and initial semantic analysis, but it does not generate executable code or provide a runtime.
 
-A source file must contain one of the recognised memory directives before parsing can begin:
+For intended language features and design decisions that are not yet fully implemented, see the [language specification](language-specification.md).
+
+## Implementation status
+
+The following terms are used throughout this document:
+
+| Status          | Meaning                                                                                                   |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| **Implemented** | Supported by the relevant compiler stage and covered by the current implementation/tests where applicable |
+| **Parsed**      | The parser constructs an AST representation                                                               |
+| **Recognised**  | The lexer recognises the syntax, but a later stage may reject it                                          |
+| **Represented** | An AST or compiler structure exists, but the syntax is not necessarily parseable                          |
+| **Design**      | Part of the intended language model but not currently implemented                                         |
+
+The current compiler does not produce executable output.
+
+## Source files
+
+TeapotLang source files use the `.tp` extension.
+
+A source file must begin with one of the recognised memory directives:
 
 ```teapot
 $MEM-GC
@@ -13,42 +33,91 @@ fc main()!void {
 }
 ```
 
-The parser consumes the directive as the first token. The lexer itself permits a directive after other tokens, but parsing then fails. Only one directive is allowed, and the lexer rejects unknown or duplicate directives.
+or:
 
-Statements that are parsed as statements end with a period (`.`). Braces delimit blocks and do not require a period after the closing brace.
+```teapot
+$MEM-MANUAL
+
+fc main()!void {
+}
+```
+
+The parser expects the memory directive before the rest of the program.
+
+Only one memory directive is allowed. The lexer rejects unknown or duplicate directives.
+
+The directive is stored on the resulting `Program` as `memory_mode`.
+
+## Statements
+
+Statements that are terminated by the parser use a period:
+
+```teapot
+val mui8 count = 10.
+```
+
+Block constructs use braces and do not require a period after the closing brace:
+
+```teapot
+if (count > 0) {
+    count -= 1.
+}
+```
 
 ## Lexical syntax
 
-### Whitespace and comments
+### Whitespace
 
-Whitespace is ignored. CRLF line endings are normalised to LF. Single-line comments start with `//` and continue to the end of the line; a comment may also end the file.
+Whitespace is ignored.
 
-Strings are enclosed in double quotes. They have no escape processing, and the lexer permits newlines inside a string. A string that reaches end of file without a closing quote raises `LexerError`.
+CRLF line endings are normalised to LF before tokenisation.
+
+### Comments
+
+Single-line comments begin with `//`:
+
+```teapot
+// This is a comment
+val mui8 value = 10.
+```
+
+A comment may end at the end of the file.
+
+There is currently no block-comment syntax.
 
 ### Identifiers
 
-An identifier starts with an alphabetic character or `_`, then contains alphabetic characters, digits, or `_`:
+Identifiers begin with an alphabetic character or `_` and may then contain alphabetic characters, digits, and `_`:
 
 ```teapot
-val csi32 item_2 = 10.
+val mui8 item_2 = 10.
 ```
 
-Words in the keyword or type tables are tokenised as those keywords or types rather than as identifiers. User-defined names are otherwise tokenised as identifiers.
+Identifiers are case-sensitive.
+
+Words recognised as keywords, type names, or Boolean literals are not tokenised as ordinary identifiers.
 
 ### Literals
 
-The lexer produces these literal token kinds:
+The lexer recognises:
 
-| Source form | Result |
-| --- | --- |
-| `42` | Integer value |
-| `3.14` | Floating-point value |
-| `"tea"` | String value |
-| `true`, `false` | Boolean value (`True` or `False`) |
+| Source  | Value           |
+| ------- | --------------- |
+| `42`    | Integer         |
+| `3.14`  | Float           |
+| `"tea"` | String          |
+| `true`  | Boolean `True`  |
+| `false` | Boolean `False` |
 
-Numbers are decimal integers or decimal floating-point values. Exponent notation is not recognised. A second decimal point in one number raises `LexerError`. There is no separate character-literal form; `char`, `mchar`, and `cchar` are type names only.
+Numeric literals are decimal.
 
-### Directives
+Exponent notation is not currently recognised.
+
+Strings use double quotes and currently have no escape processing. Newlines may occur inside a string. An unterminated string produces `LexerError`.
+
+There is no separate character-literal syntax.
+
+## Memory directives
 
 The lexer recognises exactly:
 
@@ -57,42 +126,120 @@ $MEM-GC
 $MEM-MANUAL
 ```
 
-The selected directive is stored on the parsed `Program` as `memory_mode`. The repository does not implement garbage collection or manual freeing beyond recording this value.
+The selected directive is stored on the AST.
+
+The compiler does not currently implement a garbage collector, manual memory allocator, or executable runtime. These directives currently represent the selected language mode only.
 
 ## Types
 
-The lexer recognises these type names:
+The lexer recognises the following built-in types.
 
-| Family | Names |
-| --- | --- |
-| Base types | `void`, `str`, `char`, `bln`, `aint`, `dml`, `f32`, `f64`, `si8`, `si16`, `si32`, `si64`, `ui8`, `ui16`, `ui32`, `ui64` |
-| Mutable forms | `mstr`, `mchar`, `mbln`, `maint`, `mdml`, `mf32`, `mf64`, `msi8`, `msi16`, `msi32`, `msi64`, `mui8`, `mui16`, `mui32`, `mui64` |
-| Constant forms | `cstr`, `cchar`, `cbln`, `caint`, `cdml`, `cf32`, `cf64`, `csi8`, `csi16`, `csi32`, `csi64`, `cui8`, `cui16`, `cui32`, `cui64` |
+### Base types
 
-The parser records mutability for the prefixed forms and for `void`. It does not perform type checking or enforce mutability. A user-defined type name is tokenised as an identifier and is accepted in some declaration positions.
+```text
+void
+str
+char
+bln
+aint
+dml
+f32
+f64
+si8
+si16
+si32
+si64
+ui8
+ui16
+ui32
+ui64
+```
 
-An array type is written with `[]` after a recognised element type in variable and function-parameter declarations:
+### Mutable types
+
+```text
+mstr
+mchar
+mbln
+maint
+mdml
+mf32
+mf64
+msi8
+msi16
+msi32
+msi64
+mui8
+mui16
+mui32
+mui64
+```
+
+### Constant types
+
+```text
+cstr
+cchar
+cbln
+caint
+cdml
+cf32
+cf64
+csi8
+csi16
+csi32
+csi64
+cui8
+cui16
+cui32
+cui64
+```
+
+The parser records mutability information for the mutable and constant forms.
+
+Semantic enforcement of mutability and complete type checking are still under development.
+
+## Arrays
+
+Array types use `[]` after the element type:
 
 ```teapot
 val csi32[] values = [1, 2, 3].
+
 fc total(csi32[] values)!csi32 {
     exit 0.
 }
 ```
 
-`ref` can precede a variable type and is recorded on the AST type node:
+Array literals are supported:
+
+```teapot
+val csi32[] values = [1, 2, 3].
+```
+
+Array indexing is not currently supported:
+
+```teapot
+values[0]
+```
+
+is not a valid parser-supported expression.
+
+## References
+
+`ref` may precede a variable type:
 
 ```teapot
 val ref csi32 value = other.
 ```
 
-This is representation only; no reference semantics are implemented.
+The parser records reference information on the type representation.
 
-## Declarations
+Reference semantics, aliasing, lifetime rules, and pointer behaviour are not currently implemented.
 
-### Variables
+## Variables
 
-Use `val`, followed by a built-in type or an identifier naming a user-defined type, then a variable name. The initialiser is optional; an omitted value is represented in the AST as a `null` Python value.
+Variables are declared using `val`:
 
 ```teapot
 val csi32 count = 0.
@@ -100,39 +247,89 @@ val cstr message.
 val ref csi32 alias = count.
 ```
 
-The parser recognises assignment operators `=`, `+=`, `-=`, `*=`, and `/=` on identifier-led assignment statements:
+The initialiser is optional.
+
+Assignments use an identifier followed by one of:
+
+```text
+=
++=
+-=
+*=
+/=
+```
+
+For example:
 
 ```teapot
 count += 1.
 ```
 
-The parser does not validate that a target exists, is mutable, or has a compatible type.
+The semantic analyser does not yet perform complete type or mutability validation for assignments.
 
-### Functions
+## Functions
 
-Function declarations use `fc`, a name, parentheses, `!`, a return type, and a block. Parameters require lexer-recognised type tokens and an identifier. Default arguments are expressions after `=`.
+Functions use the `fc` keyword:
 
 ```teapot
-fc add(csi32 left, csi32 right = 1)!csi32 {
+fc add(csi32 left, csi32 right)!csi32 {
     exit left + right.
 }
 ```
 
-A return type may be a recognised type or an identifier. The parser does not require a `main` function and does not execute one.
+The general form is:
 
-`exit` parses one expression followed by a period:
-
-```teapot
-exit left + right.
+```text
+fc name(parameters)!return_type {
+    statements
+}
 ```
 
-### Visibility
+Parameters have a type and identifier:
 
-`pub` may precede a function, struct, enum, error, or operator declaration. The parser rejects `pub` on other parsed statement kinds. No module boundary or access checking is implemented.
+```teapot
+fc add(csi32 left, csi32 right)!csi32 {
+}
+```
 
-### Structs
+Default parameter expressions are supported by the parser:
 
-Struct declarations contain recognised mutable or constant type names, field names, and periods:
+```teapot
+fc add(csi32 left, csi32 right = 1)!csi32 {
+}
+```
+
+The parser does not currently enforce all semantic rules for parameters, calls, defaults, or return paths.
+
+A `main` function is not currently required by the parser and is not executed because there is no runtime.
+
+## Return statements
+
+`exit` returns an expression:
+
+```teapot
+exit value.
+```
+
+The expression must be followed by a period.
+
+Complete return-type checking is not currently implemented.
+
+## Visibility
+
+`pub` may precede declarations supported by the parser, including:
+
+* functions;
+* structs;
+* enums;
+* errors; and
+* operators.
+
+There is currently no module system or access-control semantic pass.
+
+## Structs
+
+Structs use `sct`:
 
 ```teapot
 sct Person {
@@ -141,17 +338,19 @@ sct Person {
 }
 ```
 
-The parser also recognises the following narrow instantiation form:
+Struct fields are declared with a type, identifier, and period.
+
+The parser also supports a limited struct-instantiation form:
 
 ```teapot
 val Person person = Person("Alex", 15).
 ```
 
-Instantiation arguments are limited to integer, float, Boolean, string, or identifier tokens. The parser does not check field counts or types.
+The compiler does not currently perform complete field-count or field-type validation.
 
-### Enums and errors
+## Enums
 
-Enum members are identifiers followed by periods:
+Enums use `enm`:
 
 ```teapot
 enm Result {
@@ -160,7 +359,13 @@ enm Result {
 }
 ```
 
-Error declarations contain typed fields in the same shape as struct fields:
+Enum members are identifiers followed by periods.
+
+Semantic handling of enums is still under development.
+
+## Error declarations
+
+Error declarations use `err`:
 
 ```teapot
 err ValidationError {
@@ -168,9 +373,13 @@ err ValidationError {
 }
 ```
 
-### Operators
+They are represented in the AST and parsed by the current parser.
 
-The parser recognises operator declarations with an operator symbol or identifier, at least one argument, `!`, a return type, and a block:
+Runtime error handling is not implemented.
+
+## Operator declarations
+
+Operator declarations use `operator`:
 
 ```teapot
 operator +(csi32 left, csi32 right)!csi32 {
@@ -178,27 +387,23 @@ operator +(csi32 left, csi32 right)!csi32 {
 }
 ```
 
-The AST records these as `Operator` nodes. No overload resolution or operator type checking is implemented.
+Operator declarations are parsed into `Operator` AST nodes.
 
-## Statements and control flow
+Operator overload resolution and semantic validation are not currently implemented.
 
-The parser dispatch table currently constructs these statement nodes:
+## Control flow
 
-| Syntax | AST node |
-| --- | --- |
-| `val ...` | `DeclareVariable` |
-| `fc ...` | `Function` |
-| `sct ...` | `Struct` |
-| `enm ...` | `Enum` |
-| `err ...` | `Error` |
-| `operator ...` | `Operator` |
-| `exit ...` | `Return` |
-| `if (...) { ... }` | `If` |
-| `while (...) { ... }` | `While` |
-| `for (name : expression) { ... }` | `For` |
-| identifier assignment | `Assignment` |
+### `if`
 
-Conditions require parentheses. `if` supports zero or more `elif` branches and an optional `else` block:
+Conditions use parentheses:
+
+```teapot
+if (value > 0) {
+    exit true.
+}
+```
+
+`elif` and `else` are supported:
 
 ```teapot
 if (value > 0) {
@@ -212,31 +417,52 @@ else {
 }
 ```
 
-Loops use these forms:
+### `while`
 
 ```teapot
 while (condition) {
-}
-
-for (item : values) {
+    // body
 }
 ```
 
-Although `break`, `continue`, `do`, and `fail` are tokenised and have AST dataclasses, they are not in the parser statement dispatch table and are rejected as statements.
+### `for`
+
+The current parser supports:
+
+```teapot
+for (item : values) {
+    // body
+}
+```
+
+The exact semantic meaning of iteration is not yet implemented.
+
+### `break` and `continue`
+
+The lexer recognises `break` and `continue`, and corresponding AST dataclasses exist.
+
+They are not currently accepted by the parser as statements.
+
+They should therefore be considered unfinished language features rather than usable control-flow syntax.
 
 ## Expressions
 
-Expressions may contain:
+The parser currently supports:
 
-- integer, float, string, and Boolean literals;
-- identifiers;
-- parenthesised expressions;
-- array literals such as `[1, 2, 3]`;
-- function-call postfixes such as `add(1, 2)`;
-- member access using `::`, such as `object::field`;
-- casts using `>>`, such as `value >> csi32`;
-- unary `~` and unary negation of numeric literals; and
-- binary operators listed below.
+* integer literals;
+* floating-point literals;
+* string literals;
+* Boolean literals;
+* identifiers;
+* parenthesised expressions;
+* array literals;
+* function calls;
+* member access;
+* casts;
+* unary operators; and
+* binary operators.
+
+Examples:
 
 ```teapot
 val csi32 result = (left + 2) * 3.
@@ -244,26 +470,114 @@ val csi32 converted = result >> csi32.
 val csi32 field = object::value.
 ```
 
-Array indexing is not handled by the parser, so an expression such as `values[0]` is not currently valid.
+### Function calls
 
-### Operators and precedence
+Function-call expressions use parentheses:
 
-The parser assigns the following precedence values. Higher values bind more tightly:
+```teapot
+add(1, 2)
+```
 
-| Precedence | Operators |
-| ---: | --- |
-| 6 | `**` |
-| 5 | `%`, `/`, `*` |
-| 4 | `+`, `-` |
-| 3 | `<`, `<=`, `>`, `>=` |
-| 2 | `==`, `~=` |
-| 1 | `&&` |
-| 0 | `||` |
+Calls are represented by the parser as call-expression AST nodes.
 
-Assignment operators, `::`, `>>`, and function calls are handled by dedicated parser paths rather than this binary precedence table. The parser builds a left-associated binary expression for operators at the same precedence. It does not evaluate expressions.
+Name resolution and call validation are part of ongoing semantic-analysis work.
 
-## Errors and current boundaries
+### Member access
 
-`LexerError` includes a line and column. `ParserError` includes the current token and parser position. Both error classes also print a diagnostic through the project debug helper.
+Member access uses `::`:
 
-The current semantic analyser only iterates over top-level `Program.statements`; it does not resolve names, check types, enforce scope or mutability, validate control flow, or produce semantic errors. There is no runtime or code-generation stage. Features present in token tables or AST dataclasses but absent from parser dispatch should be treated as design or implementation scaffolding, not as usable language features.
+```teapot
+object::field
+```
+
+The parser supports the syntax, but semantic member resolution is not currently implemented.
+
+### Casts
+
+Casts use `>>`:
+
+```teapot
+value >> csi32
+```
+
+The parser records the target type.
+
+The semantic analyser does not yet enforce conversion rules.
+
+## Operators and precedence
+
+The parser uses the following precedence levels. Higher numbers bind more tightly:
+
+| Level | Operators            |   |   |
+| ----: | -------------------- | - | - |
+|     6 | `**`                 |   |   |
+|     5 | `%`, `/`, `*`        |   |   |
+|     4 | `+`, `-`             |   |   |
+|     3 | `<`, `<=`, `>`, `>=` |   |   |
+|     2 | `==`, `~=`           |   |   |
+|     1 | `&&`                 |   |   |
+|     0 | `                    |   | ` |
+
+Parentheses explicitly group expressions.
+
+Assignment operators, function calls, `::`, and `>>` are handled by dedicated parser paths.
+
+The parser constructs an AST and does not evaluate expressions.
+
+## Semantic analysis
+
+Semantic analysis currently builds symbol tables.
+
+The first pass registers declarations including:
+
+* variables;
+* functions;
+* structs.
+
+Function declarations receive their own child scope.
+
+The symbol table supports lookup through parent scopes, allowing nested scopes to resolve symbols declared in enclosing scopes.
+
+Duplicate declarations in the same scope raise `SemanticError`.
+
+For example, declaring the same name twice in one scope is rejected.
+
+Shadowing in a child scope is supported by the current symbol-table implementation.
+
+Full name resolution and type checking are not yet implemented.
+
+## Diagnostics
+
+Lexical errors use `LexerError` and include source position information.
+
+Parser errors use `ParserError` and include the current parser/token context.
+
+Semantic errors use `SemanticError`.
+
+Compiler tracing can be enabled with:
+
+```bash
+teapot -i examples/hello.tp --trace
+```
+
+## Current boundaries
+
+The following features are not currently complete:
+
+* full type checking;
+* identifier resolution;
+* function-call validation;
+* mutability enforcement;
+* complete reference semantics;
+* overload resolution;
+* entry-point execution;
+* runtime memory management;
+* executable code generation;
+* standard library;
+* module/import handling;
+* runtime error handling;
+* `break` and `continue`;
+* array indexing;
+* several collection constructs.
+
+Tokens and AST classes may exist for features that are not yet parser-supported. Their existence should not be interpreted as complete language support.

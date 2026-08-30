@@ -1,27 +1,90 @@
 # TeapotLang language specification
 
-This document is the authoritative statement of the language design recorded by the repository. It describes intended meaning separately from current compiler support. The [language reference](language-reference.md) is the practical guide to syntax that the current lexer and parser recognise.
+This document describes the intended design of TeapotLang.
 
-A feature marked **design** is part of the intended language model but is not established by the current compiler. A feature marked **parser** is constructed into the current AST. A feature marked **lexer** is tokenised but may be rejected by the parser. No feature is executable: the repository has no code-generation or runtime stage.
+It is separate from the [language reference](language-reference.md), which documents syntax currently supported by the compiler.
 
-## 1. Overview and design goals
+The implementation is evolving. A feature described here is not necessarily available in the current compiler.
 
-TeapotLang is intended to be a statically typed, compiled, general-purpose language with explicit type names, mutable and constant type forms, user-defined data structures, multiple memory-management modes, and structured control flow. The repository explores language design and compiler construction in Python.
+## 1. Language overview
 
-The current implementation provides a lexer, a partial parser, AST dataclasses, and a shallow semantic-analysis traversal. Static typing, symbol resolution, runtime memory management, and executable compilation remain design requirements rather than implemented guarantees.
+TeapotLang is intended to be a statically typed, compiled, general-purpose programming language.
 
-## 2. Source files and program structure
+The language is designed around:
 
-A Teapot source file has the `.tp` extension. The intended program entry point is:
+* explicit type names;
+* mutable and constant types;
+* user-defined data structures;
+* functions;
+* structured control flow;
+* references;
+* arrays and collections;
+* configurable memory-management modes;
+* user-defined operators;
+* visibility;
+* error handling; and
+* eventual compilation to executable code.
+
+The current compiler is written in Python and is being developed incrementally.
+
+## 2. Compiler model
+
+The intended compiler architecture is:
+
+```text
+Source
+  |
+  v
+Lexical analysis
+  |
+  v
+Tokens
+  |
+  v
+Parsing
+  |
+  v
+AST
+  |
+  v
+Semantic analysis
+  |
+  v
+Intermediate representation / lowering
+  |
+  v
+Code generation
+  |
+  v
+Executable
+```
+
+The current repository implements the lexer, parser, AST, and an initial semantic-analysis phase.
+
+Code generation, runtime execution, and a standard library are not yet implemented.
+
+## 3. Source files
+
+TeapotLang source files use the `.tp` extension.
+
+A program is intended to have a `main` entry point:
 
 ```teapot
 fc main()!void {
 }
 ```
 
-**Design:** a program starts at `main`. The current parser does not require, find, or execute an entry point.
+### Entry point
 
-A memory directive is required before parsing:
+**Design:** compilation of a complete executable program should identify `main` as the program entry point.
+
+The current compiler does not require or execute `main`.
+
+Entry-point validation remains a semantic-analysis task.
+
+## 4. Memory-management modes
+
+A source file selects its intended memory-management mode with one directive:
 
 ```teapot
 $MEM-GC
@@ -33,206 +96,423 @@ or:
 $MEM-MANUAL
 ```
 
-The current lexer allows a directive to be encountered after other tokens, but the parser requires the first token to be a valid directive. The lexer rejects unknown and duplicate directives.
+The directive applies to the program.
 
-The parser represents the complete file as a `Program` containing statements and the selected `memory_mode`.
+### Garbage collection
 
-## 3. Lexical structure
+`$MEM-GC` is intended to select automatic memory management.
 
-### 3.1 Encoding and line endings
+### Manual memory management
 
-The lexer accepts Python strings as source input and normalises CRLF (`\r\n`) to LF (`\n`). The existing documentation calls the source encoding UTF-8, but the repository does not perform an encoding declaration or byte-to-text decoding; callers provide text to `Lexer`.
+`$MEM-MANUAL` is intended to select explicit memory management.
 
-### 3.2 Whitespace
+The current compiler records the selected mode but does not implement either runtime memory-management model.
 
-Whitespace is skipped. Line and column tracking starts at line 1, column 1. Newlines increment the line and reset the column to 1.
+## 5. Types
 
-### 3.3 Comments
+TeapotLang uses explicit type names.
 
-The implemented comment form is a single-line comment beginning with `//`. It continues until newline or end of input. Comment markers inside a string are string contents.
+The language contains primitive types, mutable forms, constant forms, references, arrays, and user-defined types.
 
-**Design:** the previous specification mentioned block comments, but the current lexer has no block-comment implementation. Block comments are therefore unresolved design material, not current syntax.
+### Primitive types
 
-### 3.4 Identifiers
-
-The implemented identifier rule is:
+The current built-in type vocabulary includes:
 
 ```text
-identifier ::= (letter | "_") (letter | digit | "_")*
+void
+str
+char
+bln
+aint
+dml
+f32
+f64
+si8
+si16
+si32
+si64
+ui8
+ui16
+ui32
+ui64
 ```
 
-Identifiers are case-sensitive. Keywords, type names, and Boolean literals are classified before ordinary identifiers. The lexer tests establish that leading underscores and digits after the first character are accepted.
+### Mutable types
 
-### 3.5 Keywords
-
-The lexer classifies these words as keywords:
-
-| Area | Keywords |
-| --- | --- |
-| Modules and visibility | `attach`, `as`, `pub` |
-| Functions | `fc`, `exit`, `operator` |
-| Variables and memory | `val`, `ref`, `free`, `null` |
-| Control flow | `if`, `elif`, `else`, `while`, `for`, `break`, `continue` |
-| Errors | `do`, `fail`, `err` |
-| Data structures | `sct`, `enm`, `list`, `map` |
-
-Being in this table means a word receives a keyword token. It does not mean that a later parser or semantic stage supports the feature.
-
-### 3.6 Types and literals
-
-The lexer classifies the following as `TYPE` tokens:
+Types prefixed with `m` represent mutable values:
 
 ```text
-void str char bln aint dml f32 f64
-si8 si16 si32 si64 ui8 ui16 ui32 ui64
-mstr mchar mbln msi8 msi16 msi32 msi64
-mui8 mui16 mui32 mui64 maint mf32 mf64 mdml
-cstr cchar cbln csi8 csi16 csi32 csi64
-cui8 cui16 cui32 cui64 caint cf32 cf64 cdml
+mstr
+mchar
+mbln
+maint
+mdml
+mf32
+mf64
+msi8
+msi16
+msi32
+msi64
+mui8
+mui16
+mui32
+mui64
 ```
 
-The lexer produces these literal tokens:
+### Constant types
 
-| Source | Token value |
-| --- | --- |
-| decimal digits, such as `42` | Python `int` |
-| decimal number, such as `3.14` | Python `float` |
-| double-quoted text | Python `str` |
-| `true` | Python `True` |
-| `false` | Python `False` |
+Types prefixed with `c` represent constant values:
 
-There is no escape processing and no separate character-literal syntax. Exponent notation is not handled. A second decimal point in one numeric token and an unterminated string produce `LexerError`.
+```text
+cstr
+cchar
+cbln
+caint
+cdml
+cf32
+cf64
+csi8
+csi16
+csi32
+csi64
+cui8
+cui16
+cui32
+cui64
+```
 
-### 3.7 Operators and punctuation
+The exact rules governing conversions between mutable, constant, and base types are still being established.
 
-The lexer recognises these symbols:
+## 6. Mutability
 
-| Category | Symbols |
-| --- | --- |
-| Arithmetic | `+`, `-`, `*`, `/`, `%`, `**` |
-| Comparison | `==`, `~=`, `>`, `<`, `>=`, `<=` |
-| Logical | `&&`, `||`, `~` |
-| Assignment | `=`, `+=`, `-=`, `*=`, `/=` |
-| Delimiters | `(`, `)`, `{`, `}`, `[`, `]`, `,`, `.` |
-| Other punctuation | `|`, `:`, `::`, `!`, `>>` |
+The language distinguishes mutable and constant type forms.
 
-Two-character symbols are matched before their single-character prefixes. Invalid symbols produce a line-and-column lexer error.
+Conceptually:
 
-## 4. Types
+```text
+mT
+```
 
-The intended type families are primitive numeric, Boolean, string, character, references, arrays, and user-defined structures and enumerations. The built-in names and mutable/constant prefixes are listed in the lexical section.
+represents a mutable value of type `T`, while:
 
-The parser stores a mutability flag for the `m...` and `c...` forms. It also stores whether a variable declaration was prefixed with `ref`. These fields are AST information only. The semantic analyser does not enforce type compatibility, constant assignment rules, scope, or reference validity.
+```text
+cT
+```
 
-**Design:** the specification describes `m` as mutable and `c` as constant, with `void` having no mutable or constant form. Runtime representation and conversion rules are not implemented.
+represents a constant value of type `T`.
 
-Arrays use an element type followed by `[]` in parser-supported variable and parameter declarations:
+The intended semantics are that constant values cannot be modified after their valid initialisation.
+
+The current semantic analyser records type information but does not yet enforce the complete mutability model.
+
+## 7. Variables
+
+Variables use `val`:
+
+```teapot
+val mui8 count = 10.
+```
+
+An initialiser may be omitted:
+
+```teapot
+val cstr message.
+```
+
+The intended semantic rules include:
+
+* the declared type must be valid;
+* the variable name must be valid in its scope;
+* an initialiser must be compatible with the declared type;
+* constant values must obey their immutability rules; and
+* references must satisfy reference rules.
+
+Only declaration registration and duplicate-name detection are currently implemented.
+
+## 8. References
+
+The `ref` modifier introduces reference types:
+
+```teapot
+val ref csi32 value = other.
+```
+
+The intended language model includes references to existing values rather than independent copies.
+
+The following areas remain to be formally specified and implemented:
+
+* aliasing;
+* lifetime;
+* nullability;
+* reference assignment;
+* ownership;
+* invalid references;
+* interaction with garbage collection; and
+* interaction with manual memory management.
+
+## 9. Arrays
+
+Arrays are parameterised by an element type:
+
+```text
+T[]
+```
+
+Example:
 
 ```teapot
 val csi32[] values = [1, 2, 3].
 ```
 
-**Design:** lists, maps, and tuples are described by the existing specification, but they are not parser-supported constructs today.
+The intended language should provide a coherent model for:
 
-## 5. Variables and declarations
+* array creation;
+* element access;
+* element assignment;
+* array length;
+* iteration;
+* element type checking; and
+* memory management.
 
-The parser supports variable declarations beginning with `val`:
+The current parser supports array types and array literals but not array indexing.
 
-```text
-variable-declaration ::= "val" ["ref"] type variable-name ["=" expression] "."
-type                 ::= TYPE | identifier ["[" "]"]
-```
+## 10. User-defined types
 
-Examples:
+TeapotLang supports user-defined type declarations.
+
+### Structs
+
+Structs contain named fields:
 
 ```teapot
-val csi32 count = 0.
-val cstr message.
-val ref csi32 alias = count.
+sct Person {
+    cstr name.
+    csi32 age.
+}
 ```
 
-An omitted initialiser is represented as `Literal(None)` in the AST. The parser does not establish what value a runtime variable receives.
+The intended semantics include:
 
-Assignments are identifier-led expressions followed by one of `=`, `+=`, `-=`, `*=`, or `/=`, a value expression, and a period. The parser does not check that the target exists, is mutable, or has a compatible type.
+* named field access;
+* construction;
+* field type checking;
+* field visibility;
+* storage;
+* and interaction with references and memory management.
 
-## 6. Expressions
+The current compiler parses and registers struct declarations but does not implement the complete semantic model.
 
-The parser constructs expressions from:
+### Enums
 
-- integer, float, string, and Boolean literals;
-- identifiers;
-- parenthesised expressions;
-- array literals;
-- function-call postfixes;
-- `::` member access;
-- `>>` casts;
-- unary `~` and numeric negation of literals; and
-- binary operators.
+Enums define a finite set of named variants:
 
-An informal grammar for the parser-supported primary and postfix forms is:
+```teapot
+enm Result {
+    Pass.
+    Fail.
+}
+```
+
+The intended semantic model for enum values, matching, conversion, and storage remains under development.
+
+### Errors
+
+Error declarations define structured error types:
+
+```teapot
+err ValidationError {
+    cstr message.
+}
+```
+
+The intended runtime error model is not yet implemented.
+
+## 11. Functions
+
+Functions use `fc`:
+
+```teapot
+fc add(csi32 left, csi32 right)!csi32 {
+    exit left + right.
+}
+```
+
+A function consists of:
+
+* a name;
+* zero or more parameters;
+* a return type;
+* and a body.
+
+Parameters have a declared type and name.
+
+Default arguments may be specified:
+
+```teapot
+fc add(csi32 left, csi32 right = 1)!csi32 {
+}
+```
+
+The intended semantic rules include:
+
+* parameter name uniqueness;
+* parameter type validity;
+* default-argument validity;
+* return-type correctness;
+* call-argument compatibility;
+* call arity;
+* scope;
+* and return-path analysis.
+
+The current compiler registers function declarations and creates function scopes.
+
+## 12. Function scope
+
+Each function has a local scope.
+
+Function parameters are intended to exist within the function's scope.
+
+Nested blocks may eventually introduce additional scopes depending on the final language rules.
+
+The current symbol-table implementation supports parent/child lookup and local shadowing.
+
+The precise shadowing rules are still a language-design decision.
+
+## 13. Return statements
+
+Functions return values using `exit`:
+
+```teapot
+exit value.
+```
+
+The intended language should verify that the returned expression is compatible with the function's declared return type.
+
+The current parser constructs return AST nodes, but complete return checking is not implemented.
+
+## 14. Visibility
+
+Declarations may be marked `pub`:
+
+```teapot
+pub fc public_function()!void {
+}
+```
+
+The intended purpose is to expose declarations outside their defining module.
+
+The module system and access-control rules are not yet implemented.
+
+## 15. Modules
+
+The language design includes module-related keywords such as:
 
 ```text
-primary       ::= literal | identifier | "(" expression ")" | array-literal
-postfix       ::= primary { "(" [expression { "," expression }] ")"
-                         | "::" identifier
-                         | ">>" TYPE }
-array-literal ::= "[" [expression { "," expression }] "]"
+attach
+as
 ```
 
-Array indexing is not included in the parser’s postfix handling. The AST contains `FunctionCall`, `Reference`, `ListLiteral`, and `MapLiteral` dataclasses, but the parser constructs `CallExpression`, not those placeholder nodes, and does not construct the other listed nodes.
+The intended module system should eventually define:
 
-## 7. Operators and precedence
+* how modules are located;
+* how files are imported;
+* aliases;
+* exported declarations;
+* visibility;
+* cyclic dependencies;
+* and module initialisation.
 
-The parser uses these precedence values, with larger values binding more tightly:
+The current compiler does not implement module resolution.
 
-| Level | Operators |
-| ---: | --- |
-| 6 | `**` |
-| 5 | `%`, `/`, `*` |
-| 4 | `+`, `-` |
-| 3 | `<`, `<=`, `>`, `>=` |
-| 2 | `==`, `~=` |
-| 1 | `&&` |
-| 0 | `||` |
+## 16. Operators
 
-Parentheses explicitly group an expression. The parser’s precedence-climbing implementation creates binary AST nodes; no evaluation occurs. The specification’s intended associativity and runtime arithmetic behaviour cannot be verified from the repository.
+TeapotLang supports user-defined operator declarations in its syntax:
 
-`::` is parsed as repeated member access. `>>` is parsed as a cast to a lexer-recognised type. No type conversion rules are enforced.
+```teapot
+operator +(csi32 left, csi32 right)!csi32 {
+    exit left + right.
+}
+```
 
-## 8. Statements and control flow
+The intended language should define:
 
-The current parser statement dispatch table supports:
+* which operators can be overloaded;
+* operator precedence;
+* associativity;
+* valid parameter counts;
+* overload resolution;
+* ambiguity handling;
+* and interaction with built-in operators.
+
+The parser currently recognises operator declarations, but semantic overload resolution is not implemented.
+
+## 17. Expressions
+
+Expressions are intended to include:
+
+* literals;
+* identifiers;
+* function calls;
+* member access;
+* casts;
+* unary operators;
+* binary operators;
+* arrays;
+* and eventually additional collection and reference operations.
+
+The current parser supports a subset of these forms.
+
+Semantic analysis is responsible for determining whether an expression is valid and what type it produces.
+
+## 18. Operators and precedence
+
+The current parser uses the following precedence levels:
+
+| Level | Operators            |   |   |
+| ----: | -------------------- | - | - |
+|     6 | `**`                 |   |   |
+|     5 | `%`, `/`, `*`        |   |   |
+|     4 | `+`, `-`             |   |   |
+|     3 | `<`, `<=`, `>`, `>=` |   |   |
+|     2 | `==`, `~=`           |   |   |
+|     1 | `&&`                 |   |   |
+|     0 | `                    |   | ` |
+
+The final language specification must establish associativity and evaluation semantics for every operator.
+
+The parser currently constructs the corresponding expression tree but does not evaluate it.
+
+## 19. Assignment
+
+The language supports assignment operators:
 
 ```text
-statement ::= variable-declaration
-            | function-declaration
-            | struct-declaration
-            | enum-declaration
-            | error-declaration
-            | operator-declaration
-            | return-statement
-            | if-statement
-            | while-statement
-            | for-statement
-            | assignment
+=
++=
+-=
+*=
+/=
 ```
 
-### 8.1 Functions and return
+For example:
 
-```text
-function-declaration ::= ["pub"] "fc" identifier "("
-                         [parameter { "," parameter }] ")"
-                         "!" (TYPE | identifier) block
-parameter            ::= TYPE ["[" "]"] identifier ["=" expression]
-return-statement     ::= "exit" expression "."
-block                ::= "{" { statement } "}"
+```teapot
+count += 1.
 ```
 
-Function parameters currently require `TYPE` tokens, although a return type may be a type token or an identifier. The parser does not check return paths, overload validity, call arity, or default-argument rules.
+The intended semantic rules should determine:
 
-### 8.2 Conditional statements
+* whether the target exists;
+* whether it is assignable;
+* whether it is mutable;
+* whether the value has a compatible type;
+* and what compound-assignment operations mean for each type.
 
-`if` requires a parenthesised condition and a block. It may be followed by zero or more `elif` branches and one `else` branch:
+These checks are not fully implemented.
+
+## 20. Conditional control flow
+
+The language supports:
 
 ```teapot
 if (condition) {
@@ -243,64 +523,202 @@ else {
 }
 ```
 
-### 8.3 Loops
+Conditions are intended to evaluate to a Boolean-compatible value.
 
-The parser supports:
+The exact condition typing rules remain to be implemented.
 
-```text
-while-statement ::= "while" "(" expression ")" block
-for-statement   ::= "for" "(" identifier ":" expression ")" block
+## 21. Loops
+
+The language supports:
+
+```teapot
+while (condition) {
+}
 ```
 
-`break` and `continue` are lexer keywords and AST dataclasses, but are not parser statements. They are therefore design or unfinished implementation, not usable control-flow syntax.
+and:
 
-### 8.4 Error-handling blocks
+```teapot
+for (item : values) {
+}
+```
 
-`do` and `fail` are lexer keywords, and `Do` and `Fail` AST dataclasses exist. They are absent from the parser dispatch table. The error-handling syntax in the existing design specification is not currently parseable.
+The final language design must define:
 
-## 9. Visibility and data structures
+* iteration semantics;
+* iterator behaviour;
+* loop-variable scope;
+* mutation during iteration;
+* and the behaviour of `break` and `continue`.
 
-`pub` is accepted before functions, structs, enums, errors, and operators. Other parsed statements reject it. The repository has no module resolver or access checker.
+The current parser does not yet accept `break` or `continue` as statements.
 
-Structs, enums, errors, and operator declarations are parsed into corresponding AST dataclasses. Struct fields and error fields require recognised type tokens; enum members are identifiers followed by periods. Struct instantiation has a narrow parser path for literal or identifier arguments.
+## 22. Error handling
 
-The lexer recognises `attach`, `as`, `list`, and `map`, and AST dataclasses exist for imports and collection literals. No parser dispatch handles those constructs. Their syntax and semantics remain design-level.
+The language design includes `do` and `fail`.
 
-## 10. Memory and references
+These keywords are currently recognised by the lexer and corresponding AST dataclasses exist, but the parser does not currently accept the constructs as normal statements.
 
-`$MEM-GC` and `$MEM-MANUAL` are recorded as the program memory mode. The repository contains no collector, allocator, manual-free operation, or runtime. `free` is tokenised but not parsed.
+The final error-handling model should define:
 
-`ref` is accepted in variable declarations and stored on the AST type. The `Reference` AST dataclass is not constructed by the parser. Nullability, aliasing, pointer arithmetic, and lifetime rules are not established by the implementation.
+* how errors are created;
+* how errors propagate;
+* how they are caught;
+* whether functions can declare errors;
+* how errors interact with return values;
+* and how errors interact with resource management.
 
-## 11. Errors, diagnostics, and semantic rules
+## 23. Memory and resource management
 
-`LexerError` reports a message, line, and column. `ParserError` reports a message, token, and parser position. Both use the project debug print helper as well as raising an exception.
+The memory-management directives are intended to control how values are managed at runtime.
 
-The semantic analyser currently iterates through `Program.statements` and, in trace mode, prints each top-level node class. It does not implement:
+The final specification should define:
 
-- name or symbol resolution;
-- type checking or conversion;
-- scope or shadowing rules;
-- mutability checking;
-- overload resolution;
-- entry-point validation;
-- control-flow validation; or
-- runtime or compile-time execution.
+### GC mode
 
-The existing design text proposes static typing, scope rules, constant behaviour, automatic conversion, error handling, and memory-management semantics. Those proposals remain unverified until implementation and tests establish them.
+* allocation;
+* reachability;
+* collection;
+* finalisation;
+* references;
+* and lifetime.
 
-## 12. Implementation status and unresolved decisions
+### Manual mode
 
-The following distinctions are intentional:
+* allocation;
+* explicit release;
+* invalid-use behaviour;
+* ownership;
+* and lifetime.
 
-| Area | Repository evidence | Status |
-| --- | --- | --- |
-| Lexing | `Lexer`, token tables, and 32 lexer tests | Implemented and tested |
-| Parsing | `Parser` and statement handlers | Partially implemented; no parser tests |
-| AST | Dataclasses in `teapot_ast.py` | Mixed: some nodes are constructed, others are placeholders |
-| Semantic analysis | `semantic.py` top-level traversal | Minimal traversal only |
-| Code generation | No module or runtime present | Not implemented |
-| Entry point | Mentioned by design documents only | Not enforced or executed |
-| Modules, lists, maps, errors at runtime | Tokens/AST/design text only | Not implemented |
+The `free` keyword exists in the lexical vocabulary, but the current parser does not implement manual freeing.
 
-The repository does not resolve whether the design examples are intended as parser fixtures, future syntax, or normative examples. It also does not resolve character-literal syntax, exact runtime values for omitted initialisers, conversion semantics, associativity requirements, or the intended packaging/CLI installation workflow.
+## 24. Semantic analysis
+
+Semantic analysis is the stage responsible for determining whether a syntactically valid program is meaningful.
+
+The intended responsibilities include:
+
+* declaration checking;
+* name resolution;
+* scope construction;
+* type resolution;
+* type checking;
+* mutability checking;
+* function-call validation;
+* return checking;
+* operator resolution;
+* member resolution;
+* control-flow validation;
+* entry-point validation;
+* and other language invariants.
+
+The current implementation has begun this process with symbol-table construction.
+
+The current first pass:
+
+```text
+Program
+  |
+  +-- variable declarations -> variable symbols
+  |
+  +-- function declarations -> function symbols + function scopes
+  |
+  +-- struct declarations -> struct symbols
+```
+
+Duplicate declarations in the same scope currently produce `SemanticError`.
+
+Full name resolution and type checking remain future work.
+
+## 25. Diagnostics
+
+Compiler errors should eventually provide enough source information for a programmer to locate and understand the problem.
+
+The current lexer reports line and column information.
+
+Parser errors retain token/parser context.
+
+Semantic errors retain the relevant semantic node.
+
+A future diagnostic system should standardise formatting across all compiler stages.
+
+## 26. Code generation
+
+The compiler is intended to eventually transform semantically valid TeapotLang programs into executable output.
+
+The repository currently contains no code-generation backend.
+
+The target architecture and output format have not yet been finalised.
+
+## 27. Runtime
+
+The intended runtime will eventually provide whatever functionality is required by generated programs, including memory management and standard-library facilities.
+
+There is currently no TeapotLang runtime.
+
+## 28. Standard library
+
+A standard library is planned but not currently implemented.
+
+The eventual standard library may provide facilities such as:
+
+* input/output;
+* strings;
+* collections;
+* filesystem access;
+* error handling;
+* and other common functionality.
+
+Its API is intentionally not considered stable at this stage.
+
+## 29. Current implementation status
+
+The current repository can be summarised as follows:
+
+| Component                       | Current state                                   |
+| ------------------------------- | ----------------------------------------------- |
+| Lexer                           | Implemented                                     |
+| Token tables                    | Implemented                                     |
+| Parser                          | Substantial partial implementation              |
+| AST                             | Implemented, with some future/scaffolding nodes |
+| Symbol tables                   | Implemented                                     |
+| Declaration collection          | Implemented for current supported declarations  |
+| Nested symbol lookup            | Implemented                                     |
+| Duplicate declaration detection | Implemented                                     |
+| Function scopes                 | Implemented                                     |
+| Name resolution                 | In progress                                     |
+| Type checking                   | Not yet implemented                             |
+| Mutability checking             | Not yet implemented                             |
+| Complete semantic validation    | Not yet implemented                             |
+| Code generation                 | Not implemented                                 |
+| Runtime                         | Not implemented                                 |
+| Standard library                | Not implemented                                 |
+| Module system                   | Not implemented                                 |
+| Complete error handling         | Not implemented                                 |
+
+## 30. Design status
+
+This specification deliberately contains areas that are not yet final.
+
+When implementation exposes an ambiguity, the language design should be updated before treating the behaviour as a permanent language rule.
+
+In particular, the following still require explicit design decisions:
+
+* exact type-conversion rules;
+* complete mutability semantics;
+* shadowing rules;
+* function default-argument semantics;
+* function return-path requirements;
+* array indexing and bounds behaviour;
+* reference ownership and lifetime;
+* error propagation;
+* module resolution;
+* operator overload rules;
+* loop iteration semantics;
+* memory-management semantics;
+* executable target;
+* runtime architecture;
+* and standard-library API.
+
+Until these are defined and implemented, they should be treated as evolving language design rather than stable guarantees.
