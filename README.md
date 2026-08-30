@@ -32,19 +32,19 @@ TeapotLang source files use the `.tp` extension.
 Compile a source file with:
 
 ```bash
-teapot examples/parser_curr_test.tp
-```
-
-or:
-
-```bash
-teapot examples/parser_curr_test.tp
+teapot examples/hello.tp
 ```
 
 For diagnostic output, use `--trace`:
 
 ```bash
-teapot examples/parser_curr_test.tp --trace
+teapot examples/hello.tp --trace
+```
+
+The compiler can also be invoked as a Python module:
+
+```bash
+python -m teapot examples/hello.tp
 ```
 
 Trace mode can show the tokens produced by the lexer, the parsed AST, and semantic-analysis diagnostics.
@@ -116,29 +116,47 @@ See the [language reference](docs/language-reference.md) for the syntax currentl
 
 ```text
 teapot-lang/
-├── main.py
-├── pyproject.toml
-├── requirements.txt
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   ├── workflows/
+│   │   ├── pages.yml
+│   │   └── tests.yml
+│   └── pull_request_template.md
 │
+├── docs/
+│   ├── development.md
+│   ├── language-reference.md
+│   ├── language-specification.md
+│   └── README.md
+│
+├── examples/
 ├── src/
 │   └── teapot/
+│       ├── __init__.py
+│       ├── __main__.py
 │       ├── debug.py
 │       ├── lexer.py
+│       ├── main.py
 │       ├── parser.py
 │       ├── semantic.py
 │       ├── teapot_ast.py
-│       └── tokens.py
+│       ├── tokens.py
+│       └── web.py
 │
-├── examples/
 ├── tests/
 │   ├── unit/
 │   └── integration/
 │
-└── docs/
-    ├── development.md
-    ├── language-reference.md
-    ├── language-specification.md
-    └── README.md
+├── CHANGELOG.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── MAINTAINERS.md
+├── README.md
+├── SECURITY.md
+└── pyproject.toml
 ```
 
 ## Testing
@@ -146,8 +164,10 @@ teapot-lang/
 Run the test suite from the repository root:
 
 ```bash
-pytest
+python -m pytest
 ```
+
+The CI workflow also checks formatting and linting with Ruff, type-checks with mypy, builds the package, audits dependencies, and runs the test suite against supported Python versions.
 
 Tests are organised by compiler stage. As the parser and semantic analyser continue to develop, their test coverage is being expanded alongside the implementation.
 
@@ -174,6 +194,16 @@ Contributions, bug reports, and ideas are welcome.
 Before contributing, read [CONTRIBUTING.md](CONTRIBUTING.md) for the project's contribution guidelines.
 
 When adding or changing language behaviour, please include tests where appropriate and keep the documentation consistent with the implementation.
+
+Please also review the [Code of Conduct](CODE_OF_CONDUCT.md) and [Security Policy](SECURITY.md).
+
+## Project policies
+
+* [Code of Conduct](CODE_OF_CONDUCT.md)
+* [Contributing guide](CONTRIBUTING.md)
+* [Security Policy](SECURITY.md)
+* [Maintainers](MAINTAINERS.md)
+* [Changelog](CHANGELOG.md)
 
 ## License
 
