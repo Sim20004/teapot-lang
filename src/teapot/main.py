@@ -16,10 +16,8 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-i",
-        "--input",
+        "input",
         help="Input source file",
-        required=True,
     )
 
     parser.add_argument(
