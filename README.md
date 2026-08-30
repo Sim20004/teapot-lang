@@ -32,7 +32,7 @@ TeapotLang source files use the `.tp` extension.
 Compile a source file with:
 
 ```bash
-teapot --input examples/parser_curr_test.tp
+teapot examples/parser_curr_test.tp
 ```
 
 or:

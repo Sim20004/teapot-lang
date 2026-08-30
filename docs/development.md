@@ -32,15 +32,15 @@ The repository does not use `requirements.txt` as its primary dependency or inst
 After installing the package:
 
 ```bash
-teapot --input examples/hello.tp
+teapot examples/hello.tp
 ```
 
 The CLI accepts:
 
 ```text
--i, --input PATH    Input TeapotLang source file. Required.
--t, --trace         Enable compiler diagnostic output.
-    --version       Display the compiler version.
+    input (positional)    Input TeapotLang source file. Required.
+-t, --trace               Enable compiler diagnostic output.
+    --version             Display the compiler version.
 ```
 
 For example:
