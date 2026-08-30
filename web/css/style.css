@@ -548,31 +548,53 @@ footer .fine {
   }
 }
 @media (max-width: 620px) {
+  .wrap {
+    padding: 0 18px;
+  }
+
+  .stage-list {
+    gap: 12px;
+  }
+
   .stage {
-    grid-template-columns: 36px minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 12px;
+    padding: 18px 16px;
     width: 100%;
-    max-width: 100%;
-    overflow: hidden;
+  }
+
+  .stage .idx {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .stage > div:nth-child(2) {
     min-width: 0;
-    width: 100%;
-    max-width: 100%;
+    width: auto;
   }
 
-  .stage h3,
+  .stage h3 {
+    font-size: 17px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+  }
+
   .stage p {
-    min-width: 0;
-    max-width: 100%;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    overflow-wrap: break-word;
+    word-break: normal;
   }
 
-  .status {
-    grid-column: 1 / -1;
+  .stage .status {
+    grid-column: 2;
     justify-self: start;
-    margin-top: 6px;
+    margin-top: 4px;
   }
 
   .schematic-label span:last-child {
@@ -581,28 +603,6 @@ footer .fine {
 
   .hero {
     padding-top: 52px;
-  }
-}
-
-@media (max-width: 620px) {
-  .stage {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
-  .stage .idx {
-    flex: 0 0 36px;
-  }
-
-  .stage > div:nth-child(2) {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .stage .status {
-    flex: 0 0 auto;
-    margin-top: 6px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
