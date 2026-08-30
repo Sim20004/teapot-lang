@@ -25,10 +25,7 @@ def _serialise(value):
         return [_serialise(item) for item in value]
 
     if isinstance(value, dict):
-        return {
-            str(key): _serialise(item)
-            for key, item in value.items()
-        }
+        return {str(key): _serialise(item) for key, item in value.items()}
 
     return value
 
