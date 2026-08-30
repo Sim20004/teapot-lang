@@ -55,7 +55,3 @@ def main():
         os.makedirs("build")
 
     lexer.run(source, trace)
-
-
-if __name__ == "__main__":
-    main()
