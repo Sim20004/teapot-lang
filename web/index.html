@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeapotLang | Experimental compiler, steeped one stage at a time</title>
+  <meta name="description" content="TeapotLang is an experimental, statically typed programming language and compiler written in Python. A learning project exploring lexing, parsing, ASTs, semantic analysis, and memory management.">
+  <link rel="icon" type="image/svg+xml" href="images/teapot.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a href="#top" class="brand">
+      <img src="images/teapot.svg" width="20" height="20" alt="">
+      Teapot<span class="tag">lang / compiler</span>
+    </a>
+    <div class="navlinks">
+      <a href="#pipeline">Pipeline</a><a href="#syntax">Syntax</a><a href="#types">Types</a><a href="#status">Status</a>
+      <a href="https://github.com/Sim20004/teapot-lang" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="badges">
+      <span class="badge brass" id="version-badge">version loading...</span>
+      <span class="badge">Python 3.10+</span><span class="badge">GPL-3.0-or-later</span>
+    </div>
+    <h1>A statically typed language, <em>steeped one compiler stage at a time.</em></h1>
+    <p class="lead">TeapotLang is an experimental, statically typed programming language and compiler written in Python, built as a learning project for exploring lexing, parsing, abstract syntax trees, semantic analysis, and memory-management design.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/Sim20004/teapot-lang" target="_blank" rel="noopener noreferrer">View on GitHub →</a>
+      <a class="btn ghost" href="#syntax">Read the syntax</a>
+    </div>
+
+<div class="schematic-wrap">
+  <div class="schematic-label">
+    <span><span class="dot"></span>compile pipeline — current build</span>
+    <span>source.tp → compiler</span>
+  </div>
+
+  <svg
+    class="pipeline"
+    viewBox="0 0 980 150"
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="TeapotLang compiler pipeline"
+  >
+    <image href="images/teapot.svg" x="15" y="45" width="40" height="40" />
+    <text x="35" y="98" class="node-sub">SOURCE</text>
+
+    <path class="flow-line" d="M75 65 H146" />
+
+    <circle class="node-ring" cx="180" cy="65" r="34" />
+    <text x="180" y="61" class="node-label">Lexer</text>
+    <text x="180" y="76" class="node-sub">tokens</text>
+
+    <path class="flow-line" d="M214 65 H274" />
+
+    <circle class="node-ring" cx="308" cy="65" r="34" />
+    <text x="308" y="61" class="node-label">Parser</text>
+    <text x="308" y="76" class="node-sub">grammar</text>
+
+    <path class="flow-line" d="M342 65 H402" />
+
+    <circle class="node-ring" cx="436" cy="65" r="34" />
+    <text x="436" y="61" class="node-label">AST</text>
+    <text x="436" y="76" class="node-sub">tree</text>
+
+    <path class="flow-line" d="M470 65 H540" />
+
+    <circle class="node-ring progress" cx="580" cy="65" r="34" />
+    <text x="580" y="54" class="node-label semantic-label">Semantic</text>
+    <text x="580" y="67" class="node-label semantic-label">Analysis</text>
+    <text x="580" y="81" class="node-sub semantic-sub">in progress</text>
+
+    <path class="flow-line pending" d="M614 65 H682" />
+
+    <circle class="node-ring pending" cx="716" cy="65" r="34" />
+    <text x="716" y="61" class="node-label">Codegen</text>
+    <text x="716" y="76" class="node-sub">planned</text>
+
+    <path class="flow-line pending" d="M750 65 H900" />
+    <text x="905" y="70" class="node-sub" text-anchor="start">EXECUTABLE</text>
+  </svg>
+</div>
+
+
+
+</header>
+
+<section id="about"><div class="wrap two-col"><div>
+  <p class="eyebrow">What this is</p><h2>A compiler built in the open, in visible stages.</h2>
+  <p class="dim">Teapot is not trying to be finished quickly. It's a from-scratch compiler project with a hand-written lexer, recursive-descent parser, dataclass-based AST, and an evolving semantic analysis pass. The project distinguishes between functionality that is implemented and functionality that is still being designed or built.</p>
+  <p class="dim">There is no code generator or executable backend yet. The name is unhurried on purpose: language design, like brewing, doesn't reward rushing the process.</p>
+</div><ul class="fact-list">
+  <li><span class="k">Language</span><span class="v">Compiler written in Python, targeting a new statically typed <code>.tp</code> source language</span></li>
+  <li><span class="k">Stage</span><span class="v">Alpha — lexer, parser, and AST implemented; semantic analysis in progress; no backend yet</span></li>
+  <li><span class="k">Entry point</span><span class="v"><code>teapot --input file.tp --trace</code></span></li>
+  <li><span class="k">Memory modes</span><span class="v"><code>$MEM-GC</code> or <code>$MEM-MANUAL</code>, declared once per source file</span></li>
+  <li><span class="k">License</span><span class="v">GNU GPL v3.0-or-later</span></li>
+</ul></div></section>
+
+<section id="pipeline" class="alt"><div class="wrap">
+  <p class="eyebrow">The pipeline</p><h2>Three stages implemented, one in progress, one planned.</h2>
+  <p class="section-lead">The stages below describe the compiler architecture as it currently stands. Each stage consumes the representation produced by the preceding stage.</p>
+  <div class="stage-list">
+    <div class="stage"><div class="idx">1</div><div><h3>Lexer</h3><p>Turns raw <code>.tp</code> source into tokens, including keywords, types, literals, operators, comments, and the memory-mode directive.</p></div><div class="status done">Implemented</div></div>
+    <div class="stage"><div class="idx">2</div><div><h3>Parser</h3><p>A recursive-descent parser that builds the AST from the token stream, covering structs, enums, errors, operators, functions, default arguments, control flow, casts, arrays, and related expressions.</p></div><div class="status done">Implemented</div></div>
+    <div class="stage"><div class="idx">3</div><div><h3>Abstract Syntax Tree</h3><p>A dataclass-based node tree shared by later compiler stages, providing the structured representation used by semantic analysis.</p></div><div class="status done">Implemented</div></div>
+    <div class="stage"><div class="idx">4</div><div><h3>Semantic Analysis</h3><p>Builds symbol information across scopes and performs declaration and scope-related checks. Type checking and further semantic rules are still being developed.</p></div><div class="status progress">In Progress</div></div>
+    <div class="stage"><div class="idx">5</div><div><h3>Code Generation</h3><p>No code-generation backend, runtime, or executable output is implemented yet. This is the next major compiler stage after semantic analysis.</p></div><div class="status planned">Planned</div></div>
+  </div>
+</div></section>
+
+<section id="syntax"><div class="wrap">
+  <p class="eyebrow">Syntax</p><h2>Explicit, period-terminated, and type-first.</h2>
+  <p class="section-lead">Statements use a terminating period. Types carry an explicit mutability prefix: <code>m</code> for mutable and <code>c</code> for constant. Each source file declares its memory-management mode with a single memory directive.</p>
+  <div class="code-card"><div class="code-top"><span>example.tp</span><div class="dots"><span></span><span></span><span></span></div></div><pre class="code"><span class="op">$</span><span class="k">MEM-GC</span>
+
+<span class="k">pub</span> <span class="k">sct</span> <span class="id">Person</span> {
+    <span class="ty">cstr</span> <span class="id">name</span><span class="op">.</span>
+    <span class="ty">csi32</span> <span class="id">age</span><span class="op">.</span>
+}
+
+<span class="k">pub</span> <span class="k">fc</span> <span class="id">add</span>(<span class="ty">csi32</span> <span class="id">a</span>, <span class="ty">csi32</span> <span class="id">b</span> <span class="op">=</span> <span class="nm">5</span>)<span class="op">!</span><span class="ty">csi32</span> {
+    <span class="k">exit</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span><span class="op">.</span>
+}
+
+<span class="k">fc</span> <span class="id">classify</span>(<span class="ty">csi32</span> <span class="id">score</span>)<span class="op">!</span><span class="ty">cstr</span> {
+    <span class="k">if</span> (<span class="id">score</span> <span class="op">&gt;=</span> <span class="nm">90</span>) {
+        <span class="k">exit</span> <span class="st">"excellent"</span><span class="op">.</span>
+    }
+    <span class="k">elif</span> (<span class="id">score</span> <span class="op">&gt;=</span> <span class="nm">60</span>) {
+        <span class="k">exit</span> <span class="st">"passing"</span><span class="op">.</span>
+    }
+    <span class="k">else</span> {
+        <span class="k">exit</span> <span class="st">"needs work"</span><span class="op">.</span>
+    }
+}
+
+<span class="cm">// entry point</span>
+<span class="k">fc</span> <span class="id">main</span>()<span class="op">!</span><span class="ty">void</span> {
+    <span class="k">val</span> <span class="ty">csi32</span> <span class="id">total</span> <span class="op">=</span> <span class="id">add</span>(<span class="nm">37</span>, <span class="nm">5</span>)<span class="op">.</span>
+    <span class="k">val</span> <span class="ty">cstr</span> <span class="id">result</span> <span class="op">=</span> <span class="id">classify</span>(<span class="id">total</span>)<span class="op">.</span>
+    <span class="k">val</span> <span class="ty">csi32</span> <span class="id">shown</span> <span class="op">=</span> <span class="id">total</span> <span class="op">&gt;&gt;</span> <span class="ty">csi32</span><span class="op">.</span>
+}</pre></div>
+</div></section>
+
+<section id="types" class="alt"><div class="wrap">
+  <p class="eyebrow">Type system</p><h2>Every type says what it is before it says what it holds.</h2>
+  <p class="section-lead">Integer width and signedness are explicit, while mutability is encoded directly into the type name rather than being supplied as a separate modifier.</p>
+  <div class="types-wrap"><table class="types"><thead><tr><th>Category</th><th class="m">Mutable</th><th class="c">Constant</th></tr></thead><tbody>
+    <tr><td class="cat">Signed integers</td><td class="m">msi8 · msi16 · msi32 · msi64</td><td class="c">csi8 · csi16 · csi32 · csi64</td></tr>
+    <tr><td class="cat">Unsigned integers</td><td class="m">mui8 · mui16 · mui32 · mui64</td><td class="c">cui8 · cui16 · cui32 · cui64</td></tr>
+    <tr><td class="cat">Floating point</td><td class="m">mf32 · mf64</td><td class="c">cf32 · cf64</td></tr>
+    <tr><td class="cat">Text &amp; character</td><td class="m">mstr · mchar</td><td class="c">cstr · cchar</td></tr>
+    <tr><td class="cat">Boolean</td><td class="m">mbln</td><td class="c">cbln</td></tr>
+    <tr><td class="cat">Arbitrary precision / decimal</td><td class="m">maint · mdml</td><td class="c">caint · cdml</td></tr>
+    <tr><td class="cat">Untyped return</td><td colspan="2" class="faint">void — no mutable or constant form</td></tr>
+  </tbody></table></div>
+  <div class="note">Casting between types uses <code>&gt;&gt;</code>, for example <code>total &gt;&gt; cstr</code>. Members are accessed with <code>::</code>, for example <code>student::grades</code>.</div>
+</div></section>
+
+<section id="status"><div class="wrap">
+  <p class="eyebrow">Where it stands</p><h2>Honest about the gap between parsed and runnable.</h2>
+  <div class="two-col status-grid"><div><ul class="fact-list">
+    <li><span class="k">Works today</span><span class="v">Lexing, parsing, AST construction, symbol-table construction, duplicate declaration checks, and function parameter scoping</span></li>
+    <li><span class="k">Being built</span><span class="v">Type checking, broader scope resolution, and additional semantic rules</span></li>
+    <li><span class="k">Not started</span><span class="v">Code generation, an executable backend/runtime, and a standard library</span></li>
+  </ul></div><div><p class="dim">Contributions, issues, and design discussion are welcome, especially on questions that affect the direction of the language as well as its implementation. Read the contributing guide in the repository before sending a pull request for anything beyond a small fix.</p><a class="btn ghost" href="https://github.com/Sim20004/teapot-lang" target="_blank" rel="noopener noreferrer">Open the repository →</a></div></div>
+</div></section>
+
+<footer><div class="wrap"><div class="fbrand"><strong>TeapotLang</strong><br>An experimental compiler project — built stage by stage, documented as it stands, not as it's planned to be.</div><div class="flinks"><a href="https://github.com/Sim20004/teapot-lang" target="_blank" rel="noopener noreferrer">GitHub</a></div></div><div class="wrap fine">Licensed under the GNU General Public License v3.0-or-later. Not affiliated with any commercial teapot.</div></footer>
+</body>
+</html>
