@@ -575,7 +575,6 @@ function renderReleases(releases) {
     const empty = document.createElement("div");
 
     empty.className = "release-empty";
-
     empty.textContent =
       "No releases have been published yet.";
 
@@ -585,25 +584,34 @@ function renderReleases(releases) {
   }
 
   for (const release of releases) {
-    const article = document.createElement("article");
+    const article =
+      document.createElement("article");
 
-    article.className = "release";
+    article.className = "release release-compact";
 
 
-    const version = document.createElement("h3");
+    /* Release name */
 
-    version.textContent =
+    const title =
+      document.createElement("h3");
+
+    title.textContent =
       release.name ||
       release.tag_name ||
       "Unnamed release";
 
 
-    const metadata = document.createElement("div");
+    /* Metadata */
 
-    metadata.className = "release-meta";
+    const metadata =
+      document.createElement("div");
+
+    metadata.className =
+      "release-meta";
 
 
-    const tag = document.createElement("code");
+    const tag =
+      document.createElement("code");
 
     tag.textContent =
       release.tag_name || "unknown";
@@ -612,194 +620,83 @@ function renderReleases(releases) {
     const published =
       document.createElement("span");
 
-
     if (release.published_at) {
       const date =
         new Date(release.published_at);
 
       published.textContent =
         `Published ${date.toLocaleDateString("en-GB")}`;
-    } else {
-      published.textContent =
-        "Publication date unavailable";
     }
 
 
-    metadata.append(tag, published);
-
-    article.append(
-      version,
-      metadata
+    metadata.append(
+      tag,
+      published
     );
 
 
-    if (release.body) {
-      const notes =
-        document.createElement("p");
+    /* Actions */
 
-      notes.className =
-        "release-notes";
+    const actions =
+      document.createElement("div");
 
-      notes.textContent =
-        release.body;
-
-      article.appendChild(notes);
-    }
+    actions.className =
+      "release-actions";
 
 
-    const releaseAssets =
-      Array.isArray(release.assets)
-        ? release.assets
-        : [];
+    /*
+     * Internal release notes page.
+     *
+     * We use the GitHub release ID because it is unique
+     * and avoids putting the entire release object in
+     * the URL.
+     */
+
+    const notesLink =
+      document.createElement("a");
+
+    notesLink.className =
+      "btn primary";
+
+    notesLink.href =
+      `release.html?id=${encodeURIComponent(release.id)}`;
+
+    notesLink.textContent =
+      "Release notes →";
 
 
-    if (releaseAssets.length > 0) {
-      const assetsHeading =
-        document.createElement("h4");
+    /* GitHub */
 
-      assetsHeading.textContent =
-        "Downloads";
+    const githubLink =
+      document.createElement("a");
 
-      article.appendChild(
-        assetsHeading
-      );
+    githubLink.className =
+      "btn ghost";
 
+    githubLink.href =
+      release.html_url;
 
-      const assets =
-        document.createElement("div");
+    githubLink.target =
+      "_blank";
 
-      assets.className =
-        "release-assets";
+    githubLink.rel =
+      "noopener noreferrer";
 
-
-      for (const asset of releaseAssets) {
-        const assetRow =
-          document.createElement("div");
-
-        assetRow.className =
-          "release-asset";
+    githubLink.textContent =
+      "GitHub ↗";
 
 
-        const info =
-          document.createElement("div");
+    actions.append(
+      notesLink,
+      githubLink
+    );
 
 
-        const name =
-          document.createElement("strong");
-
-        name.textContent =
-          asset.name ||
-          "Unnamed asset";
-
-
-        const size =
-          document.createElement("span");
-
-        size.className =
-          "asset-size";
-
-        size.textContent =
-          formatBytes(asset.size);
-
-
-        info.append(
-          name,
-          size
-        );
-
-
-        const actions =
-          document.createElement("div");
-
-        actions.className =
-          "asset-actions";
-
-
-        if (asset.browser_download_url) {
-          const download =
-            document.createElement("a");
-
-          download.className =
-            "btn ghost";
-
-          download.href =
-            asset.browser_download_url;
-
-          download.target =
-            "_blank";
-
-          download.rel =
-            "noopener noreferrer";
-
-          download.textContent =
-            "Download";
-
-          actions.appendChild(
-            download
-          );
-        }
-
-
-        if (asset.digest) {
-          const checksum =
-            document.createElement("code");
-
-          checksum.className =
-            "checksum";
-
-          checksum.title =
-            "SHA-256 checksum";
-
-          checksum.textContent =
-            asset.digest.replace(
-              /^sha256:/,
-              ""
-            );
-
-          actions.appendChild(
-            checksum
-          );
-        }
-
-
-        assetRow.append(
-          info,
-          actions
-        );
-
-        assets.appendChild(
-          assetRow
-        );
-      }
-
-
-      article.appendChild(
-        assets
-      );
-    }
-
-
-    if (release.html_url) {
-      const github =
-        document.createElement("a");
-
-      github.href =
-        release.html_url;
-
-      github.target =
-        "_blank";
-
-      github.rel =
-        "noopener noreferrer";
-
-      github.textContent =
-        "View release on GitHub →";
-
-      article.appendChild(
-        github
-      );
-    }
-
+    article.append(
+      title,
+      metadata,
+      actions
+    );
 
     releasesList.appendChild(
       article
