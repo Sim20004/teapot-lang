@@ -635,3 +635,149 @@ document.addEventListener(
   loadPeople
 );
         
+ const RELEASES_API =
+  "https://api.github.com/repos/Sim20004/teapot-lang/releases";
+
+const releasesList = document.getElementById("releases-list");
+const releasesError = document.getElementById("releases-error");
+
+async function loadReleases() {
+  if (!releasesList) return;
+
+  try {
+    const response = await fetch(RELEASES_API, {
+      headers: {
+        Accept: "application/vnd.github+json"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API returned ${response.status}`);
+    }
+
+    const releases = await response.json();
+
+    releasesList.replaceChildren();
+
+    if (releases.length === 0) {
+      releasesList.innerHTML = `
+        <div class="release-empty">
+          No releases have been published yet.
+        </div>
+      `;
+      return;
+    }
+
+    for (const release of releases) {
+      const article = document.createElement("article");
+      article.className = "release";
+
+      const date = new Date(release.published_at);
+
+      const version = document.createElement("h3");
+      version.textContent = release.name || release.tag_name;
+
+      const metadata = document.createElement("div");
+      metadata.className = "release-meta";
+
+      const tag = document.createElement("code");
+      tag.textContent = release.tag_name;
+
+      const published = document.createElement("span");
+      published.textContent =
+        `Published ${date.toLocaleDateString("en-GB")}`;
+
+      metadata.append(tag, published);
+
+      article.append(version, metadata);
+
+      if (release.body) {
+        const notes = document.createElement("p");
+        notes.className = "release-notes";
+        notes.textContent = release.body;
+        article.append(notes);
+      }
+
+      if (release.assets.length > 0) {
+        const assetsHeading = document.createElement("h4");
+        assetsHeading.textContent = "Downloads";
+        article.append(assetsHeading);
+
+        const assets = document.createElement("div");
+        assets.className = "release-assets";
+
+        for (const asset of release.assets) {
+          const assetRow = document.createElement("div");
+          assetRow.className = "release-asset";
+
+          const info = document.createElement("div");
+
+          const name = document.createElement("strong");
+          name.textContent = asset.name;
+
+          const size = document.createElement("span");
+          size.className = "asset-size";
+          size.textContent = formatBytes(asset.size);
+
+          info.append(name, size);
+
+          const actions = document.createElement("div");
+          actions.className = "asset-actions";
+
+          const download = document.createElement("a");
+          download.className = "btn ghost";
+          download.href = asset.browser_download_url;
+          download.target = "_blank";
+          download.rel = "noopener noreferrer";
+          download.textContent = "Download";
+
+          actions.append(download);
+
+          if (asset.digest) {
+            const checksum = document.createElement("code");
+            checksum.className = "checksum";
+            checksum.title = "SHA-256 checksum";
+            checksum.textContent = asset.digest.replace(/^sha256:/, "");
+
+            actions.append(checksum);
+          }
+
+          assetRow.append(info, actions);
+          assets.append(assetRow);
+        }
+
+        article.append(assets);
+      }
+
+      const github = document.createElement("a");
+      github.href = release.html_url;
+      github.target = "_blank";
+      github.rel = "noopener noreferrer";
+      github.textContent = "View release on GitHub →";
+
+      article.append(github);
+
+      releasesList.append(article);
+    }
+  } catch (error) {
+    console.error("Failed to load releases:", error);
+
+    releasesList.replaceChildren();
+
+    releasesError.hidden = false;
+    releasesError.textContent =
+      "Unable to load releases from GitHub right now.";
+  }
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return "0 B";
+
+  const units = ["B", "KB", "MB", "GB"];
+  const exponent = Math.floor(Math.log(bytes) / Math.log(1024));
+  const value = bytes / Math.pow(1024, exponent);
+
+  return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
+}
+
+loadReleases();
