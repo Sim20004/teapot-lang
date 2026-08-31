@@ -1,5 +1,5 @@
 # from typing import ClassVar
-# Uncomment above when writing pass 2 code
+# ABOVE: Uncomment above when writing pass 2 code
 
 import teapot.teapot_ast as ast
 from teapot.debug import print
