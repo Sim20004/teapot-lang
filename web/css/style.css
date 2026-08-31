@@ -111,7 +111,8 @@ summary:focus-visible {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       600px 300px at 15% -10%,
       rgba(198, 139, 68, 0.1),
       transparent 60%
@@ -183,7 +184,9 @@ summary:focus-visible {
   text-decoration: none;
   padding: 12px 20px;
   border-radius: 3px;
-  transition: transform 0.15s ease, background 0.15s ease,
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
     border-color 0.15s ease;
 }
 .btn.primary {
@@ -906,13 +909,11 @@ svg.pipeline {
   color: var(--porcelain);
 }
 
-
 /* =========================================================
    Responsive compiler playground
    ========================================================= */
 
 @media (max-width: 700px) {
-
   .preview-toolbar {
     align-items: flex-start;
     flex-direction: column;
@@ -935,7 +936,6 @@ svg.pipeline {
   .compiler-output {
     font-size: 0.68rem;
   }
-
 }
 footer .fine {
   display: block;
@@ -1270,11 +1270,7 @@ footer .fine p + p {
   bottom: 0.75rem;
   height: 56px;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    var(--ink-deep) 92%
-  );
+  background: linear-gradient(180deg, transparent, var(--ink-deep) 92%);
   opacity: 1;
   transition: opacity 0.2s ease;
   border-radius: 0 0 4px 4px;

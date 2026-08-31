@@ -1,768 +1,555 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>TeapotLang | Experimental Statically Typed Programming Language</title>
+    <title>
+      TeapotLang | Experimental Statically Typed Programming Language
+    </title>
 
-  <meta
-    name="description"
-    content="TeapotLang is an experimental statically typed programming language and compiler written in Python. Explore its lexer, recursive-descent parser, AST, semantic analysis, type system, and memory-management design."
-  >
+    <meta
+      name="description"
+      content="TeapotLang is an experimental statically typed programming language and compiler written in Python. Explore its lexer, recursive-descent parser, AST, semantic analysis, type system, and memory-management design."
+    />
 
-  <meta name="robots" content="index, follow, max-image-preview:large">
-  <meta name="author" content="Simarpreet Singh">
-  <meta name="theme-color" content="#1c1915">
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content="Simarpreet Singh" />
+    <meta name="theme-color" content="#1c1915" />
 
-  <link
-    rel="canonical"
-    href="https://simarpreetsingh.org/teapot-lang/"
-  >
+    <link rel="canonical" href="https://simarpreetsingh.org/teapot-lang/" />
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta
-    property="og:title"
-    content="TeapotLang | Experimental Statically Typed Programming Language"
-  >
-  <meta
-    property="og:description"
-    content="An experimental statically typed programming language and compiler written in Python, exploring lexing, parsing, ASTs, semantic analysis, type systems, and memory management."
-  >
-  <meta
-    property="og:url"
-    content="https://simarpreetsingh.org/teapot-lang/"
-  >
-  <meta property="og:site_name" content="TeapotLang">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="TeapotLang | Experimental Statically Typed Programming Language"
+    />
+    <meta
+      property="og:description"
+      content="An experimental statically typed programming language and compiler written in Python, exploring lexing, parsing, ASTs, semantic analysis, type systems, and memory management."
+    />
+    <meta
+      property="og:url"
+      content="https://simarpreetsingh.org/teapot-lang/"
+    />
+    <meta property="og:site_name" content="TeapotLang" />
 
-  <!-- Twitter / X -->
-  <meta name="twitter:card" content="summary">
-  <meta
-    name="twitter:title"
-    content="TeapotLang | Experimental Statically Typed Programming Language"
-  >
-  <meta
-    name="twitter:description"
-    content="An experimental statically typed programming language and compiler written in Python."
-  >
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="TeapotLang | Experimental Statically Typed Programming Language"
+    />
+    <meta
+      name="twitter:description"
+      content="An experimental statically typed programming language and compiler written in Python."
+    />
 
-  <!-- Structured data: Software -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareSourceCode",
-    "name": "TeapotLang",
-    "description": "An experimental statically typed programming language and compiler written in Python.",
-    "url": "https://simarpreetsingh.org/teapot-lang/",
-    "codeRepository": "https://github.com/Sim20004/teapot-lang",
-    "programmingLanguage": {
-      "@type": "ComputerLanguage",
-      "name": "TeapotLang"
-    },
-    "runtimePlatform": "Python 3.10+",
-    "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Cross-platform",
-    "author": {
-      "@type": "Person",
-      "name": "Simarpreet Singh",
-      "url": "https://simarpreetsingh.org/"
-    }
-  }
-  </script>
-
-  <!-- Structured data: FAQ -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
+    <!-- Structured data: Software -->
+    <script type="application/ld+json">
       {
-        "@type": "Question",
-        "name": "What is TeapotLang?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "TeapotLang is an experimental statically typed programming language and compiler written in Python. It is being developed as a from-scratch compiler project."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What is TeapotLang written in?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The TeapotLang compiler is written in Python 3.10 or later."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is TeapotLang a compiled programming language?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "TeapotLang is designed as a compiled programming language, but the compiler is currently in alpha development and does not yet have a code-generation backend."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Does TeapotLang have a type system?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. TeapotLang uses explicit static types including signed and unsigned integers, floating-point types, strings, characters, booleans, and other numeric types. Mutability is represented directly in type names."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What compiler stages does TeapotLang have?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The TeapotLang compiler consists of lexical analysis, parsing, abstract syntax tree construction, semantic analysis, and planned code generation."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Where can I find the TeapotLang source code?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The TeapotLang source code is publicly available on GitHub."
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "TeapotLang",
+        "description": "An experimental statically typed programming language and compiler written in Python.",
+        "url": "https://simarpreetsingh.org/teapot-lang/",
+        "codeRepository": "https://github.com/Sim20004/teapot-lang",
+        "programmingLanguage": {
+          "@type": "ComputerLanguage",
+          "name": "TeapotLang"
+        },
+        "runtimePlatform": "Python 3.10+",
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Cross-platform",
+        "author": {
+          "@type": "Person",
+          "name": "Simarpreet Singh",
+          "url": "https://simarpreetsingh.org/"
         }
       }
-    ]
-  }
-  </script>
+    </script>
 
-  <!-- Icons and styles -->
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href="images/teapot.svg"
-  >
+    <!-- Structured data: FAQ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is TeapotLang?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "TeapotLang is an experimental statically typed programming language and compiler written in Python. It is being developed as a from-scratch compiler project."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is TeapotLang written in?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The TeapotLang compiler is written in Python 3.10 or later."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is TeapotLang a compiled programming language?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "TeapotLang is designed as a compiled programming language, but the compiler is currently in alpha development and does not yet have a code-generation backend."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does TeapotLang have a type system?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. TeapotLang uses explicit static types including signed and unsigned integers, floating-point types, strings, characters, booleans, and other numeric types. Mutability is represented directly in type names."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What compiler stages does TeapotLang have?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The TeapotLang compiler consists of lexical analysis, parsing, abstract syntax tree construction, semantic analysis, and planned code generation."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where can I find the TeapotLang source code?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The TeapotLang source code is publicly available on GitHub."
+            }
+          }
+        ]
+      }
+    </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  >
+    <!-- Icons and styles -->
+    <link rel="icon" type="image/svg+xml" href="images/teapot.svg" />
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  >
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <link rel="stylesheet" href="css/style.css?v=5">
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-  <script src="js/script.js?v=5" defer></script>
-  <script src="js/teapot-compiler.js?v=5" defer></script>
-</head>
+    <link rel="stylesheet" href="css/style.css?v=5" />
 
-<body>
+    <script src="js/script.js?v=5" defer></script>
+    <script src="js/teapot-compiler.js?v=5" defer></script>
+  </head>
 
-  <!-- Navigation -->
-  <nav class="nav" aria-label="Main navigation">
-    <div class="wrap">
-
-      <a href="#top" class="brand" aria-label="TeapotLang home">
-        <img
-          src="images/teapot.svg"
-          width="20"
-          height="20"
-          alt=""
-          aria-hidden="true"
-        >
-        Teapot<span class="tag">lang / compiler</span>
-      </a>
-
-      <div class="navlinks">
-        <a href="#about">About</a>
-        <a href="#pipeline">Pipeline</a>
-        <a href="#syntax">Syntax</a>
-        <a href="#playground">Playground</a>
-        <a href="#types">Types</a>
-        <a href="#status">Status</a>
-        <a href="#faq">FAQ</a>
-
-        <a
-          href="https://github.com/Sim20004/teapot-lang"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>
-      </div>
-
-    </div>
-  </nav>
-
-
-  <!-- Hero -->
-  <header class="hero" id="top">
-    <div class="wrap">
-
-      <div class="badges">
-        <span class="badge brass" id="version-badge">
-          version loading...
-        </span>
-
-        <span class="badge">
-          Python 3.10+
-        </span>
-
-        <span class="badge">
-          GPL-3.0-or-later
-        </span>
-      </div>
-
-      <h1>
-        TeapotLang: An Experimental Statically Typed Programming Language
-      </h1>
-
-      <p class="lead">
-        TeapotLang is an experimental statically typed programming language
-        and compiler written in Python. Built from scratch, the project
-        explores lexical analysis, recursive-descent parsing, abstract
-        syntax trees, semantic analysis, type systems, and memory-management
-        design.
-      </p>
-
-      <div class="cta-row">
-
-        <a
-          class="btn primary"
-          href="https://github.com/Sim20004/teapot-lang"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          View TeapotLang source code on GitHub →
-        </a>
-
-        <a class="btn ghost" href="#syntax">
-          Explore the syntax
-        </a>
-
-      </div>
-
-
-      <!-- Compiler pipeline -->
-      <div class="schematic-wrap">
-
-        <div class="schematic-label">
-          <span>
-            <span class="dot"></span>
-            compile pipeline -- current build
-          </span>
-
-          <span>
-            source.tp → compiler
-          </span>
-        </div>
-
-        <svg
-          class="pipeline"
-          viewBox="0 0 980 150"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-labelledby="pipeline-title pipeline-description"
-        >
-
-          <title id="pipeline-title">
-            TeapotLang compiler pipeline
-          </title>
-
-          <desc id="pipeline-description">
-            TeapotLang source code passes through the lexer, parser,
-            abstract syntax tree, semantic analysis, and planned code
-            generation stages.
-          </desc>
-
-          <image
-            href="images/teapot.svg"
-            x="15"
-            y="45"
-            width="40"
-            height="40"
+  <body>
+    <!-- Navigation -->
+    <nav class="nav" aria-label="Main navigation">
+      <div class="wrap">
+        <a href="#top" class="brand" aria-label="TeapotLang home">
+          <img
+            src="images/teapot.svg"
+            width="20"
+            height="20"
+            alt=""
             aria-hidden="true"
           />
+          Teapot<span class="tag">lang / compiler</span>
+        </a>
 
-          <text
-            x="35"
-            y="98"
-            class="node-sub"
+        <div class="navlinks">
+          <a href="#about">About</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#syntax">Syntax</a>
+          <a href="#playground">Playground</a>
+          <a href="#types">Types</a>
+          <a href="#status">Status</a>
+          <a href="#faq">FAQ</a>
+
+          <a
+            href="https://github.com/Sim20004/teapot-lang"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            SOURCE
-          </text>
-
-          <path
-            class="flow-line"
-            d="M75 65 H146"
-          />
-
-          <circle
-            class="node-ring"
-            cx="180"
-            cy="65"
-            r="34"
-          />
-
-          <text
-            x="180"
-            y="61"
-            class="node-label"
-            text-anchor="middle"
-          >
-            Lexer
-          </text>
-
-          <text
-            x="180"
-            y="76"
-            class="node-sub"
-            text-anchor="middle"
-          >
-            tokens
-          </text>
-
-          <path
-            class="flow-line"
-            d="M214 65 H274"
-          />
-
-          <circle
-            class="node-ring"
-            cx="308"
-            cy="65"
-            r="34"
-          />
-
-          <text
-            x="308"
-            y="61"
-            class="node-label"
-            text-anchor="middle"
-          >
-            Parser
-          </text>
-
-          <text
-            x="308"
-            y="76"
-            class="node-sub"
-            text-anchor="middle"
-          >
-            grammar
-          </text>
-
-          <path
-            class="flow-line"
-            d="M342 65 H402"
-          />
-
-          <circle
-            class="node-ring"
-            cx="436"
-            cy="65"
-            r="34"
-          />
-
-          <text
-            x="436"
-            y="61"
-            class="node-label"
-            text-anchor="middle"
-          >
-            AST
-          </text>
-
-          <text
-            x="436"
-            y="76"
-            class="node-sub"
-            text-anchor="middle"
-          >
-            tree
-          </text>
-
-          <path
-            class="flow-line"
-            d="M470 65 H540"
-          />
-
-          <circle
-            class="node-ring progress"
-            cx="580"
-            cy="65"
-            r="34"
-          />
-
-          <text
-            x="580"
-            y="54"
-            class="node-label semantic-label"
-            text-anchor="middle"
-          >
-            Semantic
-          </text>
-
-          <text
-            x="580"
-            y="67"
-            class="node-label semantic-label"
-            text-anchor="middle"
-          >
-            Analysis
-          </text>
-
-          <text
-            x="580"
-            y="81"
-            class="node-sub semantic-sub"
-            text-anchor="middle"
-          >
-            in progress
-          </text>
-
-          <path
-            class="flow-line pending"
-            d="M614 65 H682"
-          />
-
-          <circle
-            class="node-ring pending"
-            cx="716"
-            cy="65"
-            r="34"
-          />
-
-          <text
-            x="716"
-            y="61"
-            class="node-label"
-            text-anchor="middle"
-          >
-            Codegen
-          </text>
-
-          <text
-            x="716"
-            y="76"
-            class="node-sub"
-            text-anchor="middle"
-          >
-            planned
-          </text>
-
-          <path
-            class="flow-line pending"
-            d="M750 65 H900"
-          />
-
-          <text
-            x="905"
-            y="70"
-            class="node-sub"
-            text-anchor="start"
-          >
-            EXECUTABLE
-          </text>
-
-        </svg>
-
+            GitHub
+          </a>
+        </div>
       </div>
+    </nav>
 
-    </div>
-  </header>
+    <!-- Hero -->
+    <header class="hero" id="top">
+      <div class="wrap">
+        <div class="badges">
+          <span class="badge brass" id="version-badge">
+            version loading...
+          </span>
 
+          <span class="badge"> Python 3.10+ </span>
 
-  <main>
-
-    <!-- About -->
-    <section id="about">
-      <div class="wrap two-col">
-
-        <div>
-
-          <p class="eyebrow">
-            About TeapotLang
-          </p>
-
-          <h2>
-            What is TeapotLang?
-          </h2>
-
-          <p class="dim">
-            TeapotLang is an experimental statically typed programming
-            language and compiler written in Python. It is a from-scratch
-            compiler project designed to explore how programming languages
-            are tokenised, parsed, represented as abstract syntax trees,
-            semantically analysed, and eventually compiled.
-          </p>
-
-          <p class="dim">
-            The compiler currently includes a hand-written lexer, a
-            recursive-descent parser, a dataclass-based abstract syntax
-            tree, symbol-table construction, and an evolving semantic
-            analysis pass.
-          </p>
-
-          <p class="dim">
-            TeapotLang is intentionally developed in visible stages.
-            Implemented functionality is distinguished from functionality
-            that is still being designed or built.
-          </p>
-
+          <span class="badge"> GPL-3.0-or-later </span>
         </div>
 
+        <h1>
+          TeapotLang: An Experimental Statically Typed Programming Language
+        </h1>
 
-        <ul class="fact-list">
-
-          <li>
-            <span class="k">Language</span>
-            <span class="v">
-              A new statically typed <code>.tp</code> programming language
-              with a compiler written in Python
-            </span>
-          </li>
-
-          <li>
-            <span class="k">Compiler</span>
-            <span class="v">
-              Python 3.10+ compiler with a hand-written lexer and
-              recursive-descent parser
-            </span>
-          </li>
-
-          <li>
-            <span class="k">Stage</span>
-            <span class="v">
-              Alpha -- lexer, parser, AST, and parts of semantic analysis
-              implemented; code generation not yet available
-            </span>
-          </li>
-
-          <li>
-            <span class="k">Entry point</span>
-            <span class="v">
-              <code>teapot file.tp --trace</code>
-            </span>
-          </li>
-
-          <li>
-            <span class="k">Memory modes</span>
-            <span class="v">
-              <code>$MEM-GC</code> or <code>$MEM-MANUAL</code>,
-              declared once per source file
-            </span>
-          </li>
-
-          <li>
-            <span class="k">License</span>
-            <span class="v">
-              GNU GPL v3.0-or-later
-            </span>
-          </li>
-
-        </ul>
-
-      </div>
-    </section>
-
-
-    <!-- Compiler pipeline -->
-    <section id="pipeline" class="alt">
-      <div class="wrap">
-
-        <p class="eyebrow">
-          Compiler architecture
+        <p class="lead">
+          TeapotLang is an experimental statically typed programming language
+          and compiler written in Python. Built from scratch, the project
+          explores lexical analysis, recursive-descent parsing, abstract syntax
+          trees, semantic analysis, type systems, and memory-management design.
         </p>
 
-        <h2>
-          The TeapotLang compiler pipeline
-        </h2>
+        <div class="cta-row">
+          <a
+            class="btn primary"
+            href="https://github.com/Sim20004/teapot-lang"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View TeapotLang source code on GitHub →
+          </a>
 
-        <p class="section-lead">
-          TeapotLang processes source code through several compiler stages.
-          The lexer, parser, and abstract syntax tree are implemented,
-          semantic analysis is under active development, and code generation
-          is planned.
-        </p>
-
-
-        <div class="stage-list">
-
-          <div class="stage">
-
-            <div class="idx">
-              1
-            </div>
-
-            <div>
-              <h3>
-                Lexical Analysis
-              </h3>
-
-              <p>
-                The lexer turns raw <code>.tp</code> source code into tokens,
-                including keywords, types, literals, operators, comments,
-                and the memory-management directive.
-              </p>
-            </div>
-
-            <div class="status done">
-              Implemented
-            </div>
-
-          </div>
-
-
-          <div class="stage">
-
-            <div class="idx">
-              2
-            </div>
-
-            <div>
-              <h3>
-                Parsing
-              </h3>
-
-              <p>
-                A recursive-descent parser consumes the token stream and
-                constructs the abstract syntax tree. It covers structs,
-                enums, errors, operators, functions, default arguments,
-                control flow, casts, arrays, and related expressions.
-              </p>
-            </div>
-
-            <div class="status done">
-              Implemented
-            </div>
-
-          </div>
-
-
-          <div class="stage">
-
-            <div class="idx">
-              3
-            </div>
-
-            <div>
-              <h3>
-                Abstract Syntax Tree
-              </h3>
-
-              <p>
-                TeapotLang represents parsed programs using a
-                dataclass-based abstract syntax tree. The AST provides
-                the structured representation consumed by later compiler
-                stages.
-              </p>
-            </div>
-
-            <div class="status done">
-              Implemented
-            </div>
-
-          </div>
-
-
-          <div class="stage">
-
-            <div class="idx">
-              4
-            </div>
-
-            <div>
-              <h3>
-                Semantic Analysis
-              </h3>
-
-              <p>
-                Semantic analysis builds symbol information across scopes
-                and performs declaration and scope-related checks.
-                Type checking, broader scope resolution, and additional
-                semantic rules are still being developed.
-              </p>
-            </div>
-
-            <div class="status progress">
-              In Progress
-            </div>
-
-          </div>
-
-
-          <div class="stage">
-
-            <div class="idx">
-              5
-            </div>
-
-            <div>
-              <h3>
-                Code Generation
-              </h3>
-
-              <p>
-                TeapotLang does not yet have a code-generation backend,
-                runtime, or executable output. Code generation is planned
-                as the next major compiler stage after semantic analysis.
-              </p>
-            </div>
-
-            <div class="status planned">
-              Planned
-            </div>
-
-          </div>
-
+          <a class="btn ghost" href="#syntax"> Explore the syntax </a>
         </div>
 
-      </div>
-    </section>
-
-
-    <!-- Syntax -->
-    <section id="syntax">
-      <div class="wrap">
-
-        <p class="eyebrow">
-          Programming language syntax
-        </p>
-
-        <h2>
-          TeapotLang syntax
-        </h2>
-
-        <p class="section-lead">
-          TeapotLang uses explicit, period-terminated statements and
-          type-first declarations. Mutability is represented directly
-          in type names, while each source file declares its memory
-          management mode.
-        </p>
-
-
-        <div class="code-card">
-
-          <div class="code-top">
+        <!-- Compiler pipeline -->
+        <div class="schematic-wrap">
+          <div class="schematic-label">
             <span>
-              example.tp
+              <span class="dot"></span>
+              compile pipeline -- current build
             </span>
 
-            <div
-              class="dots"
-              aria-hidden="true"
-            >
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
+            <span> source.tp → compiler </span>
           </div>
 
+          <svg
+            class="pipeline"
+            viewBox="0 0 980 150"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-labelledby="pipeline-title pipeline-description"
+          >
+            <title id="pipeline-title">TeapotLang compiler pipeline</title>
 
-          <pre
-            class="code"
-            aria-label="Example TeapotLang source code"
-          ><code><span class="op">$</span><span class="k">MEM-GC</span>
+            <desc id="pipeline-description">
+              TeapotLang source code passes through the lexer, parser, abstract
+              syntax tree, semantic analysis, and planned code generation
+              stages.
+            </desc>
+
+            <image
+              href="images/teapot.svg"
+              x="15"
+              y="45"
+              width="40"
+              height="40"
+              aria-hidden="true"
+            />
+
+            <text x="35" y="98" class="node-sub">SOURCE</text>
+
+            <path class="flow-line" d="M75 65 H146" />
+
+            <circle class="node-ring" cx="180" cy="65" r="34" />
+
+            <text x="180" y="61" class="node-label" text-anchor="middle">
+              Lexer
+            </text>
+
+            <text x="180" y="76" class="node-sub" text-anchor="middle">
+              tokens
+            </text>
+
+            <path class="flow-line" d="M214 65 H274" />
+
+            <circle class="node-ring" cx="308" cy="65" r="34" />
+
+            <text x="308" y="61" class="node-label" text-anchor="middle">
+              Parser
+            </text>
+
+            <text x="308" y="76" class="node-sub" text-anchor="middle">
+              grammar
+            </text>
+
+            <path class="flow-line" d="M342 65 H402" />
+
+            <circle class="node-ring" cx="436" cy="65" r="34" />
+
+            <text x="436" y="61" class="node-label" text-anchor="middle">
+              AST
+            </text>
+
+            <text x="436" y="76" class="node-sub" text-anchor="middle">
+              tree
+            </text>
+
+            <path class="flow-line" d="M470 65 H540" />
+
+            <circle class="node-ring progress" cx="580" cy="65" r="34" />
+
+            <text
+              x="580"
+              y="54"
+              class="node-label semantic-label"
+              text-anchor="middle"
+            >
+              Semantic
+            </text>
+
+            <text
+              x="580"
+              y="67"
+              class="node-label semantic-label"
+              text-anchor="middle"
+            >
+              Analysis
+            </text>
+
+            <text
+              x="580"
+              y="81"
+              class="node-sub semantic-sub"
+              text-anchor="middle"
+            >
+              in progress
+            </text>
+
+            <path class="flow-line pending" d="M614 65 H682" />
+
+            <circle class="node-ring pending" cx="716" cy="65" r="34" />
+
+            <text x="716" y="61" class="node-label" text-anchor="middle">
+              Codegen
+            </text>
+
+            <text x="716" y="76" class="node-sub" text-anchor="middle">
+              planned
+            </text>
+
+            <path class="flow-line pending" d="M750 65 H900" />
+
+            <text x="905" y="70" class="node-sub" text-anchor="start">
+              EXECUTABLE
+            </text>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- About -->
+      <section id="about">
+        <div class="wrap two-col">
+          <div>
+            <p class="eyebrow">About TeapotLang</p>
+
+            <h2>What is TeapotLang?</h2>
+
+            <p class="dim">
+              TeapotLang is an experimental statically typed programming
+              language and compiler written in Python. It is a from-scratch
+              compiler project designed to explore how programming languages are
+              tokenised, parsed, represented as abstract syntax trees,
+              semantically analysed, and eventually compiled.
+            </p>
+
+            <p class="dim">
+              The compiler currently includes a hand-written lexer, a
+              recursive-descent parser, a dataclass-based abstract syntax tree,
+              symbol-table construction, and an evolving semantic analysis pass.
+            </p>
+
+            <p class="dim">
+              TeapotLang is intentionally developed in visible stages.
+              Implemented functionality is distinguished from functionality that
+              is still being designed or built.
+            </p>
+          </div>
+
+          <ul class="fact-list">
+            <li>
+              <span class="k">Language</span>
+              <span class="v">
+                A new statically typed <code>.tp</code> programming language
+                with a compiler written in Python
+              </span>
+            </li>
+
+            <li>
+              <span class="k">Compiler</span>
+              <span class="v">
+                Python 3.10+ compiler with a hand-written lexer and
+                recursive-descent parser
+              </span>
+            </li>
+
+            <li>
+              <span class="k">Stage</span>
+              <span class="v">
+                Alpha -- lexer, parser, AST, and parts of semantic analysis
+                implemented; code generation not yet available
+              </span>
+            </li>
+
+            <li>
+              <span class="k">Entry point</span>
+              <span class="v">
+                <code>teapot file.tp --trace</code>
+              </span>
+            </li>
+
+            <li>
+              <span class="k">Memory modes</span>
+              <span class="v">
+                <code>$MEM-GC</code> or <code>$MEM-MANUAL</code>, declared once
+                per source file
+              </span>
+            </li>
+
+            <li>
+              <span class="k">License</span>
+              <span class="v"> GNU GPL v3.0-or-later </span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Compiler pipeline -->
+      <section id="pipeline" class="alt">
+        <div class="wrap">
+          <p class="eyebrow">Compiler architecture</p>
+
+          <h2>The TeapotLang compiler pipeline</h2>
+
+          <p class="section-lead">
+            TeapotLang processes source code through several compiler stages.
+            The lexer, parser, and abstract syntax tree are implemented,
+            semantic analysis is under active development, and code generation
+            is planned.
+          </p>
+
+          <div class="stage-list">
+            <div class="stage">
+              <div class="idx">1</div>
+
+              <div>
+                <h3>Lexical Analysis</h3>
+
+                <p>
+                  The lexer turns raw <code>.tp</code> source code into tokens,
+                  including keywords, types, literals, operators, comments, and
+                  the memory-management directive.
+                </p>
+              </div>
+
+              <div class="status done">Implemented</div>
+            </div>
+
+            <div class="stage">
+              <div class="idx">2</div>
+
+              <div>
+                <h3>Parsing</h3>
+
+                <p>
+                  A recursive-descent parser consumes the token stream and
+                  constructs the abstract syntax tree. It covers structs, enums,
+                  errors, operators, functions, default arguments, control flow,
+                  casts, arrays, and related expressions.
+                </p>
+              </div>
+
+              <div class="status done">Implemented</div>
+            </div>
+
+            <div class="stage">
+              <div class="idx">3</div>
+
+              <div>
+                <h3>Abstract Syntax Tree</h3>
+
+                <p>
+                  TeapotLang represents parsed programs using a dataclass-based
+                  abstract syntax tree. The AST provides the structured
+                  representation consumed by later compiler stages.
+                </p>
+              </div>
+
+              <div class="status done">Implemented</div>
+            </div>
+
+            <div class="stage">
+              <div class="idx">4</div>
+
+              <div>
+                <h3>Semantic Analysis</h3>
+
+                <p>
+                  Semantic analysis builds symbol information across scopes and
+                  performs declaration and scope-related checks. Type checking,
+                  broader scope resolution, and additional semantic rules are
+                  still being developed.
+                </p>
+              </div>
+
+              <div class="status progress">In Progress</div>
+            </div>
+
+            <div class="stage">
+              <div class="idx">5</div>
+
+              <div>
+                <h3>Code Generation</h3>
+
+                <p>
+                  TeapotLang does not yet have a code-generation backend,
+                  runtime, or executable output. Code generation is planned as
+                  the next major compiler stage after semantic analysis.
+                </p>
+              </div>
+
+              <div class="status planned">Planned</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Syntax -->
+      <section id="syntax">
+        <div class="wrap">
+          <p class="eyebrow">Programming language syntax</p>
+
+          <h2>TeapotLang syntax</h2>
+
+          <p class="section-lead">
+            TeapotLang uses explicit, period-terminated statements and
+            type-first declarations. Mutability is represented directly in type
+            names, while each source file declares its memory management mode.
+          </p>
+
+          <div class="code-card">
+            <div class="code-top">
+              <span> example.tp </span>
+
+              <div class="dots" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+
+            <pre
+              class="code"
+              aria-label="Example TeapotLang source code"
+            ><code><span class="op">$</span><span class="k">MEM-GC</span>
 
 <span class="k">pub</span> <span class="k">sct</span> <span class="id">Person</span> {
     <span class="ty">cstr</span> <span class="id">name</span><span class="op">.</span>
@@ -793,53 +580,42 @@
     <span class="k">val</span> <span class="ty">cstr</span> <span class="id">result</span> <span class="op">=</span> <span class="id">classify</span>(<span class="id">total</span>)<span class="op">.</span>
     <span class="k">val</span> <span class="ty">csi32</span> <span class="id">shown</span> <span class="op">=</span> <span class="id">total</span> <span class="op">&gt;&gt;</span> <span class="ty">csi32</span><span class="op">.</span>
 }</code></pre>
-
+          </div>
         </div>
+      </section>
 
-      </div>
-    </section>
+      <!-- Compiler playground -->
+      <section id="playground">
+        <div class="wrap">
+          <p class="eyebrow">Interactive compiler</p>
 
-  <!-- Compiler playground -->
-  <section id="playground">
-    <div class="wrap">
+          <h2>Explore the compiler</h2>
 
-      <p class="eyebrow">
-        Interactive compiler
-      </p>
+          <p class="section-lead">
+            Run TeapotLang directly in your browser. The playground uses the
+            TeapotLang compiler itself through Pyodide and WebAssembly, then
+            exposes the compiler's token stream, abstract syntax tree, and
+            symbol table.
+          </p>
 
-      <h2>
-        Explore the compiler
-      </h2>
+          <div class="project-preview compiler-preview" data-compiler>
+            <div class="preview-toolbar">
+              <span class="preview-kicker"> LIVE COMPILER </span>
 
-      <p class="section-lead">
-        Run TeapotLang directly in your browser. The playground uses the
-        TeapotLang compiler itself through Pyodide and WebAssembly, then
-        exposes the compiler's token stream, abstract syntax tree, and
-        symbol table.
-      </p>
+              <span class="preview-status">
+                <i></i>
+                Pyodide WASM backend
+              </span>
+            </div>
 
-      <div class="project-preview compiler-preview" data-compiler>
+            <label class="editor-label" for="teapot-source"> main.tp </label>
 
-        <div class="preview-toolbar">
-          <span class="preview-kicker">
-            LIVE COMPILER
-          </span>
-
-          <span class="preview-status">
-            <i></i>
-            Pyodide WASM backend
-          </span>
-        </div>
-
-        <label class="editor-label" for="teapot-source">
-          main.tp
-        </label>
-
-        <textarea
-          id="teapot-source"
-          spellcheck="false"
-          aria-label="TeapotLang source code"
-        >$MEM-GC
+            <textarea
+              id="teapot-source"
+              spellcheck="false"
+              aria-label="TeapotLang source code"
+            >
+$MEM-GC
 fc main()!void {
     val mui8 foo = 1.
     val mui8 bar = 2.
@@ -847,613 +623,457 @@ fc main()!void {
 }
   </textarea>
 
-        <div class="compiler-actions">
-          <button
-            class="preview-button"
-            type="button"
-          >
-            Compile
-          </button>
-
-          <span
-            class="compile-stage"
-            aria-live="polite"
-          >
-            ready
-          </span>
-        </div>
-
-        <div
-          class="compiler-tabs"
-          role="tablist"
-          aria-label="Compiler output"
-        >
-          <button
-            class="compiler-tab active"
-            type="button"
-            data-view="tokens"
-            role="tab"
-            aria-selected="true"
-          >
-            Token Object list
-          </button>
-
-          <button
-            class="compiler-tab"
-            type="button"
-            data-view="ast"
-            role="tab"
-            aria-selected="false"
-          >
-            AST Tree
-          </button>
-
-          <button
-            class="compiler-tab"
-            type="button"
-            data-view="symbols"
-            role="tab"
-            aria-selected="false"
-          >
-            Symbol table
-          </button>
-        </div>
-
-        <pre
-          class="compiler-output"
-          data-output="tokens"
-          aria-live="polite"
-        >Compile to inspect lexer output.</pre>
-
-        <pre
-          class="compiler-output"
-          data-output="ast"
-          aria-live="polite"
-          hidden
-        >Compile to inspect parser output.</pre>
-
-        <div
-          class="compiler-output symbol-table-output"
-          data-output="symbols"
-          aria-live="polite"
-          hidden
-        >Compile to inspect semantic symbols.</div>
-
-      </div>
-
-      <div class="note">
-        <strong>Browser execution:</strong>
-        The playground downloads the current TeapotLang compiler modules
-        and runs the lexer, parser, and semantic analyser locally through
-        Pyodide. Your source code is processed in the browser rather than
-        sent to a server.
-      </div>
-
-    </div>
-  </section>
-
-    <!-- Type system -->
-    <section id="types" class="alt">
-      <div class="wrap">
-
-        <p class="eyebrow">
-          Static type system
-        </p>
-
-        <h2>
-          TeapotLang type system
-        </h2>
-
-        <p class="section-lead">
-          TeapotLang makes integer width, signedness, and mutability
-          explicit. Mutability is encoded directly into the type name
-          instead of being supplied as a separate modifier.
-        </p>
-
-
-        <div class="types-wrap">
-
-          <table class="types">
-
-            <caption class="sr-only">
-              TeapotLang supported type categories and their mutable and
-              constant forms
-            </caption>
-
-            <thead>
-              <tr>
-                <th scope="col">
-                  Category
-                </th>
-
-                <th scope="col" class="m">
-                  Mutable
-                </th>
-
-                <th scope="col" class="c">
-                  Constant
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-
-              <tr>
-                <th scope="row" class="cat">
-                  Signed integers
-                </th>
-
-                <td class="m">
-                  msi8 · msi16 · msi32 · msi64
-                </td>
-
-                <td class="c">
-                  csi8 · csi16 · csi32 · csi64
-                </td>
-              </tr>
-
-
-              <tr>
-                <th scope="row" class="cat">
-                  Unsigned integers
-                </th>
-
-                <td class="m">
-                  mui8 · mui16 · mui32 · mui64
-                </td>
-
-                <td class="c">
-                  cui8 · cui16 · cui32 · cui64
-                </td>
-              </tr>
-
-
-              <tr>
-                <th scope="row" class="cat">
-                  Floating point
-                </th>
-
-                <td class="m">
-                  mf32 · mf64
-                </td>
-
-                <td class="c">
-                  cf32 · cf64
-                </td>
-              </tr>
-
-
-              <tr>
-                <th scope="row" class="cat">
-                  Text &amp; character
-                </th>
-
-                <td class="m">
-                  mstr · mchar
-                </td>
-
-                <td class="c">
-                  cstr · cchar
-                </td>
-              </tr>
-
-
-              <tr>
-                <th scope="row" class="cat">
-                  Boolean
-                </th>
-
-                <td class="m">
-                  mbln
-                </td>
-
-                <td class="c">
-                  cbln
-                </td>
-              </tr>
-
-
-              <tr>
-                <th scope="row" class="cat">
-                  Arbitrary precision / decimal
-                </th>
-
-                <td class="m">
-                  maint · mdml
-                </td>
-
-                <td class="c">
-                  caint · cdml
-                </td>
-              </tr>
-
-
-              <tr>
-                <th scope="row" class="cat">
-                  Untyped return
-                </th>
-
-                <td
-                  colspan="2"
-                  class="faint"
-                >
-                  void -- no mutable or constant form
-                </td>
-              </tr>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-
-        <div class="note">
-          Casting between types uses
-          <code>&gt;&gt;</code>,
-          for example
-          <code>total &gt;&gt; cstr</code>.
-          Members are accessed with
-          <code>::</code>,
-          for example
-          <code>student::grades</code>.
-        </div>
-
-      </div>
-    </section>
-
-<section id="people" class="alt">
-  <div class="wrap">
-
-    <p class="eyebrow">People</p>
-    <h2>Built in the open, by people.</h2>
-    <p class="section-lead">
-      TeapotLang is developed openly. Maintainers shape the language and
-      compiler, while contributors help improve the project through code,
-      testing, documentation, and discussion.
-    </p>
-
-    <div class="people-group">
-      <div class="people-heading">
-        <span class="people-rule"></span>
-        <h3>Maintainers</h3>
-      </div>
-
-      <div id="maintainers" class="people-grid">
-        <div class="person-loading">
-          Loading maintainer information...
-        </div>
-      </div>
-    </div>
-
-    <div class="people-group contributors-group">
-      <div class="people-heading">
-        <span class="people-rule"></span>
-        <h3>Contributors</h3>
-      </div>
-
-      <div id="contributors" class="people-grid">
-        <div class="person-loading">
-          Loading contributors from GitHub...
-        </div>
-      </div>
-
-      <p id="contributors-error" class="people-error" hidden></p>
-    </div>
-
-  </div>
-</section>
-
-<!-- Releases -->
-<section id="releases" class="alt">
-  <div class="wrap">
-
-    <p class="eyebrow">
-      Project releases
-    </p>
-
-    <h2>
-      TeapotLang releases
-    </h2>
-
-    <p class="section-lead">
-      Browse released versions of TeapotLang and read their release notes.
-    </p>
-
-    <div class="releases-panel">
-
-      <div
-        id="releases-list"
-        class="releases-list"
-        aria-live="polite"
-      >
-        <div class="release-skeleton"></div>
-        <div class="release-skeleton"></div>
-        <div class="release-skeleton"></div>
-      </div>
-
-      <div
-        id="releases-fade"
-        class="releases-fade"
-        aria-hidden="true"
-      ></div>
-
-    </div>
-
-    <p
-      id="releases-error"
-      class="people-error"
-      hidden
-    ></p>
-
-  </div>
-</section>
-
-    <!-- Project status -->
-    <section id="status">
-      <div class="wrap">
-
-        <p class="eyebrow">
-          Development status
-        </p>
-
-        <h2>
-          TeapotLang development status
-        </h2>
-
-        <p class="section-lead">
-          TeapotLang is an alpha-stage compiler project. The distinction
-          between implemented, actively developed, and planned functionality
-          is intentional.
-        </p>
-
-
-        <div class="two-col status-grid">
-
-          <div>
-
-            <ul class="fact-list">
-
-              <li>
-                <span class="k">
-                  Works today
-                </span>
-
-                <span class="v">
-                  Lexing, parsing, AST construction, symbol-table
-                  construction, duplicate declaration checks, and
-                  function parameter scoping
-                </span>
-              </li>
-
-
-              <li>
-                <span class="k">
-                  Being built
-                </span>
-
-                <span class="v">
-                  Type checking, broader scope resolution, and additional
-                  semantic rules
-                </span>
-              </li>
-
-
-              <li>
-                <span class="k">
-                  Not started
-                </span>
-
-                <span class="v">
-                  Code generation, an executable backend/runtime,
-                  and a standard library
-                </span>
-              </li>
-
-            </ul>
-
-          </div>
-
-
-          <div>
-
-            <p class="dim">
-              TeapotLang is developed in the open, with source code,
-              issues, contributions, and design discussion available
-              through the project repository.
-            </p>
-
-            <p class="dim">
-              Contributions are welcome, particularly around compiler
-              implementation and language-design questions. Read the
-              contributing guide before submitting anything beyond a
-              small fix.
-            </p>
-
-            <a
-              class="btn ghost"
-              href="https://github.com/Sim20004/teapot-lang"
-              target="_blank"
-              rel="noopener noreferrer"
+            <div class="compiler-actions">
+              <button class="preview-button" type="button">Compile</button>
+
+              <span class="compile-stage" aria-live="polite"> ready </span>
+            </div>
+
+            <div
+              class="compiler-tabs"
+              role="tablist"
+              aria-label="Compiler output"
             >
-              View TeapotLang source code →
-            </a>
+              <button
+                class="compiler-tab active"
+                type="button"
+                data-view="tokens"
+                role="tab"
+                aria-selected="true"
+              >
+                Token Object list
+              </button>
 
+              <button
+                class="compiler-tab"
+                type="button"
+                data-view="ast"
+                role="tab"
+                aria-selected="false"
+              >
+                AST Tree
+              </button>
+
+              <button
+                class="compiler-tab"
+                type="button"
+                data-view="symbols"
+                role="tab"
+                aria-selected="false"
+              >
+                Symbol table
+              </button>
+            </div>
+
+            <pre
+              class="compiler-output"
+              data-output="tokens"
+              aria-live="polite"
+            >
+Compile to inspect lexer output.</pre>
+
+            <pre
+              class="compiler-output"
+              data-output="ast"
+              aria-live="polite"
+              hidden
+            >
+Compile to inspect parser output.</pre>
+
+            <div
+              class="compiler-output symbol-table-output"
+              data-output="symbols"
+              aria-live="polite"
+              hidden
+            >
+              Compile to inspect semantic symbols.
+            </div>
           </div>
 
+          <div class="note">
+            <strong>Browser execution:</strong>
+            The playground downloads the current TeapotLang compiler modules and
+            runs the lexer, parser, and semantic analyser locally through
+            Pyodide. Your source code is processed in the browser rather than
+            sent to a server.
+          </div>
         </div>
+      </section>
 
-      </div>
-    </section>
+      <!-- Type system -->
+      <section id="types" class="alt">
+        <div class="wrap">
+          <p class="eyebrow">Static type system</p>
 
+          <h2>TeapotLang type system</h2>
 
-    <!-- FAQ -->
-    <section id="faq" class="alt">
-      <div class="wrap">
+          <p class="section-lead">
+            TeapotLang makes integer width, signedness, and mutability explicit.
+            Mutability is encoded directly into the type name instead of being
+            supplied as a separate modifier.
+          </p>
 
-        <p class="eyebrow">
-          Frequently asked questions
-        </p>
+          <div class="types-wrap">
+            <table class="types">
+              <caption class="sr-only">
+                TeapotLang supported type categories and their mutable and
+                constant forms
+              </caption>
 
-        <h2>
-          TeapotLang FAQ
-        </h2>
+              <thead>
+                <tr>
+                  <th scope="col">Category</th>
 
-        <div class="faq">
+                  <th scope="col" class="m">Mutable</th>
 
-          <details>
-            <summary>
-              What is TeapotLang?
-            </summary>
+                  <th scope="col" class="c">Constant</th>
+                </tr>
+              </thead>
 
-            <p>
-              TeapotLang is an experimental statically typed programming
-              language and compiler written in Python. It is being developed
-              as a from-scratch compiler project exploring programming
-              language implementation.
-            </p>
-          </details>
+              <tbody>
+                <tr>
+                  <th scope="row" class="cat">Signed integers</th>
 
+                  <td class="m">msi8 · msi16 · msi32 · msi64</td>
 
-          <details>
-            <summary>
-              What is TeapotLang written in?
-            </summary>
+                  <td class="c">csi8 · csi16 · csi32 · csi64</td>
+                </tr>
 
-            <p>
-              The TeapotLang compiler is written in Python 3.10 or later.
-              The project uses Python to implement the lexer, parser,
-              abstract syntax tree, and compiler analysis components.
-            </p>
-          </details>
+                <tr>
+                  <th scope="row" class="cat">Unsigned integers</th>
 
+                  <td class="m">mui8 · mui16 · mui32 · mui64</td>
 
-          <details>
-            <summary>
-              Is TeapotLang a compiled programming language?
-            </summary>
+                  <td class="c">cui8 · cui16 · cui32 · cui64</td>
+                </tr>
 
-            <p>
-              TeapotLang is designed as a compiled programming language,
-              but the compiler is currently in alpha development. Lexing,
-              parsing, AST construction, and parts of semantic analysis
-              are implemented, while code generation is still planned.
-            </p>
-          </details>
+                <tr>
+                  <th scope="row" class="cat">Floating point</th>
 
+                  <td class="m">mf32 · mf64</td>
 
-          <details>
-            <summary>
-              Does TeapotLang have a static type system?
-            </summary>
+                  <td class="c">cf32 · cf64</td>
+                </tr>
 
-            <p>
-              Yes. TeapotLang uses explicit static types including signed
-              and unsigned integers, floating-point types, strings,
-              characters, booleans, and other numeric types. Mutability
-              is represented directly in type names.
-            </p>
-          </details>
+                <tr>
+                  <th scope="row" class="cat">Text &amp; character</th>
 
+                  <td class="m">mstr · mchar</td>
 
-          <details>
-            <summary>
-              What compiler stages does TeapotLang have?
-            </summary>
+                  <td class="c">cstr · cchar</td>
+                </tr>
 
-            <p>
-              The current compiler architecture consists of lexical
-              analysis, parsing, abstract syntax tree construction,
-              semantic analysis, and planned code generation.
-            </p>
-          </details>
+                <tr>
+                  <th scope="row" class="cat">Boolean</th>
 
+                  <td class="m">mbln</td>
 
-          <details>
-            <summary>
-              What programming language is the TeapotLang compiler written in?
-            </summary>
+                  <td class="c">cbln</td>
+                </tr>
 
-            <p>
-              The compiler is written in Python. The project requires
-              Python 3.10 or later.
-            </p>
-          </details>
+                <tr>
+                  <th scope="row" class="cat">Arbitrary precision / decimal</th>
 
+                  <td class="m">maint · mdml</td>
 
-          <details>
-            <summary>
-              Where can I find the TeapotLang source code?
-            </summary>
+                  <td class="c">caint · cdml</td>
+                </tr>
 
-            <p>
-              The TeapotLang source code is publicly available on GitHub.
-              The repository contains the compiler implementation,
-              tests, documentation, and project development history.
-            </p>
+                <tr>
+                  <th scope="row" class="cat">Untyped return</th>
 
-            <p>
+                  <td colspan="2" class="faint">
+                    void -- no mutable or constant form
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note">
+            Casting between types uses
+            <code>&gt;&gt;</code>, for example <code>total &gt;&gt; cstr</code>.
+            Members are accessed with <code>::</code>, for example
+            <code>student::grades</code>.
+          </div>
+        </div>
+      </section>
+
+      <section id="people" class="alt">
+        <div class="wrap">
+          <p class="eyebrow">People</p>
+          <h2>Built in the open, by people.</h2>
+          <p class="section-lead">
+            TeapotLang is developed openly. Maintainers shape the language and
+            compiler, while contributors help improve the project through code,
+            testing, documentation, and discussion.
+          </p>
+
+          <div class="people-group">
+            <div class="people-heading">
+              <span class="people-rule"></span>
+              <h3>Maintainers</h3>
+            </div>
+
+            <div id="maintainers" class="people-grid">
+              <div class="person-loading">
+                Loading maintainer information...
+              </div>
+            </div>
+          </div>
+
+          <div class="people-group contributors-group">
+            <div class="people-heading">
+              <span class="people-rule"></span>
+              <h3>Contributors</h3>
+            </div>
+
+            <div id="contributors" class="people-grid">
+              <div class="person-loading">
+                Loading contributors from GitHub...
+              </div>
+            </div>
+
+            <p id="contributors-error" class="people-error" hidden></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Releases -->
+      <section id="releases" class="alt">
+        <div class="wrap">
+          <p class="eyebrow">Project releases</p>
+
+          <h2>TeapotLang releases</h2>
+
+          <p class="section-lead">
+            Browse released versions of TeapotLang and read their release notes.
+          </p>
+
+          <div class="releases-panel">
+            <div id="releases-list" class="releases-list" aria-live="polite">
+              <div class="release-skeleton"></div>
+              <div class="release-skeleton"></div>
+              <div class="release-skeleton"></div>
+            </div>
+
+            <div
+              id="releases-fade"
+              class="releases-fade"
+              aria-hidden="true"
+            ></div>
+          </div>
+
+          <p id="releases-error" class="people-error" hidden></p>
+        </div>
+      </section>
+
+      <!-- Project status -->
+      <section id="status">
+        <div class="wrap">
+          <p class="eyebrow">Development status</p>
+
+          <h2>TeapotLang development status</h2>
+
+          <p class="section-lead">
+            TeapotLang is an alpha-stage compiler project. The distinction
+            between implemented, actively developed, and planned functionality
+            is intentional.
+          </p>
+
+          <div class="two-col status-grid">
+            <div>
+              <ul class="fact-list">
+                <li>
+                  <span class="k"> Works today </span>
+
+                  <span class="v">
+                    Lexing, parsing, AST construction, symbol-table
+                    construction, duplicate declaration checks, and function
+                    parameter scoping
+                  </span>
+                </li>
+
+                <li>
+                  <span class="k"> Being built </span>
+
+                  <span class="v">
+                    Type checking, broader scope resolution, and additional
+                    semantic rules
+                  </span>
+                </li>
+
+                <li>
+                  <span class="k"> Not started </span>
+
+                  <span class="v">
+                    Code generation, an executable backend/runtime, and a
+                    standard library
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <p class="dim">
+                TeapotLang is developed in the open, with source code, issues,
+                contributions, and design discussion available through the
+                project repository.
+              </p>
+
+              <p class="dim">
+                Contributions are welcome, particularly around compiler
+                implementation and language-design questions. Read the
+                contributing guide before submitting anything beyond a small
+                fix.
+              </p>
+
               <a
+                class="btn ghost"
                 href="https://github.com/Sim20004/teapot-lang"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                View the TeapotLang GitHub repository →
+                View TeapotLang source code →
               </a>
-            </p>
-          </details>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      <!-- FAQ -->
+      <section id="faq" class="alt">
+        <div class="wrap">
+          <p class="eyebrow">Frequently asked questions</p>
+
+          <h2>TeapotLang FAQ</h2>
+
+          <div class="faq">
+            <details>
+              <summary>What is TeapotLang?</summary>
+
+              <p>
+                TeapotLang is an experimental statically typed programming
+                language and compiler written in Python. It is being developed
+                as a from-scratch compiler project exploring programming
+                language implementation.
+              </p>
+            </details>
+
+            <details>
+              <summary>What is TeapotLang written in?</summary>
+
+              <p>
+                The TeapotLang compiler is written in Python 3.10 or later. The
+                project uses Python to implement the lexer, parser, abstract
+                syntax tree, and compiler analysis components.
+              </p>
+            </details>
+
+            <details>
+              <summary>Is TeapotLang a compiled programming language?</summary>
+
+              <p>
+                TeapotLang is designed as a compiled programming language, but
+                the compiler is currently in alpha development. Lexing, parsing,
+                AST construction, and parts of semantic analysis are
+                implemented, while code generation is still planned.
+              </p>
+            </details>
+
+            <details>
+              <summary>Does TeapotLang have a static type system?</summary>
+
+              <p>
+                Yes. TeapotLang uses explicit static types including signed and
+                unsigned integers, floating-point types, strings, characters,
+                booleans, and other numeric types. Mutability is represented
+                directly in type names.
+              </p>
+            </details>
+
+            <details>
+              <summary>What compiler stages does TeapotLang have?</summary>
+
+              <p>
+                The current compiler architecture consists of lexical analysis,
+                parsing, abstract syntax tree construction, semantic analysis,
+                and planned code generation.
+              </p>
+            </details>
+
+            <details>
+              <summary>
+                What programming language is the TeapotLang compiler written in?
+              </summary>
+
+              <p>
+                The compiler is written in Python. The project requires Python
+                3.10 or later.
+              </p>
+            </details>
+
+            <details>
+              <summary>Where can I find the TeapotLang source code?</summary>
+
+              <p>
+                The TeapotLang source code is publicly available on GitHub. The
+                repository contains the compiler implementation, tests,
+                documentation, and project development history.
+              </p>
+
+              <p>
+                <a
+                  href="https://github.com/Sim20004/teapot-lang"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View the TeapotLang GitHub repository →
+                </a>
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="wrap footer-main">
+        <div class="fbrand">
+          <strong>TeapotLang</strong>
+
+          <p>
+            An experimental statically typed programming language and compiler
+            project, built stage by stage and documented as it actually stands.
+          </p>
         </div>
 
+        <nav class="flinks" aria-label="Footer navigation">
+          <a
+            href="https://github.com/Sim20004/teapot-lang"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </nav>
       </div>
-    </section>
 
-  </main>
+      <div class="wrap fine">
+        <p>
+          Licensed under the
+          <a
+            href="https://www.gnu.org/licenses/gpl-3.0.html"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GNU General Public License v3.0-or-later </a
+          >.
+        </p>
 
-
-<!-- Footer -->
-<footer>
-  <div class="wrap footer-main">
-
-    <div class="fbrand">
-      <strong>TeapotLang</strong>
-
-      <p>
-        An experimental statically typed programming language and
-        compiler project, built stage by stage and documented as
-        it actually stands.
-      </p>
-    </div>
-
-    <nav class="flinks" aria-label="Footer navigation">
-      <a
-        href="https://github.com/Sim20004/teapot-lang"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        GitHub
-      </a>
-    </nav>
-
-  </div>
-
-  <div class="wrap fine">
-    <p>
-      Licensed under the
-      <a
-        href="https://www.gnu.org/licenses/gpl-3.0.html"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        GNU General Public License v3.0-or-later
-      </a>.
-    </p>
-
-    <p>
-      Not affiliated with any commercial teapot.
-    </p>
-  </div>
-</footer>
-
-</body>
+        <p>Not affiliated with any commercial teapot.</p>
+      </div>
+    </footer>
+  </body>
 </html>

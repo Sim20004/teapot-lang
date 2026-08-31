@@ -1,201 +1,115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Release | TeapotLang</title>
+    <title>Release | TeapotLang</title>
 
-  <meta
-    name="description"
-    content="TeapotLang release notes."
-  >
+    <meta name="description" content="TeapotLang release notes." />
 
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href="images/teapot.svg"
-  >
+    <link rel="icon" type="image/svg+xml" href="images/teapot.svg" />
 
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  >
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
 
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  >
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  >
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
 
-  <link
-    rel="stylesheet"
-    href="css/style.css?v=5"
-  >
+    <link rel="stylesheet" href="css/style.css?v=5" />
 
-<script
-  src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"
-></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<script
-  src="js/release.js?v=3"
-  defer
-></script>
-</head>
+    <script src="js/release.js?v=3" defer></script>
+  </head>
 
-<body>
-
-  <nav class="nav" aria-label="Main navigation">
-    <div class="wrap">
-
-      <a
-        href="index.html"
-        class="brand"
-        aria-label="TeapotLang home"
-      >
-        <img
-          src="images/teapot.svg"
-          width="20"
-          height="20"
-          alt=""
-          aria-hidden="true"
-        >
-
-        Teapot<span class="tag">
-          lang / compiler
-        </span>
-      </a>
-
-      <div class="navlinks">
-
-        <a href="index.html#about">
-          About
-        </a>
-
-        <a href="index.html#pipeline">
-          Pipeline
-        </a>
-
-        <a href="index.html#syntax">
-          Syntax
-        </a>
-
-        <a href="index.html#status">
-          Status
-        </a>
-
-        <a href="index.html#releases">
-          Releases
-        </a>
-
-        <a
-          href="https://github.com/Sim20004/teapot-lang"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>
-
-      </div>
-
-    </div>
-  </nav>
-
-
-  <main>
-
-    <section>
+  <body>
+    <nav class="nav" aria-label="Main navigation">
       <div class="wrap">
+        <a href="index.html" class="brand" aria-label="TeapotLang home">
+          <img
+            src="images/teapot.svg"
+            width="20"
+            height="20"
+            alt=""
+            aria-hidden="true"
+          />
 
-        <a
-          class="btn ghost release-back"
-          href="index.html#releases"
-        >
-          ← Back to releases
+          Teapot<span class="tag"> lang / compiler </span>
         </a>
 
+        <div class="navlinks">
+          <a href="index.html#about"> About </a>
 
-        <div
-          id="release-page"
-          class="release-page"
-        >
+          <a href="index.html#pipeline"> Pipeline </a>
 
-          <div class="release-loading">
-            Loading release...
+          <a href="index.html#syntax"> Syntax </a>
+
+          <a href="index.html#status"> Status </a>
+
+          <a href="index.html#releases"> Releases </a>
+
+          <a
+            href="https://github.com/Sim20004/teapot-lang"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section>
+        <div class="wrap">
+          <a class="btn ghost release-back" href="index.html#releases">
+            ← Back to releases
+          </a>
+
+          <div id="release-page" class="release-page">
+            <div class="release-loading">Loading release...</div>
+          </div>
+          <div id="release-download" class="release-download" hidden>
+            <a id="release-download-button" class="btn" href="#" download>
+              Download release
+            </a>
           </div>
 
+          <p id="release-error" class="people-error" hidden></p>
         </div>
-<div
-  id="release-download"
-  class="release-download"
-  hidden
->
-  <a
-    id="release-download-button"
-    class="btn"
-    href="#"
-    download
-  >
-    Download release
-  </a>
-</div>
+      </section>
+    </main>
 
-        <p
-          id="release-error"
-          class="people-error"
-          hidden
-        ></p>
+    <footer>
+      <div class="wrap footer-main">
+        <div class="fbrand">
+          <strong>TeapotLang</strong>
 
+          <p>
+            An experimental statically typed programming language and compiler
+            project.
+          </p>
+        </div>
+
+        <nav class="flinks" aria-label="Footer navigation">
+          <a href="index.html"> Home </a>
+
+          <a href="index.html#releases"> Releases </a>
+
+          <a
+            href="https://github.com/Sim20004/teapot-lang"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </nav>
       </div>
-    </section>
-
-  </main>
-
-
-  <footer>
-    <div class="wrap footer-main">
-
-      <div class="fbrand">
-        <strong>TeapotLang</strong>
-
-        <p>
-          An experimental statically typed programming
-          language and compiler project.
-        </p>
-      </div>
-
-      <nav
-        class="flinks"
-        aria-label="Footer navigation"
-      >
-        <a href="index.html">
-          Home
-        </a>
-
-        <a href="index.html#releases">
-          Releases
-        </a>
-
-        <a
-          href="https://github.com/Sim20004/teapot-lang"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitHub
-        </a>
-      </nav>
-
-    </div>
-  </footer>
-
-</body>
+    </footer>
+  </body>
 </html>

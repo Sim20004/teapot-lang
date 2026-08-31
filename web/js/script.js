@@ -5,15 +5,12 @@ const GITHUB_API = "https://api.github.com";
 const GITHUB_API_VERSION = "2022-11-28";
 const GITHUB_PER_PAGE = 100;
 
-const MAINTAINERS = new Set([
-  "Sim20004"
-]);
+const MAINTAINERS = new Set(["Sim20004"]);
 
 const githubHeaders = {
   Accept: "application/vnd.github+json",
-  "X-GitHub-Api-Version": GITHUB_API_VERSION
+  "X-GitHub-Api-Version": GITHUB_API_VERSION,
 };
-
 
 /* =========================================================
    General helpers
@@ -31,7 +28,6 @@ function createTextElement(tag, text, className = "") {
   return element;
 }
 
-
 function formatNumber(value) {
   if (!Number.isFinite(value)) {
     return "0";
@@ -39,7 +35,6 @@ function formatNumber(value) {
 
   return new Intl.NumberFormat("en-GB").format(value);
 }
-
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) {
@@ -49,14 +44,13 @@ function formatBytes(bytes) {
   const units = ["B", "KB", "MB", "GB"];
   const exponent = Math.min(
     Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1
+    units.length - 1,
   );
 
   const value = bytes / Math.pow(1024, exponent);
 
   return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
 }
-
 
 /* =========================================================
    GitHub API
@@ -65,7 +59,7 @@ function formatBytes(bytes) {
 async function githubFetch(endpoint) {
   const response = await fetch(`${GITHUB_API}${endpoint}`, {
     headers: githubHeaders,
-    cache: "no-store"
+    cache: "no-store",
   });
 
   if (response.status === 403 || response.status === 429) {
@@ -78,13 +72,12 @@ async function githubFetch(endpoint) {
 
   if (!response.ok) {
     throw new Error(
-      `GitHub API returned ${response.status} ${response.statusText}.`
+      `GitHub API returned ${response.status} ${response.statusText}.`,
     );
   }
 
   return response.json();
 }
-
 
 /* =========================================================
    Latest version
@@ -110,7 +103,6 @@ function renderLatestVersion(releases) {
   badge.href = latest.html_url || "#";
 }
 
-
 async function loadLatestVersion(releasesPromise) {
   const badge = document.querySelector("#version-badge");
 
@@ -123,16 +115,12 @@ async function loadLatestVersion(releasesPromise) {
 
     renderLatestVersion(releases);
   } catch (error) {
-    console.error(
-      "Failed to fetch latest TeapotLang release:",
-      error
-    );
+    console.error("Failed to fetch latest TeapotLang release:", error);
 
     badge.textContent = "version unavailable";
     badge.removeAttribute("href");
   }
 }
-
 
 /* =========================================================
    Contributors
@@ -162,28 +150,18 @@ async function fetchAllContributors() {
   return contributors;
 }
 
-
 function createStat(value, label) {
   const stat = document.createElement("div");
   stat.className = "person-stat";
 
-  const valueElement = createTextElement(
-    "span",
-    value,
-    "stat-value"
-  );
+  const valueElement = createTextElement("span", value, "stat-value");
 
-  const labelElement = createTextElement(
-    "span",
-    label,
-    "stat-label"
-  );
+  const labelElement = createTextElement("span", label, "stat-label");
 
   stat.append(valueElement, labelElement);
 
   return stat;
 }
-
 
 function createPersonCard({
   username,
@@ -198,7 +176,7 @@ function createPersonCard({
   stat3Value,
   stat3Label,
   contributionText,
-  maintainer = false
+  maintainer = false,
 }) {
   const card = document.createElement("a");
 
@@ -229,49 +207,30 @@ function createPersonCard({
       avatar.removeAttribute("src");
       avatar.alt = "";
     },
-    { once: true }
+    { once: true },
   );
 
   const identity = document.createElement("div");
   identity.className = "person-identity";
 
-  const name = createTextElement(
-    "h4",
-    displayName || username
-  );
+  const name = createTextElement("h4", displayName || username);
 
-  const handle = createTextElement(
-    "span",
-    `@${username}`,
-    "person-handle"
-  );
+  const handle = createTextElement("span", `@${username}`, "person-handle");
 
   identity.append(name, handle);
 
-  const roleElement = createTextElement(
-    "span",
-    role,
-    "person-role"
-  );
+  const roleElement = createTextElement("span", role, "person-role");
 
   if (!maintainer) {
     roleElement.classList.add("contributor-role");
   }
 
-  top.append(
-    avatar,
-    identity,
-    roleElement
-  );
-
+  top.append(avatar, identity, roleElement);
 
   const summaryContainer = document.createElement("div");
   summaryContainer.className = "person-summary";
 
-  summaryContainer.appendChild(
-    createTextElement("p", summary)
-  );
-
+  summaryContainer.appendChild(createTextElement("p", summary));
 
   const stats = document.createElement("div");
   stats.className = "person-stats";
@@ -279,60 +238,36 @@ function createPersonCard({
   stats.append(
     createStat(commits, "Commits"),
     createStat(stat2Value, stat2Label),
-    createStat(stat3Value, stat3Label)
+    createStat(stat3Value, stat3Label),
   );
-
 
   const contributionContainer = document.createElement("div");
   contributionContainer.className = "person-contributions";
 
   const contributionTitle = createTextElement(
     "span",
-    maintainer
-      ? "TeapotLang Contributions"
-      : "Repository Contributions",
-    "contribution-title"
+    maintainer ? "TeapotLang Contributions" : "Repository Contributions",
+    "contribution-title",
   );
 
   const contributionList = document.createElement("ul");
 
-  contributionList.appendChild(
-    createTextElement("li", contributionText)
-  );
+  contributionList.appendChild(createTextElement("li", contributionText));
 
-  contributionContainer.append(
-    contributionTitle,
-    contributionList
-  );
-
+  contributionContainer.append(contributionTitle, contributionList);
 
   const footer = document.createElement("div");
   footer.className = "person-footer";
 
   footer.append(
-    createTextElement(
-      "span",
-      "View GitHub profile"
-    ),
-    createTextElement(
-      "span",
-      "→",
-      "person-arrow"
-    )
+    createTextElement("span", "View GitHub profile"),
+    createTextElement("span", "→", "person-arrow"),
   );
 
-
-  card.append(
-    top,
-    summaryContainer,
-    stats,
-    contributionContainer,
-    footer
-  );
+  card.append(top, summaryContainer, stats, contributionContainer, footer);
 
   return card;
 }
-
 
 async function loadMaintainers(contributors) {
   const container = document.getElementById("maintainers");
@@ -346,14 +281,10 @@ async function loadMaintainers(contributors) {
   for (const username of MAINTAINERS) {
     try {
       const contributor = contributors.find(
-        item =>
-          item.login?.toLowerCase() ===
-          username.toLowerCase()
+        (item) => item.login?.toLowerCase() === username.toLowerCase(),
       );
 
-      const user = await githubFetch(
-        `/users/${encodeURIComponent(username)}`
-      );
+      const user = await githubFetch(`/users/${encodeURIComponent(username)}`);
 
       const commits = contributor?.contributions ?? 0;
 
@@ -364,9 +295,7 @@ async function loadMaintainers(contributors) {
         profileUrl: user.html_url,
         role: "Maintainer",
 
-        summary:
-          user.bio ||
-          "Creator and primary maintainer of TeapotLang.",
+        summary: user.bio || "Creator and primary maintainer of TeapotLang.",
 
         commits,
 
@@ -379,28 +308,23 @@ async function loadMaintainers(contributors) {
         contributionText:
           "Language design, compiler architecture, lexer, parser, AST, semantic analysis, testing, and project infrastructure.",
 
-        maintainer: true
+        maintainer: true,
       });
 
       container.appendChild(card);
     } catch (error) {
-      console.error(
-        `Unable to load maintainer ${username}:`,
-        error
-      );
+      console.error(`Unable to load maintainer ${username}:`, error);
 
       const fallback = document.createElement("div");
 
       fallback.className = "person-loading";
 
-      fallback.textContent =
-        `Unable to load maintainer information for @${username}.`;
+      fallback.textContent = `Unable to load maintainer information for @${username}.`;
 
       container.appendChild(fallback);
     }
   }
 }
-
 
 function loadContributors(contributors) {
   const container = document.getElementById("contributors");
@@ -411,29 +335,24 @@ function loadContributors(contributors) {
 
   container.replaceChildren();
 
-  const visibleContributors = contributors.filter(
-    contributor => {
-      const username = contributor.login;
+  const visibleContributors = contributors.filter((contributor) => {
+    const username = contributor.login;
 
-      if (!username) {
-        return false;
-      }
-
-      return !Array.from(MAINTAINERS).some(
-        maintainer =>
-          maintainer.toLowerCase() ===
-          username.toLowerCase()
-      );
+    if (!username) {
+      return false;
     }
-  );
+
+    return !Array.from(MAINTAINERS).some(
+      (maintainer) => maintainer.toLowerCase() === username.toLowerCase(),
+    );
+  });
 
   if (visibleContributors.length === 0) {
     const empty = document.createElement("div");
 
     empty.className = "person-loading";
 
-    empty.textContent =
-      "No contributors other than the maintainers yet.";
+    empty.textContent = "No contributors other than the maintainers yet.";
 
     container.appendChild(empty);
 
@@ -457,9 +376,7 @@ function loadContributors(contributors) {
       summary:
         "Contributor to TeapotLang through code, testing, documentation, or other project improvements.",
 
-      commits: formatNumber(
-        contributor.contributions
-      ),
+      commits: formatNumber(contributor.contributions),
 
       stat2Value: "GitHub",
       stat2Label: "Profile",
@@ -467,35 +384,24 @@ function loadContributors(contributors) {
       stat3Value: "Open",
       stat3Label: "Source",
 
-      contributionText:
-        `${formatNumber(contributor.contributions)} repository commit${contributor.contributions === 1 ? "" : "s"}.`
+      contributionText: `${formatNumber(contributor.contributions)} repository commit${contributor.contributions === 1 ? "" : "s"}.`,
     });
 
     container.appendChild(card);
   }
 }
 
-
 function showPeopleError(error) {
-  console.error(
-    "Failed to load GitHub people information:",
-    error
-  );
+  console.error("Failed to load GitHub people information:", error);
 
-  const contributors =
-    document.getElementById("contributors");
+  const contributors = document.getElementById("contributors");
 
-  const maintainers =
-    document.getElementById("maintainers");
+  const maintainers = document.getElementById("maintainers");
 
-  const errorElement =
-    document.getElementById("contributors-error");
-
+  const errorElement = document.getElementById("contributors-error");
 
   const isRateLimited =
-    error instanceof Error &&
-    error.message.includes("rate limit");
-
+    error instanceof Error && error.message.includes("rate limit");
 
   if (maintainers) {
     maintainers.replaceChildren();
@@ -511,7 +417,6 @@ function showPeopleError(error) {
     maintainers.appendChild(message);
   }
 
-
   if (contributors) {
     contributors.replaceChildren();
 
@@ -526,7 +431,6 @@ function showPeopleError(error) {
     contributors.appendChild(message);
   }
 
-
   if (errorElement) {
     errorElement.textContent =
       "Contributor information is loaded directly from GitHub and may be temporarily unavailable.";
@@ -535,11 +439,9 @@ function showPeopleError(error) {
   }
 }
 
-
 async function loadPeople() {
   try {
-    const contributors =
-      await fetchAllContributors();
+    const contributors = await fetchAllContributors();
 
     loadContributors(contributors);
 
@@ -548,7 +450,6 @@ async function loadPeople() {
     showPeopleError(error);
   }
 }
-
 
 /* =========================================================
    Releases
@@ -573,7 +474,6 @@ function stripMarkdown(markdown) {
     .trim();
 }
 
-
 function createReleaseExcerpt(body, maxLength = 160) {
   const text = stripMarkdown(body);
 
@@ -591,39 +491,29 @@ function createReleaseExcerpt(body, maxLength = 160) {
   return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
 }
 
-
 function updateReleasesFade() {
-  const releasesList =
-    document.getElementById("releases-list");
+  const releasesList = document.getElementById("releases-list");
 
-  const fade =
-    document.getElementById("releases-fade");
+  const fade = document.getElementById("releases-fade");
 
   if (!releasesList || !fade) {
     return;
   }
 
   const isScrollable =
-    releasesList.scrollHeight >
-    releasesList.clientHeight + 1;
+    releasesList.scrollHeight > releasesList.clientHeight + 1;
 
   const isAtBottom =
     releasesList.scrollTop + releasesList.clientHeight >=
     releasesList.scrollHeight - 4;
 
-  fade.classList.toggle(
-    "is-hidden",
-    !isScrollable || isAtBottom
-  );
+  fade.classList.toggle("is-hidden", !isScrollable || isAtBottom);
 }
 
-
 function renderReleases(releases) {
-  const releasesList =
-    document.getElementById("releases-list");
+  const releasesList = document.getElementById("releases-list");
 
-  const releasesError =
-    document.getElementById("releases-error");
+  const releasesError = document.getElementById("releases-error");
 
   if (!releasesList) {
     return;
@@ -636,15 +526,14 @@ function renderReleases(releases) {
   }
 
   const publishedReleases = Array.isArray(releases)
-    ? releases.filter(release => !release.draft)
+    ? releases.filter((release) => !release.draft)
     : [];
 
   if (publishedReleases.length === 0) {
     const empty = document.createElement("div");
 
     empty.className = "release-empty";
-    empty.textContent =
-      "No releases have been published yet.";
+    empty.textContent = "No releases have been published yet.";
 
     releasesList.appendChild(empty);
 
@@ -654,99 +543,72 @@ function renderReleases(releases) {
   }
 
   publishedReleases.forEach((release, index) => {
-    const article =
-      document.createElement("article");
+    const article = document.createElement("article");
 
     article.className = "release release-compact";
 
+    const info = document.createElement("div");
 
-    const info =
-      document.createElement("div");
-
-    info.className =
-      "release-compact-info";
-
+    info.className = "release-compact-info";
 
     /* Title row: name + latest/pre-release badges */
 
-    const titleRow =
-      document.createElement("div");
+    const titleRow = document.createElement("div");
 
-    titleRow.className =
-      "release-title-row";
+    titleRow.className = "release-title-row";
 
-    const title =
-      document.createElement("h3");
+    const title = document.createElement("h3");
 
-    title.textContent =
-      release.name ||
-      release.tag_name ||
-      "Unnamed release";
+    title.textContent = release.name || release.tag_name || "Unnamed release";
 
     titleRow.appendChild(title);
 
     if (index === 0 && !release.prerelease) {
-      const latestBadge =
-        createTextElement(
-          "span",
-          "Latest",
-          "release-tag-badge latest"
-        );
+      const latestBadge = createTextElement(
+        "span",
+        "Latest",
+        "release-tag-badge latest",
+      );
 
       titleRow.appendChild(latestBadge);
     }
 
     if (release.prerelease) {
-      const preBadge =
-        createTextElement(
-          "span",
-          "Pre-release",
-          "release-tag-badge prerelease"
-        );
+      const preBadge = createTextElement(
+        "span",
+        "Pre-release",
+        "release-tag-badge prerelease",
+      );
 
       titleRow.appendChild(preBadge);
     }
 
     info.appendChild(titleRow);
 
-
     /* Metadata */
 
-    const metadata =
-      document.createElement("div");
+    const metadata = document.createElement("div");
 
-    metadata.className =
-      "release-meta";
+    metadata.className = "release-meta";
 
+    const tag = document.createElement("code");
 
-    const tag =
-      document.createElement("code");
+    tag.textContent = release.tag_name || "unknown";
 
-    tag.textContent =
-      release.tag_name || "unknown";
-
-
-    const published =
-      document.createElement("span");
+    const published = document.createElement("span");
 
     if (release.published_at) {
-      const date =
-        new Date(release.published_at);
+      const date = new Date(release.published_at);
 
-      published.textContent =
-        `Published ${date.toLocaleDateString("en-GB")}`;
+      published.textContent = `Published ${date.toLocaleDateString("en-GB")}`;
     }
 
-
-    metadata.append(
-      tag,
-      published
-    );
+    metadata.append(tag, published);
 
     if (Array.isArray(release.assets) && release.assets.length > 0) {
       const assetCount = createTextElement(
         "span",
-        `${release.assets.length} asset${release.assets.length === 1 ? "" : "s"}`
+        `${release.assets.length} asset${release.assets.length === 1 ? "" : "s"}`,
       );
 
       metadata.append(assetCount);
@@ -754,31 +616,21 @@ function renderReleases(releases) {
 
     info.appendChild(metadata);
 
-
     /* Short excerpt from the release notes */
 
     const excerptText = createReleaseExcerpt(release.body);
 
     if (excerptText) {
-      const excerpt =
-        createTextElement(
-          "p",
-          excerptText,
-          "release-excerpt"
-        );
+      const excerpt = createTextElement("p", excerptText, "release-excerpt");
 
       info.appendChild(excerpt);
     }
 
-
     /* Actions */
 
-    const actions =
-      document.createElement("div");
+    const actions = document.createElement("div");
 
-    actions.className =
-      "release-actions";
-
+    actions.className = "release-actions";
 
     /*
      * Internal release notes page.
@@ -788,87 +640,56 @@ function renderReleases(releases) {
      * the URL.
      */
 
-    const notesLink =
-      document.createElement("a");
+    const notesLink = document.createElement("a");
 
-    notesLink.className =
-      "btn primary";
+    notesLink.className = "btn primary";
 
-    notesLink.href =
-      `release.html?id=${encodeURIComponent(release.id)}`;
+    notesLink.href = `release.html?id=${encodeURIComponent(release.id)}`;
 
-    notesLink.textContent =
-      "Release notes →";
-
+    notesLink.textContent = "Release notes →";
 
     /* GitHub */
 
-    const githubLink =
-      document.createElement("a");
+    const githubLink = document.createElement("a");
 
-    githubLink.className =
-      "btn ghost";
+    githubLink.className = "btn ghost";
 
-    githubLink.href =
-      release.html_url;
+    githubLink.href = release.html_url;
 
-    githubLink.target =
-      "_blank";
+    githubLink.target = "_blank";
 
-    githubLink.rel =
-      "noopener noreferrer";
+    githubLink.rel = "noopener noreferrer";
 
-    githubLink.textContent =
-      "GitHub ↗";
+    githubLink.textContent = "GitHub ↗";
 
+    actions.append(notesLink, githubLink);
 
-    actions.append(
-      notesLink,
-      githubLink
-    );
+    article.append(info, actions);
 
-
-    article.append(
-      info,
-      actions
-    );
-
-    releasesList.appendChild(
-      article
-    );
+    releasesList.appendChild(article);
   });
 
   updateReleasesFade();
 }
 
-
 function setupReleasesScroll() {
-  const releasesList =
-    document.getElementById("releases-list");
+  const releasesList = document.getElementById("releases-list");
 
   if (!releasesList) {
     return;
   }
 
-  releasesList.addEventListener(
-    "scroll",
-    updateReleasesFade,
-    { passive: true }
-  );
+  releasesList.addEventListener("scroll", updateReleasesFade, {
+    passive: true,
+  });
 
-  window.addEventListener(
-    "resize",
-    updateReleasesFade
-  );
+  window.addEventListener("resize", updateReleasesFade);
 }
 
-
 async function loadReleases() {
-  const releasesList =
-    document.getElementById("releases-list");
+  const releasesList = document.getElementById("releases-list");
 
-  const releasesError =
-    document.getElementById("releases-error");
+  const releasesError = document.getElementById("releases-error");
 
   if (!releasesList) {
     return [];
@@ -876,22 +697,18 @@ async function loadReleases() {
 
   try {
     const releases = await githubFetch(
-      `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases`
+      `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases`,
     );
 
     renderReleases(releases);
 
     return releases;
   } catch (error) {
-    console.error(
-      "Failed to load releases:",
-      error
-    );
+    console.error("Failed to load releases:", error);
 
     releasesList.replaceChildren();
 
-    const fade =
-      document.getElementById("releases-fade");
+    const fade = document.getElementById("releases-fade");
 
     if (fade) {
       fade.classList.add("is-hidden");
@@ -901,8 +718,7 @@ async function loadReleases() {
       releasesError.hidden = false;
 
       releasesError.textContent =
-        error instanceof Error &&
-        error.message.includes("rate limit")
+        error instanceof Error && error.message.includes("rate limit")
           ? "GitHub's API rate limit has been reached. Please try again later."
           : "Unable to load releases from GitHub right now.";
     }
@@ -911,29 +727,22 @@ async function loadReleases() {
   }
 }
 
-
 /* =========================================================
    Page startup
    ========================================================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    /*
-     * Start the releases request ONCE.
-     *
-     * Both the release section and version badge
-     * use this same promise.
-     */
-    setupReleasesScroll();
+document.addEventListener("DOMContentLoaded", () => {
+  /*
+   * Start the releases request ONCE.
+   *
+   * Both the release section and version badge
+   * use this same promise.
+   */
+  setupReleasesScroll();
 
-    const releasesPromise =
-      loadReleases();
+  const releasesPromise = loadReleases();
 
-    loadLatestVersion(
-      releasesPromise
-    );
+  loadLatestVersion(releasesPromise);
 
-    loadPeople();
-  }
-);
+  loadPeople();
+});
