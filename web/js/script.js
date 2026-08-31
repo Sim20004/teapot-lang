@@ -554,6 +554,70 @@ async function loadPeople() {
    Releases
    ========================================================= */
 
+function stripMarkdown(markdown) {
+  if (!markdown) {
+    return "";
+  }
+
+  return markdown
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^>\s?/gm, "")
+    .replace(/^[-*+]\s+/gm, "")
+    .replace(/[*_~]{1,3}/g, "")
+    .replace(/\r?\n+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+
+function createReleaseExcerpt(body, maxLength = 160) {
+  const text = stripMarkdown(body);
+
+  if (!text) {
+    return "";
+  }
+
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+
+  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
+}
+
+
+function updateReleasesFade() {
+  const releasesList =
+    document.getElementById("releases-list");
+
+  const fade =
+    document.getElementById("releases-fade");
+
+  if (!releasesList || !fade) {
+    return;
+  }
+
+  const isScrollable =
+    releasesList.scrollHeight >
+    releasesList.clientHeight + 1;
+
+  const isAtBottom =
+    releasesList.scrollTop + releasesList.clientHeight >=
+    releasesList.scrollHeight - 4;
+
+  fade.classList.toggle(
+    "is-hidden",
+    !isScrollable || isAtBottom
+  );
+}
+
+
 function renderReleases(releases) {
   const releasesList =
     document.getElementById("releases-list");
@@ -571,7 +635,11 @@ function renderReleases(releases) {
     releasesError.hidden = true;
   }
 
-  if (!Array.isArray(releases) || releases.length === 0) {
+  const publishedReleases = Array.isArray(releases)
+    ? releases.filter(release => !release.draft)
+    : [];
+
+  if (publishedReleases.length === 0) {
     const empty = document.createElement("div");
 
     empty.className = "release-empty";
@@ -580,17 +648,32 @@ function renderReleases(releases) {
 
     releasesList.appendChild(empty);
 
+    updateReleasesFade();
+
     return;
   }
 
-  for (const release of releases) {
+  publishedReleases.forEach((release, index) => {
     const article =
       document.createElement("article");
 
     article.className = "release release-compact";
 
 
-    /* Release name */
+    const info =
+      document.createElement("div");
+
+    info.className =
+      "release-compact-info";
+
+
+    /* Title row: name + latest/pre-release badges */
+
+    const titleRow =
+      document.createElement("div");
+
+    titleRow.className =
+      "release-title-row";
 
     const title =
       document.createElement("h3");
@@ -599,6 +682,32 @@ function renderReleases(releases) {
       release.name ||
       release.tag_name ||
       "Unnamed release";
+
+    titleRow.appendChild(title);
+
+    if (index === 0 && !release.prerelease) {
+      const latestBadge =
+        createTextElement(
+          "span",
+          "Latest",
+          "release-tag-badge latest"
+        );
+
+      titleRow.appendChild(latestBadge);
+    }
+
+    if (release.prerelease) {
+      const preBadge =
+        createTextElement(
+          "span",
+          "Pre-release",
+          "release-tag-badge prerelease"
+        );
+
+      titleRow.appendChild(preBadge);
+    }
+
+    info.appendChild(titleRow);
 
 
     /* Metadata */
@@ -633,6 +742,33 @@ function renderReleases(releases) {
       tag,
       published
     );
+
+    if (Array.isArray(release.assets) && release.assets.length > 0) {
+      const assetCount = createTextElement(
+        "span",
+        `${release.assets.length} asset${release.assets.length === 1 ? "" : "s"}`
+      );
+
+      metadata.append(assetCount);
+    }
+
+    info.appendChild(metadata);
+
+
+    /* Short excerpt from the release notes */
+
+    const excerptText = createReleaseExcerpt(release.body);
+
+    if (excerptText) {
+      const excerpt =
+        createTextElement(
+          "p",
+          excerptText,
+          "release-excerpt"
+        );
+
+      info.appendChild(excerpt);
+    }
 
 
     /* Actions */
@@ -693,15 +829,37 @@ function renderReleases(releases) {
 
 
     article.append(
-      title,
-      metadata,
+      info,
       actions
     );
 
     releasesList.appendChild(
       article
     );
+  });
+
+  updateReleasesFade();
+}
+
+
+function setupReleasesScroll() {
+  const releasesList =
+    document.getElementById("releases-list");
+
+  if (!releasesList) {
+    return;
   }
+
+  releasesList.addEventListener(
+    "scroll",
+    updateReleasesFade,
+    { passive: true }
+  );
+
+  window.addEventListener(
+    "resize",
+    updateReleasesFade
+  );
 }
 
 
@@ -732,6 +890,13 @@ async function loadReleases() {
 
     releasesList.replaceChildren();
 
+    const fade =
+      document.getElementById("releases-fade");
+
+    if (fade) {
+      fade.classList.add("is-hidden");
+    }
+
     if (releasesError) {
       releasesError.hidden = false;
 
@@ -760,6 +925,8 @@ document.addEventListener(
      * Both the release section and version badge
      * use this same promise.
      */
+    setupReleasesScroll();
+
     const releasesPromise =
       loadReleases();
 

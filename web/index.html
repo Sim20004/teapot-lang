@@ -248,7 +248,7 @@
         <div class="schematic-label">
           <span>
             <span class="dot"></span>
-            compile pipeline — current build
+            compile pipeline -- current build
           </span>
 
           <span>
@@ -533,7 +533,7 @@
           <li>
             <span class="k">Stage</span>
             <span class="v">
-              Alpha — lexer, parser, AST, and parts of semantic analysis
+              Alpha -- lexer, parser, AST, and parts of semantic analysis
               implemented; code generation not yet available
             </span>
           </li>
@@ -1077,7 +1077,7 @@ fc main()!void {
                   colspan="2"
                   class="faint"
                 >
-                  void — no mutable or constant form
+                  void -- no mutable or constant form
                 </td>
               </tr>
 
@@ -1160,14 +1160,24 @@ fc main()!void {
       Browse released versions of TeapotLang and read their release notes.
     </p>
 
-    <div
-      id="releases-list"
-      class="releases-list"
-      aria-live="polite"
-    >
-      <div class="release-loading">
-        Loading releases from GitHub...
+    <div class="releases-panel">
+
+      <div
+        id="releases-list"
+        class="releases-list"
+        aria-live="polite"
+      >
+        <div class="release-skeleton"></div>
+        <div class="release-skeleton"></div>
+        <div class="release-skeleton"></div>
       </div>
+
+      <div
+        id="releases-fade"
+        class="releases-fade"
+        aria-hidden="true"
+      ></div>
+
     </div>
 
     <p
