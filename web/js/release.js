@@ -388,3 +388,14 @@ document.addEventListener(
   "DOMContentLoaded",
   loadRelease
 );
+
+const downloadContainer = document.getElementById("release-download");
+const downloadButton = document.getElementById("release-download-button");
+
+const asset = release.assets?.[0];
+
+if (asset) {
+  downloadButton.href = asset.browser_download_url;
+  downloadButton.textContent = `Download ${asset.name}`;
+  downloadContainer.hidden = false;
+}
