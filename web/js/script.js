@@ -1,81 +1,24 @@
-document.addEventListener("DOMContentLoaded", () => {
-    loadLatestVersion();
-});
-
-async function loadLatestVersion() {
-    const badge = document.querySelector("#version-badge");
-
-    if (!badge) {
-        console.error("Could not find .version-badge");
-        return;
-    }
-
-    try {
-        const response = await fetch(
-            "https://api.github.com/repos/Sim20004/teapot-lang/releases"
-        );
-
-        if (!response.ok) {
-            throw new Error(`GitHub API returned ${response.status}`);
-        }
-
-        const releases = await response.json();
-
-        if (!releases.length) {
-            badge.textContent = "No releases";
-            return;
-        }
-
-        // GitHub returns releases newest first.
-        const latest = releases[0];
-
-        badge.textContent = latest.tag_name;
-        badge.title = latest.name || latest.tag_name;
-        badge.href = latest.html_url;
-
-    } catch (error) {
-        console.error("Failed to fetch latest TeapotLang release:", error);
-        badge.textContent = "version unavailable";
-    }
-}
 const GITHUB_OWNER = "Sim20004";
 const GITHUB_REPO = "teapot-lang";
 
 const GITHUB_API = "https://api.github.com";
-
 const GITHUB_API_VERSION = "2022-11-28";
-
 const GITHUB_PER_PAGE = 100;
 
-/*
- * This is deliberately fixed.
-
- * GitHub does NOT determine who is a maintainer.
- * To add a maintainer, change this list manually.
- */
 const MAINTAINERS = new Set([
   "Sim20004"
 ]);
 
-
-/*
- * GitHub's public API allows unauthenticated requests,
- * but those requests are rate limited.
- *
- * Do not put a personal GitHub token in this frontend.
- */
 const githubHeaders = {
   Accept: "application/vnd.github+json",
   "X-GitHub-Api-Version": GITHUB_API_VERSION
 };
 
 
-/*
- * Small helper for safely creating text nodes.
- *
- * We don't insert usernames, names, bios, etc. directly
- * into HTML. GitHub data is external input.
- */
+/* =========================================================
+   General helpers
+   ========================================================= */
+
 function createTextElement(tag, text, className = "") {
   const element = document.createElement(tag);
 
@@ -89,11 +32,6 @@ function createTextElement(tag, text, className = "") {
 }
 
 
-/*
- * Format numbers using the user's locale.
- *
- * 1234 -> 1,234
- */
 function formatNumber(value) {
   if (!Number.isFinite(value)) {
     return "0";
@@ -103,12 +41,27 @@ function formatNumber(value) {
 }
 
 
-/*
- * Fetch JSON from GitHub.
- *
- * We explicitly handle rate limiting because this is
- * one of the most likely API failures for a public site.
- */
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "0 B";
+  }
+
+  const units = ["B", "KB", "MB", "GB"];
+  const exponent = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+
+  const value = bytes / Math.pow(1024, exponent);
+
+  return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
+}
+
+
+/* =========================================================
+   GitHub API
+   ========================================================= */
+
 async function githubFetch(endpoint) {
   const response = await fetch(`${GITHUB_API}${endpoint}`, {
     headers: githubHeaders,
@@ -118,7 +71,7 @@ async function githubFetch(endpoint) {
   if (response.status === 403 || response.status === 429) {
     const remaining = response.headers.get("X-RateLimit-Remaining");
 
-    if (remaining === "0" || response.status === 429) {
+    if (response.status === 429 || remaining === "0") {
       throw new Error("GitHub API rate limit exceeded.");
     }
   }
@@ -133,12 +86,58 @@ async function githubFetch(endpoint) {
 }
 
 
-/*
- * Fetch all contributor pages.
- *
- * This means the site doesn't silently stop at the first
- * 100 contributors.
- */
+/* =========================================================
+   Latest version
+   ========================================================= */
+
+function renderLatestVersion(releases) {
+  const badge = document.querySelector("#version-badge");
+
+  if (!badge) {
+    return;
+  }
+
+  if (!Array.isArray(releases) || releases.length === 0) {
+    badge.textContent = "No releases";
+    badge.removeAttribute("href");
+    return;
+  }
+
+  const latest = releases[0];
+
+  badge.textContent = latest.tag_name || "Unknown";
+  badge.title = latest.name || latest.tag_name || "";
+  badge.href = latest.html_url || "#";
+}
+
+
+async function loadLatestVersion(releasesPromise) {
+  const badge = document.querySelector("#version-badge");
+
+  if (!badge) {
+    return;
+  }
+
+  try {
+    const releases = await releasesPromise;
+
+    renderLatestVersion(releases);
+  } catch (error) {
+    console.error(
+      "Failed to fetch latest TeapotLang release:",
+      error
+    );
+
+    badge.textContent = "version unavailable";
+    badge.removeAttribute("href");
+  }
+}
+
+
+/* =========================================================
+   Contributors
+   ========================================================= */
+
 async function fetchAllContributors() {
   const contributors = [];
 
@@ -164,10 +163,28 @@ async function fetchAllContributors() {
 }
 
 
-/*
- * Create the basic structure shared by maintainer and
- * contributor cards.
- */
+function createStat(value, label) {
+  const stat = document.createElement("div");
+  stat.className = "person-stat";
+
+  const valueElement = createTextElement(
+    "span",
+    value,
+    "stat-value"
+  );
+
+  const labelElement = createTextElement(
+    "span",
+    label,
+    "stat-label"
+  );
+
+  stat.append(valueElement, labelElement);
+
+  return stat;
+}
+
+
 function createPersonCard({
   username,
   displayName,
@@ -206,14 +223,14 @@ function createPersonCard({
   avatar.loading = "lazy";
   avatar.referrerPolicy = "no-referrer";
 
-  /*
-   * If GitHub's avatar ever fails, don't leave a broken-image
-   * icon as the entire visual identity.
-   */
-  avatar.addEventListener("error", () => {
-    avatar.removeAttribute("src");
-    avatar.alt = "";
-  }, { once: true });
+  avatar.addEventListener(
+    "error",
+    () => {
+      avatar.removeAttribute("src");
+      avatar.alt = "";
+    },
+    { once: true }
+  );
 
   const identity = document.createElement("div");
   identity.className = "person-identity";
@@ -251,36 +268,18 @@ function createPersonCard({
   const summaryContainer = document.createElement("div");
   summaryContainer.className = "person-summary";
 
-  const summaryText = createTextElement(
-    "p",
-    summary
+  summaryContainer.appendChild(
+    createTextElement("p", summary)
   );
-
-  summaryContainer.appendChild(summaryText);
 
 
   const stats = document.createElement("div");
   stats.className = "person-stats";
 
-  const stat1 = createStat(
-    commits,
-    "Commits"
-  );
-
-  const stat2 = createStat(
-    stat2Value,
-    stat2Label
-  );
-
-  const stat3 = createStat(
-    stat3Value,
-    stat3Label
-  );
-
   stats.append(
-    stat1,
-    stat2,
-    stat3
+    createStat(commits, "Commits"),
+    createStat(stat2Value, stat2Label),
+    createStat(stat3Value, stat3Label)
   );
 
 
@@ -297,12 +296,9 @@ function createPersonCard({
 
   const contributionList = document.createElement("ul");
 
-  const contributionItem = createTextElement(
-    "li",
-    contributionText
+  contributionList.appendChild(
+    createTextElement("li", contributionText)
   );
-
-  contributionList.appendChild(contributionItem);
 
   contributionContainer.append(
     contributionTitle,
@@ -313,20 +309,16 @@ function createPersonCard({
   const footer = document.createElement("div");
   footer.className = "person-footer";
 
-  const footerText = createTextElement(
-    "span",
-    "View GitHub profile"
-  );
-
-  const arrow = createTextElement(
-    "span",
-    "→",
-    "person-arrow"
-  );
-
   footer.append(
-    footerText,
-    arrow
+    createTextElement(
+      "span",
+      "View GitHub profile"
+    ),
+    createTextElement(
+      "span",
+      "→",
+      "person-arrow"
+    )
   );
 
 
@@ -342,43 +334,6 @@ function createPersonCard({
 }
 
 
-/*
- * Create an individual statistic.
- */
-function createStat(value, label) {
-  const stat = document.createElement("div");
-  stat.className = "person-stat";
-
-  const valueElement = createTextElement(
-    "span",
-    value,
-    "stat-value"
-  );
-
-  const labelElement = createTextElement(
-    "span",
-    label,
-    "stat-label"
-  );
-
-  stat.append(
-    valueElement,
-    labelElement
-  );
-
-  return stat;
-}
-
-
-/*
- * Load the fixed maintainer list.
- *
- * Important:
- *
- * The list of maintainers comes from MAINTAINERS above.
- * GitHub is only used to retrieve their public profile
- * information and repository contribution count.
- */
 async function loadMaintainers(contributors) {
   const container = document.getElementById("maintainers");
 
@@ -392,7 +347,8 @@ async function loadMaintainers(contributors) {
     try {
       const contributor = contributors.find(
         item =>
-          item.login?.toLowerCase() === username.toLowerCase()
+          item.login?.toLowerCase() ===
+          username.toLowerCase()
       );
 
       const user = await githubFetch(
@@ -414,10 +370,6 @@ async function loadMaintainers(contributors) {
 
         commits,
 
-        /*
-         * These are deliberately profile-level details rather
-         * than pretending they are TeapotLang statistics.
-         */
         stat2Value: formatNumber(user.public_repos),
         stat2Label: "Public Repos",
 
@@ -438,6 +390,7 @@ async function loadMaintainers(contributors) {
       );
 
       const fallback = document.createElement("div");
+
       fallback.className = "person-loading";
 
       fallback.textContent =
@@ -449,19 +402,6 @@ async function loadMaintainers(contributors) {
 }
 
 
-/*
- * Render contributors.
-
- * No additional API request is made for every contributor.
- *
- * This is important because the contributor endpoint already
- * provides:
- *
- * - username
- * - avatar
- * - profile URL
- * - contribution count
- */
 function loadContributors(contributors) {
   const container = document.getElementById("contributors");
 
@@ -481,11 +421,11 @@ function loadContributors(contributors) {
 
       return !Array.from(MAINTAINERS).some(
         maintainer =>
-          maintainer.toLowerCase() === username.toLowerCase()
+          maintainer.toLowerCase() ===
+          username.toLowerCase()
       );
     }
   );
-
 
   if (visibleContributors.length === 0) {
     const empty = document.createElement("div");
@@ -500,12 +440,12 @@ function loadContributors(contributors) {
     return;
   }
 
-
   for (const contributor of visibleContributors) {
     const username = contributor.login;
 
     const card = createPersonCard({
       username,
+
       displayName: username,
 
       avatarUrl: contributor.avatar_url,
@@ -517,13 +457,10 @@ function loadContributors(contributors) {
       summary:
         "Contributor to TeapotLang through code, testing, documentation, or other project improvements.",
 
-      commits: contributor.contributions,
+      commits: formatNumber(
+        contributor.contributions
+      ),
 
-      /*
-       * The contributor endpoint doesn't provide public
-       * repository/follower counts, so don't make another
-       * request just to fill those fields.
-       */
       stat2Value: "GitHub",
       stat2Label: "Profile",
 
@@ -539,26 +476,25 @@ function loadContributors(contributors) {
 }
 
 
-/*
- * Show an error without taking down the rest of the page.
- */
 function showPeopleError(error) {
   console.error(
     "Failed to load GitHub people information:",
     error
   );
 
-  const contributors = document.getElementById(
-    "contributors"
-  );
+  const contributors =
+    document.getElementById("contributors");
 
-  const maintainers = document.getElementById(
-    "maintainers"
-  );
+  const maintainers =
+    document.getElementById("maintainers");
 
-  const errorElement = document.getElementById(
-    "contributors-error"
-  );
+  const errorElement =
+    document.getElementById("contributors-error");
+
+
+  const isRateLimited =
+    error instanceof Error &&
+    error.message.includes("rate limit");
 
 
   if (maintainers) {
@@ -568,8 +504,9 @@ function showPeopleError(error) {
 
     message.className = "person-loading";
 
-    message.textContent =
-      "GitHub information is currently unavailable.";
+    message.textContent = isRateLimited
+      ? "GitHub's API rate limit has been reached. Please try again later."
+      : "GitHub information is currently unavailable.";
 
     maintainers.appendChild(message);
   }
@@ -582,16 +519,9 @@ function showPeopleError(error) {
 
     message.className = "person-loading";
 
-    if (
-      error instanceof Error &&
-      error.message.includes("rate limit")
-    ) {
-      message.textContent =
-        "GitHub's API rate limit has been reached. Please try again later.";
-    } else {
-      message.textContent =
-        "Contributor information is currently unavailable.";
-    }
+    message.textContent = isRateLimited
+      ? "GitHub's API rate limit has been reached. Please try again later."
+      : "Contributor information is currently unavailable.";
 
     contributors.appendChild(message);
   }
@@ -600,24 +530,17 @@ function showPeopleError(error) {
   if (errorElement) {
     errorElement.textContent =
       "Contributor information is loaded directly from GitHub and may be temporarily unavailable.";
-    
+
     errorElement.hidden = false;
   }
 }
 
 
-/*
- * Main entry point.
- */
 async function loadPeople() {
   try {
-    const contributors = await fetchAllContributors();
+    const contributors =
+      await fetchAllContributors();
 
-    /*
-     * Render contributors immediately from the repository
-     * endpoint. Only the maintainer needs a separate profile
-     * request.
-     */
     loadContributors(contributors);
 
     await loadMaintainers(contributors);
@@ -627,157 +550,326 @@ async function loadPeople() {
 }
 
 
-/*
- * Start after the DOM exists.
- */
-document.addEventListener(
-  "DOMContentLoaded",
-  loadPeople
-);
-        
- const RELEASES_API =
-  "https://api.github.com/repos/Sim20004/teapot-lang/releases";
+/* =========================================================
+   Releases
+   ========================================================= */
 
-const releasesList = document.getElementById("releases-list");
-const releasesError = document.getElementById("releases-error");
+function renderReleases(releases) {
+  const releasesList =
+    document.getElementById("releases-list");
 
-async function loadReleases() {
-  if (!releasesList) return;
+  const releasesError =
+    document.getElementById("releases-error");
 
-  try {
-    const response = await fetch(RELEASES_API, {
-      headers: {
-        Accept: "application/vnd.github+json"
-      }
-    });
+  if (!releasesList) {
+    return;
+  }
 
-    if (!response.ok) {
-      throw new Error(`GitHub API returned ${response.status}`);
-    }
+  releasesList.replaceChildren();
 
-    const releases = await response.json();
+  if (releasesError) {
+    releasesError.hidden = true;
+  }
 
-    releasesList.replaceChildren();
+  if (!Array.isArray(releases) || releases.length === 0) {
+    const empty = document.createElement("div");
 
-    if (releases.length === 0) {
-      releasesList.innerHTML = `
-        <div class="release-empty">
-          No releases have been published yet.
-        </div>
-      `;
-      return;
-    }
+    empty.className = "release-empty";
 
-    for (const release of releases) {
-      const article = document.createElement("article");
-      article.className = "release";
+    empty.textContent =
+      "No releases have been published yet.";
 
-      const date = new Date(release.published_at);
+    releasesList.appendChild(empty);
 
-      const version = document.createElement("h3");
-      version.textContent = release.name || release.tag_name;
+    return;
+  }
 
-      const metadata = document.createElement("div");
-      metadata.className = "release-meta";
+  for (const release of releases) {
+    const article = document.createElement("article");
 
-      const tag = document.createElement("code");
-      tag.textContent = release.tag_name;
+    article.className = "release";
 
-      const published = document.createElement("span");
+
+    const version = document.createElement("h3");
+
+    version.textContent =
+      release.name ||
+      release.tag_name ||
+      "Unnamed release";
+
+
+    const metadata = document.createElement("div");
+
+    metadata.className = "release-meta";
+
+
+    const tag = document.createElement("code");
+
+    tag.textContent =
+      release.tag_name || "unknown";
+
+
+    const published =
+      document.createElement("span");
+
+
+    if (release.published_at) {
+      const date =
+        new Date(release.published_at);
+
       published.textContent =
         `Published ${date.toLocaleDateString("en-GB")}`;
+    } else {
+      published.textContent =
+        "Publication date unavailable";
+    }
 
-      metadata.append(tag, published);
 
-      article.append(version, metadata);
+    metadata.append(tag, published);
 
-      if (release.body) {
-        const notes = document.createElement("p");
-        notes.className = "release-notes";
-        notes.textContent = release.body;
-        article.append(notes);
-      }
+    article.append(
+      version,
+      metadata
+    );
 
-      if (release.assets.length > 0) {
-        const assetsHeading = document.createElement("h4");
-        assetsHeading.textContent = "Downloads";
-        article.append(assetsHeading);
 
-        const assets = document.createElement("div");
-        assets.className = "release-assets";
+    if (release.body) {
+      const notes =
+        document.createElement("p");
 
-        for (const asset of release.assets) {
-          const assetRow = document.createElement("div");
-          assetRow.className = "release-asset";
+      notes.className =
+        "release-notes";
 
-          const info = document.createElement("div");
+      notes.textContent =
+        release.body;
 
-          const name = document.createElement("strong");
-          name.textContent = asset.name;
+      article.appendChild(notes);
+    }
 
-          const size = document.createElement("span");
-          size.className = "asset-size";
-          size.textContent = formatBytes(asset.size);
 
-          info.append(name, size);
+    const releaseAssets =
+      Array.isArray(release.assets)
+        ? release.assets
+        : [];
 
-          const actions = document.createElement("div");
-          actions.className = "asset-actions";
 
-          const download = document.createElement("a");
-          download.className = "btn ghost";
-          download.href = asset.browser_download_url;
-          download.target = "_blank";
-          download.rel = "noopener noreferrer";
-          download.textContent = "Download";
+    if (releaseAssets.length > 0) {
+      const assetsHeading =
+        document.createElement("h4");
 
-          actions.append(download);
+      assetsHeading.textContent =
+        "Downloads";
 
-          if (asset.digest) {
-            const checksum = document.createElement("code");
-            checksum.className = "checksum";
-            checksum.title = "SHA-256 checksum";
-            checksum.textContent = asset.digest.replace(/^sha256:/, "");
+      article.appendChild(
+        assetsHeading
+      );
 
-            actions.append(checksum);
-          }
 
-          assetRow.append(info, actions);
-          assets.append(assetRow);
+      const assets =
+        document.createElement("div");
+
+      assets.className =
+        "release-assets";
+
+
+      for (const asset of releaseAssets) {
+        const assetRow =
+          document.createElement("div");
+
+        assetRow.className =
+          "release-asset";
+
+
+        const info =
+          document.createElement("div");
+
+
+        const name =
+          document.createElement("strong");
+
+        name.textContent =
+          asset.name ||
+          "Unnamed asset";
+
+
+        const size =
+          document.createElement("span");
+
+        size.className =
+          "asset-size";
+
+        size.textContent =
+          formatBytes(asset.size);
+
+
+        info.append(
+          name,
+          size
+        );
+
+
+        const actions =
+          document.createElement("div");
+
+        actions.className =
+          "asset-actions";
+
+
+        if (asset.browser_download_url) {
+          const download =
+            document.createElement("a");
+
+          download.className =
+            "btn ghost";
+
+          download.href =
+            asset.browser_download_url;
+
+          download.target =
+            "_blank";
+
+          download.rel =
+            "noopener noreferrer";
+
+          download.textContent =
+            "Download";
+
+          actions.appendChild(
+            download
+          );
         }
 
-        article.append(assets);
+
+        if (asset.digest) {
+          const checksum =
+            document.createElement("code");
+
+          checksum.className =
+            "checksum";
+
+          checksum.title =
+            "SHA-256 checksum";
+
+          checksum.textContent =
+            asset.digest.replace(
+              /^sha256:/,
+              ""
+            );
+
+          actions.appendChild(
+            checksum
+          );
+        }
+
+
+        assetRow.append(
+          info,
+          actions
+        );
+
+        assets.appendChild(
+          assetRow
+        );
       }
 
-      const github = document.createElement("a");
-      github.href = release.html_url;
-      github.target = "_blank";
-      github.rel = "noopener noreferrer";
-      github.textContent = "View release on GitHub →";
 
-      article.append(github);
-
-      releasesList.append(article);
+      article.appendChild(
+        assets
+      );
     }
-  } catch (error) {
-    console.error("Failed to load releases:", error);
 
-    releasesList.replaceChildren();
 
-    releasesError.hidden = false;
-    releasesError.textContent =
-      "Unable to load releases from GitHub right now.";
+    if (release.html_url) {
+      const github =
+        document.createElement("a");
+
+      github.href =
+        release.html_url;
+
+      github.target =
+        "_blank";
+
+      github.rel =
+        "noopener noreferrer";
+
+      github.textContent =
+        "View release on GitHub →";
+
+      article.appendChild(
+        github
+      );
+    }
+
+
+    releasesList.appendChild(
+      article
+    );
   }
 }
 
-function formatBytes(bytes) {
-  if (bytes === 0) return "0 B";
 
-  const units = ["B", "KB", "MB", "GB"];
-  const exponent = Math.floor(Math.log(bytes) / Math.log(1024));
-  const value = bytes / Math.pow(1024, exponent);
+async function loadReleases() {
+  const releasesList =
+    document.getElementById("releases-list");
 
-  return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
+  const releasesError =
+    document.getElementById("releases-error");
+
+  if (!releasesList) {
+    return [];
+  }
+
+  try {
+    const releases = await githubFetch(
+      `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases`
+    );
+
+    renderReleases(releases);
+
+    return releases;
+  } catch (error) {
+    console.error(
+      "Failed to load releases:",
+      error
+    );
+
+    releasesList.replaceChildren();
+
+    if (releasesError) {
+      releasesError.hidden = false;
+
+      releasesError.textContent =
+        error instanceof Error &&
+        error.message.includes("rate limit")
+          ? "GitHub's API rate limit has been reached. Please try again later."
+          : "Unable to load releases from GitHub right now.";
+    }
+
+    throw error;
+  }
 }
 
-loadReleases();
+
+/* =========================================================
+   Page startup
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    /*
+     * Start the releases request ONCE.
+     *
+     * Both the release section and version badge
+     * use this same promise.
+     */
+    const releasesPromise =
+      loadReleases();
+
+    loadLatestVersion(
+      releasesPromise
+    );
+
+    loadPeople();
+  }
+);
