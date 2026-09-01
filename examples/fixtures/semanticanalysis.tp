@@ -1,11 +1,18 @@
 $MEM-GC
-val mui8 foo = 8.
 
-sct bar {
-    mui8 baz.
-    cstr qux.
+val cstr global_name = "Teapot".
+val mui8 global_age = 15.
+
+pub sct Student {
+    cstr name.
+    mui8 age.
 }
 
-fc quux(mui8 corge)!void {
-    val mui8 foo1 = 8.
+fc greet(cstr name)!cstr {
+    val cstr message = "Hello".
+}
+
+fc main()!void {
+    val cstr school = "Teapot Academy".
+    val mui8 age = 15.
 }

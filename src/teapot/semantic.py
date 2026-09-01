@@ -15,11 +15,10 @@ class SemanticError(Exception):
 
 # Symbol class stores a symbol for the symbol table
 class Symbol:
-    def __init__(self, name, kind, type_, params, scope):
+    def __init__(self, name, kind, type_, scope):
         self.name = name
         self.kind = kind
         self.type = type_
-        self.params = params
         self.scope = scope
 
 
@@ -134,13 +133,20 @@ class SemanticAnalyser:
 
         function_scope = SymbolTable(parent=scope)
 
-        params = [(param.identifier, param.datatype) for param in node.arguments]
+        for param in node.arguments:
+            function_scope.define(
+                Symbol(
+                    param.identifier,
+                    "function_parameter",
+                    param.datatype,
+                    function_scope,
+                )
+            )
 
         symbol = Symbol(
             identifier,
             "function",
             return_type,
-            params,
             function_scope,
         )
 
@@ -157,7 +163,7 @@ class SemanticAnalyser:
 
     def define_struct_declaration(self, node, scope):
         identifier = node.identifier
-        symbol = Symbol(identifier, "struct", None, None, scope)
+        symbol = Symbol(identifier, "struct", None, scope)
         scope.define(symbol)
 
         if self.trace:
@@ -166,7 +172,7 @@ class SemanticAnalyser:
     def define_variable_declaration(self, node, scope):
         identifier = node.identifier
         datatype = node.datatype.name
-        symbol = Symbol(identifier, "variable", datatype, None, scope)
+        symbol = Symbol(identifier, "variable", datatype, scope)
 
         scope.define(symbol)
 
