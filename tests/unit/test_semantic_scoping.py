@@ -1,14 +1,3 @@
-"""
-Detailed scope resolution and symbol lookup tests for semantic analysis.
-
-Tests cover:
-- Complex scope hierarchies
-- Symbol shadowing scenarios
-- Scope isolation and encapsulation
-- Parent scope traversal
-- Symbol availability across scopes
-"""
-
 import pytest
 
 from teapot.lexer import Lexer
@@ -42,8 +31,9 @@ def analyse_program(source, trace=False):
 
 
 def test_empty_symbol_table():
-    """Test that empty symbol table has no symbols."""
+    """Test that an empty symbol table has no symbols."""
     table = SymbolTable()
+
     assert len(table.symbols) == 0
     assert table.lookup("any_symbol") is None
 
@@ -51,7 +41,8 @@ def test_empty_symbol_table():
 def test_symbol_table_without_parent():
     """Test symbol table with no parent scope."""
     table = SymbolTable(parent=None)
-    symbol = Symbol("var", "variable", "mui8", None, table)
+    symbol = Symbol("var", "variable", "mui8", table)
+
     table.define(symbol)
 
     assert table.lookup("var") is symbol
@@ -59,7 +50,7 @@ def test_symbol_table_without_parent():
 
 
 def test_symbol_table_parent_chain():
-    """Test that parent chain is maintained correctly."""
+    """Test that the parent chain is maintained correctly."""
     grandparent = SymbolTable()
     parent = SymbolTable(parent=grandparent)
     child = SymbolTable(parent=parent)
@@ -70,17 +61,15 @@ def test_symbol_table_parent_chain():
 
 
 def test_lookup_stops_at_root():
-    """Test that lookup stops at root scope."""
+    """Test that lookup stops at the root scope."""
     root = SymbolTable(parent=None)
     level1 = SymbolTable(parent=root)
     level2 = SymbolTable(parent=level1)
 
-    root_symbol = Symbol("root_var", "variable", "mui8", None, root)
+    root_symbol = Symbol("root_var", "variable", "mui8", root)
     root.define(root_symbol)
 
-    # Should find it from level2
     assert level2.lookup("root_var") is root_symbol
-    # Should not find non-existent symbol
     assert level2.lookup("nonexistent") is None
 
 
@@ -94,8 +83,8 @@ def test_simple_shadowing():
     parent = SymbolTable()
     child = SymbolTable(parent=parent)
 
-    parent_symbol = Symbol("x", "variable", "mui8", None, parent)
-    child_symbol = Symbol("x", "variable", "mstr", None, child)
+    parent_symbol = Symbol("x", "variable", "mui8", parent)
+    child_symbol = Symbol("x", "variable", "mstr", child)
 
     parent.define(parent_symbol)
     child.define(child_symbol)
@@ -109,12 +98,10 @@ def test_shadowing_different_kinds():
     parent = SymbolTable()
     child = SymbolTable(parent=parent)
 
-    # Parent has function
-    parent_func = Symbol("process", "function", "mai8", [], parent)
+    parent_func = Symbol("process", "function", "mai8", parent)
     parent.define(parent_func)
 
-    # Child shadows with variable
-    child_var = Symbol("process", "variable", "mui8", None, child)
+    child_var = Symbol("process", "variable", "mui8", child)
     child.define(child_var)
 
     assert parent.lookup("process").kind == "function"
@@ -128,17 +115,15 @@ def test_multiple_levels_shadowing():
     level2 = SymbolTable(parent=level1)
     level3 = SymbolTable(parent=level2)
 
-    # Define same name at each level
     for scope, type_name in [
         (global_scope, "mui8"),
         (level1, "mstr"),
         (level2, "cbln"),
         (level3, "mf32"),
     ]:
-        symbol = Symbol("data", "variable", type_name, None, scope)
+        symbol = Symbol("data", "variable", type_name, scope)
         scope.define(symbol)
 
-    # Each scope should see its own symbol
     assert global_scope.lookup("data").type == "mui8"
     assert level1.lookup("data").type == "mstr"
     assert level2.lookup("data").type == "cbln"
@@ -146,19 +131,18 @@ def test_multiple_levels_shadowing():
 
 
 def test_unshadowing_lookup():
-    """Test that removing a shadow allows access to parent symbol."""
+    """Test that a shadowed parent symbol is hidden by the child symbol."""
     parent = SymbolTable()
     child = SymbolTable(parent=parent)
 
-    parent_symbol = Symbol("x", "variable", "mui8", None, parent)
+    parent_symbol = Symbol("x", "variable", "mui8", parent)
     parent.define(parent_symbol)
 
-    # Without child symbol, should find parent's
     assert child.lookup("x") is parent_symbol
 
-    # Now shadow it
-    child_symbol = Symbol("x", "variable", "mstr", None, child)
+    child_symbol = Symbol("x", "variable", "mstr", child)
     child.define(child_symbol)
+
     assert child.lookup("x") is child_symbol
 
 
@@ -173,20 +157,18 @@ def test_three_level_hierarchy():
     mid = SymbolTable(parent=root)
     leaf = SymbolTable(parent=mid)
 
-    root_sym = Symbol("a", "variable", "mui8", None, root)
-    mid_sym = Symbol("b", "variable", "mstr", None, mid)
-    leaf_sym = Symbol("c", "variable", "cbln", None, leaf)
+    root_sym = Symbol("a", "variable", "mui8", root)
+    mid_sym = Symbol("b", "variable", "mstr", mid)
+    leaf_sym = Symbol("c", "variable", "cbln", leaf)
 
     root.define(root_sym)
     mid.define(mid_sym)
     leaf.define(leaf_sym)
 
-    # Leaf should access all
     assert leaf.lookup("a") is root_sym
     assert leaf.lookup("b") is mid_sym
     assert leaf.lookup("c") is leaf_sym
 
-    # Mid should not access leaf
     assert mid.lookup("a") is root_sym
     assert mid.lookup("b") is mid_sym
     assert mid.lookup("c") is None
@@ -198,13 +180,12 @@ def test_sibling_scopes_independent():
     child1 = SymbolTable(parent=parent)
     child2 = SymbolTable(parent=parent)
 
-    child1_symbol = Symbol("x", "variable", "mui8", None, child1)
-    child2_symbol = Symbol("y", "variable", "mstr", None, child2)
+    child1_symbol = Symbol("x", "variable", "mui8", child1)
+    child2_symbol = Symbol("y", "variable", "mstr", child2)
 
     child1.define(child1_symbol)
     child2.define(child2_symbol)
 
-    # Siblings cannot see each other
     assert child1.lookup("x") is child1_symbol
     assert child1.lookup("y") is None
 
@@ -213,20 +194,19 @@ def test_sibling_scopes_independent():
 
 
 def test_cousin_scopes_independent():
-    """Test that cousin scopes (siblings of parent) cannot see each other."""
+    """Test that cousin scopes cannot access each other."""
     grandparent = SymbolTable()
     parent1 = SymbolTable(parent=grandparent)
     parent2 = SymbolTable(parent=grandparent)
     child1 = SymbolTable(parent=parent1)
     child2 = SymbolTable(parent=parent2)
 
-    child1_symbol = Symbol("x", "variable", "mui8", None, child1)
-    child2_symbol = Symbol("y", "variable", "mstr", None, child2)
+    child1_symbol = Symbol("x", "variable", "mui8", child1)
+    child2_symbol = Symbol("y", "variable", "mstr", child2)
 
     child1.define(child1_symbol)
     child2.define(child2_symbol)
 
-    # Cousins cannot see each other
     assert child1.lookup("x") is child1_symbol
     assert child1.lookup("y") is None
 
@@ -245,77 +225,138 @@ def test_function_creates_scope():
         $MEM-GC
         val mui8 global_x = 1.
         fc my_func()!mai8 {
-        } """
+        }
+    """
 
     analyser = analyse_program(source)
 
     func_symbol = analyser.global_scope.lookup("my_func")
+
     assert func_symbol is not None
+    assert func_symbol.kind == "function"
+    assert func_symbol.type == "mai8"
     assert func_symbol.scope is not analyser.global_scope
     assert func_symbol.scope.parent is analyser.global_scope
 
 
-def test_function_parameter_scope():
-    """Test function parameter scope."""
+def test_function_scope_is_separate():
+    """Test that a function has its own scope."""
     source = """
         $MEM-GC
-        fc add(mui8 a, mui8 b)!mai8 {
-        } """
+        fc func1()!mai8 {
+        }
+
+        fc func2()!mai8 {
+        }
+    """
 
     analyser = analyse_program(source)
 
-    func_symbol = analyser.global_scope.lookup("add")
-    # Parameters should be in function scope
-    assert func_symbol.params == [("a", "mui8"), ("b", "mui8")]
+    func1 = analyser.global_scope.lookup("func1")
+    func2 = analyser.global_scope.lookup("func2")
+
+    assert func1.scope is not func2.scope
+    assert func1.scope.parent is analyser.global_scope
+    assert func2.scope.parent is analyser.global_scope
 
 
 def test_function_accesses_global_symbols():
-    """Test that function body can access global symbols."""
+    """Test that a function scope can access global symbols."""
     source = """
         $MEM-GC
         val mui8 global_var = 10.
+
         fc test_func()!mai8 {
-        } """
+        }
+    """
 
     analyser = analyse_program(source)
 
     global_var = analyser.global_scope.lookup("global_var")
-    fc = analyser.global_scope.lookup("test_func")
+    func = analyser.global_scope.lookup("test_func")
 
-    # Function scope should have access to global
-    assert fc.scope.parent is analyser.global_scope
-    # We should be able to lookup global from function scope
-    assert fc.scope.lookup("global_var") is global_var
+    assert func.scope.parent is analyser.global_scope
+    assert func.scope.lookup("global_var") is global_var
 
 
 # ============================================================================
-# SYMBOL TYPE AND KIND PRESERVATION
+# SYMBOL PROPERTIES
 # ============================================================================
 
 
-def test_symbol_type_preserved_across_scopes():
-    """Test that symbol type is preserved in scope hierarchy."""
+def test_symbol_name_preserved():
+    """Test that a symbol preserves its name."""
+    scope = SymbolTable()
+    symbol = Symbol("my_variable", "variable", "mui8", scope)
+
+    scope.define(symbol)
+
+    assert symbol.name == "my_variable"
+    assert scope.lookup("my_variable") is symbol
+
+
+def test_symbol_type_preserved():
+    """Test that a symbol preserves its type."""
+    scope = SymbolTable()
+    symbol = Symbol("x", "variable", "mf64", scope)
+
+    scope.define(symbol)
+
+    assert symbol.type == "mf64"
+    assert scope.lookup("x").type == "mf64"
+
+
+def test_symbol_kind_preserved():
+    """Test that a symbol preserves its kind."""
+    scope = SymbolTable()
+    symbol = Symbol("process", "function", "mai8", scope)
+
+    scope.define(symbol)
+
+    assert symbol.kind == "function"
+    assert scope.lookup("process").kind == "function"
+
+
+def test_symbol_scope_preserved():
+    """Test that a symbol stores the scope it belongs to."""
+    scope = SymbolTable()
+    symbol = Symbol("x", "variable", "mui8", scope)
+
+    scope.define(symbol)
+
+    assert symbol.scope is scope
+
+
+def test_symbol_properties_across_scopes():
+    """Test that symbol properties remain intact when accessed through a child."""
     parent = SymbolTable()
     child = SymbolTable(parent=parent)
 
-    symbol = Symbol("x", "variable", "mf64", None, parent)
+    symbol = Symbol("process", "function", "mai8", parent)
     parent.define(symbol)
 
-    # Type should be preserved
-    assert child.lookup("x").type == "mf64"
+    found = child.lookup("process")
+
+    assert found is symbol
+    assert found.name == "process"
+    assert found.kind == "function"
+    assert found.type == "mai8"
+    assert found.scope is parent
 
 
-def test_symbol_kind_preserved_across_scopes():
-    """Test that symbol kind is preserved in scope hierarchy."""
+def test_struct_symbol_no_type():
+    """Test that struct symbols can have no type."""
     parent = SymbolTable()
-    child = SymbolTable(parent=parent)
 
-    symbol = Symbol("process", "function", "mai8", [("x", "mui8")], parent)
-    parent.define(symbol)
+    struct_symbol = Symbol("Point", "struct", None, parent)
+    parent.define(struct_symbol)
 
-    # Kind should be preserved
-    assert child.lookup("process").kind == "function"
-    assert child.lookup("process").params == [("x", "mui8")]
+    found = parent.lookup("Point")
+
+    assert found.type is None
+    assert found.kind == "struct"
+    assert found.name == "Point"
+    assert found.scope is parent
 
 
 # ============================================================================
@@ -324,12 +365,14 @@ def test_symbol_kind_preserved_across_scopes():
 
 
 def test_scope_isolation_variable_declaration():
-    """Test that variables are isolated to their scope."""
+    """Test that variables are isolated to their function scopes."""
     source = """
         $MEM-GC
+
         fc func1()!mai8 {
             val mstr local1 = "test".
         }
+
         fc func2()!mai8 {
             val cbln local2 = true.
         }
@@ -340,10 +383,15 @@ def test_scope_isolation_variable_declaration():
     func1 = analyser.global_scope.lookup("func1")
     func2 = analyser.global_scope.lookup("func2")
 
-    # Each function has its own scope
     assert func1.scope is not func2.scope
     assert func1.scope.parent is analyser.global_scope
     assert func2.scope.parent is analyser.global_scope
+
+    assert func1.scope.lookup("local1") is not None
+    assert func1.scope.lookup("local2") is None
+
+    assert func2.scope.lookup("local2") is not None
+    assert func2.scope.lookup("local1") is None
 
 
 def test_global_visibility():
@@ -353,67 +401,25 @@ def test_global_visibility():
     child2 = SymbolTable(parent=parent)
     grandchild = SymbolTable(parent=child1)
 
-    global_symbol = Symbol("global", "variable", "mui8", None, parent)
+    global_symbol = Symbol("global", "variable", "mui8", parent)
     parent.define(global_symbol)
 
-    # All should see global
     assert child1.lookup("global") is global_symbol
     assert child2.lookup("global") is global_symbol
     assert grandchild.lookup("global") is global_symbol
 
 
 def test_local_isolation():
-    """Test that local symbols are not visible to siblings."""
+    """Test that local symbols are not visible to sibling scopes."""
     parent = SymbolTable()
     child1 = SymbolTable(parent=parent)
     child2 = SymbolTable(parent=parent)
 
-    local1 = Symbol("local", "variable", "mui8", None, child1)
+    local1 = Symbol("local", "variable", "mui8", child1)
     child1.define(local1)
 
-    # child2 should not see child1's local
+    assert child1.lookup("local") is local1
     assert child2.lookup("local") is None
-
-
-# ============================================================================
-# SYMBOL TABLE WITH PARAMETERS
-# ============================================================================
-
-
-def test_function_symbol_with_params():
-    """Test function symbol stores parameters correctly."""
-    parent = SymbolTable()
-
-    params = [("x", "mui8"), ("y", "mstr"), ("z", "cbln")]
-    func_symbol = Symbol("process", "function", "mai8", params, parent)
-    parent.define(func_symbol)
-
-    found = parent.lookup("process")
-    assert found.params == params
-    assert len(found.params) == 3
-
-
-def test_function_symbol_without_params():
-    """Test function symbol with empty parameters."""
-    parent = SymbolTable()
-
-    func_symbol = Symbol("get_value", "function", "mai8", [], parent)
-    parent.define(func_symbol)
-
-    found = parent.lookup("get_value")
-    assert found.params == []
-
-
-def test_struct_symbol_no_type():
-    """Test that sct symbols have no type."""
-    parent = SymbolTable()
-
-    struct_symbol = Symbol("Point", "struct", None, None, parent)
-    parent.define(struct_symbol)
-
-    found = parent.lookup("Point")
-    assert found.type is None
-    assert found.kind == "struct"
 
 
 # ============================================================================
@@ -422,23 +428,28 @@ def test_struct_symbol_no_type():
 
 
 def test_duplicate_in_parent_and_child():
-    """Test that duplicate in child with parent symbol raises error."""
+    """Test that local shadowing of a parent symbol is allowed."""
     source = """
         $MEM-GC
         val mui8 x = 1.
+
         fc test()!mai8 {
             val mstr x = "dup".
         }
     """
 
-    # This should not raise error - local shadowing is allowed
-    # (though some languages disallow it for clarity)
     analyser = analyse_program(source)
-    assert analyser.global_scope.lookup("x") is not None
+
+    global_x = analyser.global_scope.lookup("x")
+    func = analyser.global_scope.lookup("test")
+
+    assert global_x is not None
+    assert func.scope.lookup("x") is not None
+    assert func.scope.lookup("x") is not global_x
 
 
 def test_multiple_duplicates_in_sequence():
-    """Test multiple duplicate errors."""
+    """Test that duplicate declarations in the same scope raise an error."""
     source = """
         $MEM-GC
         val mui8 a = 1.
@@ -451,7 +462,7 @@ def test_multiple_duplicates_in_sequence():
 
 
 def test_conflict_after_many_declarations():
-    """Test conflict after many successful declarations."""
+    """Test duplicate declaration after several successful declarations."""
     source = """
         $MEM-GC
         val mui8 v1 = 1.

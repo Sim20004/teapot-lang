@@ -394,6 +394,7 @@ def test_duplicate_at_end_of_long_program():
 def test_many_parameters_function():
     """Test function with many parameters."""
     params = ", ".join([f"mui8 p{i}" for i in range(20)])
+
     source = f"""
         $MEM-GC
         fc many_params({params})!mai8 {{}}
@@ -403,7 +404,18 @@ def test_many_parameters_function():
     func = analyser.global_scope.lookup("many_params")
 
     assert func is not None
-    assert len(func.params) == 20
+    assert func.kind == "function"
+    assert func.scope is not analyser.global_scope
+
+    # Parameters should be defined in the function's scope.
+    for i in range(20):
+        param = func.scope.lookup(f"p{i}")
+
+        assert param is not None
+        assert param.name == f"p{i}"
+        assert param.kind == "function_parameter"
+        assert param.type == "mui8"
+        assert param.scope is func.scope
 
 
 # ============================================================================
@@ -425,8 +437,23 @@ def test_all_symbol_properties_preserved():
     assert func.name == "add"
     assert func.kind == "function"
     assert func.type == "mui8"
-    assert len(func.params) == 2
     assert func.scope is not None
+    assert func.scope.parent is analyser.global_scope
+
+    x = func.scope.lookup("x")
+    y = func.scope.lookup("y")
+
+    assert x is not None
+    assert x.name == "x"
+    assert x.kind == "function_parameter"
+    assert x.type == "mui8"
+    assert x.scope is func.scope
+
+    assert y is not None
+    assert y.name == "y"
+    assert y.kind == "function_parameter"
+    assert y.type == "mui8"
+    assert y.scope is func.scope
 
 
 def test_all_variable_types_properties():

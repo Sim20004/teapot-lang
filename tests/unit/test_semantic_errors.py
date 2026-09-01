@@ -44,8 +44,8 @@ def analyse_program(source, trace=False):
 def test_semantic_error_raised_on_duplicate():
     """Test that SemanticError is raised for duplicate symbols."""
     table = SymbolTable()
-    symbol1 = Symbol("var", "variable", "mui8", None, table)
-    symbol2 = Symbol("var", "variable", "mstr", None, table)
+    symbol1 = Symbol("var", "variable", "mui8", table)
+    symbol2 = Symbol("var", "variable", "mstr", table)
 
     table.define(symbol1)
 
@@ -56,8 +56,8 @@ def test_semantic_error_raised_on_duplicate():
 def test_semantic_error_contains_symbol_info():
     """Test that SemanticError stores the node information."""
     table = SymbolTable()
-    symbol1 = Symbol("var", "variable", "mui8", None, table)
-    symbol2 = Symbol("var", "variable", "mstr", None, table)
+    symbol1 = Symbol("var", "variable", "mui8", table)
+    symbol2 = Symbol("var", "variable", "mstr", table)
 
     table.define(symbol1)
 
@@ -71,8 +71,8 @@ def test_semantic_error_contains_symbol_info():
 def test_semantic_error_message_format():
     """Test that SemanticError message contains useful information."""
     table = SymbolTable()
-    symbol1 = Symbol("my_var", "variable", "mui8", None, table)
-    symbol2 = Symbol("my_var", "variable", "mstr", None, table)
+    symbol1 = Symbol("my_var", "variable", "mui8", table)
+    symbol2 = Symbol("my_var", "variable", "mstr", table)
 
     table.define(symbol1)
 

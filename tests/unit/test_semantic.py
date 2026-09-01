@@ -1,16 +1,3 @@
-"""
-Comprehensive unit tests for semantic analysis.
-
-Tests cover:
-- Symbol creation and properties
-- Symbol table operations (define, lookup)
-- Scope hierarchy and resolution
-- Variable declarations
-- Function declarations
-- Struct declarations
-- Semantic error handling
-"""
-
 from pytest import raises
 
 import teapot.teapot_ast as ast
@@ -23,37 +10,33 @@ from teapot.semantic import SemanticAnalyser, SemanticError, Symbol, SymbolTable
 # ============================================================================
 
 
-# Symbol creation must store the correct name, kind, type, parameters, and scope.
 def test_symbol_creation():
     """Test that Symbol stores all attributes correctly."""
     global_scope = SymbolTable()
-    symbol = Symbol("foo", "variable", "mui8", None, global_scope)
+    symbol = Symbol("foo", "variable", "mui8", global_scope)
 
     assert symbol.name == "foo"
     assert symbol.kind == "variable"
     assert symbol.type == "mui8"
-    assert symbol.params is None
     assert symbol.scope is global_scope
 
 
-# Symbol creation must handle different kinds.
 def test_symbol_creation_with_different_kinds():
     """Test Symbol creation with various kinds."""
     global_scope = SymbolTable()
 
-    var_symbol = Symbol("var", "variable", "mstr", None, global_scope)
+    var_symbol = Symbol("var", "variable", "mstr", global_scope)
     assert var_symbol.kind == "variable"
 
-    func_symbol = Symbol("func", "function", "mstr", [(("x", "mui8"))], global_scope)
+    func_symbol = Symbol("func", "function", "mstr", global_scope)
     assert func_symbol.kind == "function"
-    assert func_symbol.params == [(("x", "mui8"))]
+    assert func_symbol.type == "mstr"
 
-    struct_symbol = Symbol("MyStruct", "struct", None, None, global_scope)
+    struct_symbol = Symbol("MyStruct", "struct", None, global_scope)
     assert struct_symbol.kind == "struct"
     assert struct_symbol.type is None
 
 
-# Symbol must handle different data types.
 def test_symbol_creation_with_different_types():
     """Test Symbol creation with various data types."""
     global_scope = SymbolTable()
@@ -80,29 +63,28 @@ def test_symbol_creation_with_different_types():
     ]
 
     for dtype in types:
-        symbol = Symbol(f"var_{dtype}", "variable", dtype, None, global_scope)
+        symbol = Symbol(f"var_{dtype}", "variable", dtype, global_scope)
         assert symbol.type == dtype
+        assert symbol.scope is global_scope
 
 
-# SymbolTable.define() must store the exact Symbol instance under its name.
 def test_symbol_define():
     """Test that define() stores symbols in the table."""
     global_scope = SymbolTable()
-    symbol = Symbol("foo", "variable", "mui8", None, global_scope)
+    symbol = Symbol("foo", "variable", "mui8", global_scope)
 
     global_scope.define(symbol)
 
     assert global_scope.symbols["foo"] is symbol
 
 
-# SymbolTable.define() must correctly store multiple symbols.
 def test_multiple_symbols_define():
     """Test that multiple symbols can be stored in one scope."""
     global_scope = SymbolTable()
 
-    foo = Symbol("foo", "variable", "mui8", None, global_scope)
-    bar = Symbol("bar", "function", "mui8", None, global_scope)
-    baz = Symbol("baz", "struct", None, None, global_scope)
+    foo = Symbol("foo", "variable", "mui8", global_scope)
+    bar = Symbol("bar", "function", "mui8", global_scope)
+    baz = Symbol("baz", "struct", None, global_scope)
 
     global_scope.define(foo)
     global_scope.define(bar)
@@ -114,13 +96,12 @@ def test_multiple_symbols_define():
     assert len(global_scope.symbols) == 3
 
 
-# Defining a duplicate symbol must raise SemanticError without replacing the original.
 def test_duplicate_definition():
     """Test that duplicate definitions raise SemanticError."""
     global_scope = SymbolTable()
 
-    symbol = Symbol("foo", "variable", "mui8", None, global_scope)
-    duplicate = Symbol("foo", "function", "mui8", None, global_scope)
+    symbol = Symbol("foo", "variable", "mui8", global_scope)
+    duplicate = Symbol("foo", "function", "mui8", global_scope)
 
     global_scope.define(symbol)
 
@@ -130,14 +111,13 @@ def test_duplicate_definition():
     assert global_scope.symbols["foo"] is symbol
 
 
-# Duplicate definitions should not be replaced.
 def test_duplicate_definition_preserves_original():
-    """Test that original symbol is preserved after duplicate definition attempt."""
+    """Test that original symbol is preserved after duplicate definition."""
     global_scope = SymbolTable()
 
-    original = Symbol("var", "variable", "mstr", None, global_scope)
-    dup1 = Symbol("var", "function", "mstr", None, global_scope)
-    dup2 = Symbol("var", "struct", "mstr", None, global_scope)
+    original = Symbol("var", "variable", "mstr", global_scope)
+    dup1 = Symbol("var", "function", "mstr", global_scope)
+    dup2 = Symbol("var", "struct", None, global_scope)
 
     global_scope.define(original)
 
@@ -151,12 +131,11 @@ def test_duplicate_definition_preserves_original():
     assert global_scope.symbols["var"].kind == "variable"
 
 
-# SymbolTable.lookup() must return existing symbols and None for unknown symbols.
 def test_symbol_lookup():
     """Test that lookup returns symbols or None."""
     global_scope = SymbolTable()
-    symbol = Symbol("foo", "variable", "mui8", None, global_scope)
 
+    symbol = Symbol("foo", "variable", "mui8", global_scope)
     global_scope.define(symbol)
 
     assert global_scope.lookup("foo") is symbol
@@ -169,26 +148,24 @@ def test_symbol_lookup():
 # ============================================================================
 
 
-# A child scope must be able to look up symbols from its parent.
 def test_parent_scope_lookup():
     """Test that child scope can access parent symbols."""
     global_scope = SymbolTable()
     child_scope = SymbolTable(parent=global_scope)
 
-    symbol = Symbol("foo", "variable", "mui8", None, global_scope)
+    symbol = Symbol("foo", "variable", "mui8", global_scope)
     global_scope.define(symbol)
 
     assert child_scope.lookup("foo") is symbol
 
 
-# A local symbol must take precedence over a parent symbol with the same name.
 def test_local_scope_lookup_takes_precedence():
     """Test that local symbols shadow parent symbols."""
     global_scope = SymbolTable()
     child_scope = SymbolTable(parent=global_scope)
 
-    global_symbol = Symbol("foo", "variable", "mui8", None, global_scope)
-    local_symbol = Symbol("foo", "variable", "mstr", None, child_scope)
+    global_symbol = Symbol("foo", "variable", "mui8", global_scope)
+    local_symbol = Symbol("foo", "variable", "mstr", child_scope)
 
     global_scope.define(global_symbol)
     child_scope.define(local_symbol)
@@ -197,7 +174,6 @@ def test_local_scope_lookup_takes_precedence():
     assert child_scope.lookup("foo").type == "mstr"
 
 
-# An unknown symbol must return None from a child scope and its parent.
 def test_parent_scope_unknown_symbol():
     """Test that lookup returns None for unknown symbols in hierarchy."""
     global_scope = SymbolTable()
@@ -207,39 +183,36 @@ def test_parent_scope_unknown_symbol():
     assert global_scope.lookup("foo") is None
 
 
-# Multiple level scope hierarchy must work correctly.
 def test_deep_scope_hierarchy():
-    """Test scope resolution through multiple levels."""
+    """Test symbol resolution through multiple scope levels."""
     global_scope = SymbolTable()
     level1 = SymbolTable(parent=global_scope)
     level2 = SymbolTable(parent=level1)
     level3 = SymbolTable(parent=level2)
 
-    global_sym = Symbol("global_var", "variable", "mui8", None, global_scope)
-    level1_sym = Symbol("level1_var", "variable", "mstr", None, level1)
-    level2_sym = Symbol("level2_var", "variable", "cbln", None, level2)
+    global_sym = Symbol("global_var", "variable", "mui8", global_scope)
+    level1_sym = Symbol("level1_var", "variable", "mstr", level1)
+    level2_sym = Symbol("level2_var", "variable", "cbln", level2)
 
     global_scope.define(global_sym)
     level1.define(level1_sym)
     level2.define(level2_sym)
 
-    # Level 3 can access all symbols above
     assert level3.lookup("global_var") is global_sym
     assert level3.lookup("level1_var") is level1_sym
     assert level3.lookup("level2_var") is level2_sym
     assert level3.lookup("unknown") is None
 
 
-# Shadowing at multiple levels must work correctly.
 def test_shadowing_at_multiple_levels():
-    """Test that shadowing works correctly through multiple scope levels."""
+    """Test that shadowing works through multiple scope levels."""
     global_scope = SymbolTable()
     child_scope = SymbolTable(parent=global_scope)
     grandchild_scope = SymbolTable(parent=child_scope)
 
-    global_sym = Symbol("x", "variable", "mui8", None, global_scope)
-    child_sym = Symbol("x", "variable", "mstr", None, child_scope)
-    grandchild_sym = Symbol("x", "variable", "cbln", None, grandchild_scope)
+    global_sym = Symbol("x", "variable", "mui8", global_scope)
+    child_sym = Symbol("x", "variable", "mstr", child_scope)
+    grandchild_sym = Symbol("x", "variable", "cbln", grandchild_scope)
 
     global_scope.define(global_sym)
     child_scope.define(child_sym)
@@ -255,22 +228,27 @@ def test_shadowing_at_multiple_levels():
 # ============================================================================
 
 
-# SemanticAnalyser must be initializable with AST and trace flag.
 def test_semantic_analyser_initialization():
     """Test SemanticAnalyser initialization."""
-    ast_tree = ast.Program(statements=[], memory_mode="$MEM-GC")
+    ast_tree = ast.Program(
+        statements=[],
+        memory_mode="$MEM-GC",
+    )
+
     analyser = SemanticAnalyser(ast_tree, trace=False)
 
     assert analyser.ast_tree is ast_tree
     assert analyser.trace is False
 
 
-# SemanticAnalyser must handle empty AST trees.
 def test_analyser_empty_program():
     """Test analysis of empty program."""
-    ast_tree = ast.Program(statements=[], memory_mode="$MEM-GC")
-    analyser = SemanticAnalyser(ast_tree, trace=False)
+    ast_tree = ast.Program(
+        statements=[],
+        memory_mode="$MEM-GC",
+    )
 
+    analyser = SemanticAnalyser(ast_tree, trace=False)
     analyser.analyse()
 
     assert hasattr(analyser, "global_scope")
@@ -278,7 +256,7 @@ def test_analyser_empty_program():
 
 
 # ============================================================================
-# VARIABLE DECLARATION TESTS
+# HELPER FUNCTIONS
 # ============================================================================
 
 
@@ -290,33 +268,42 @@ def lex_and_parse(source):
     return parser.parse()
 
 
-# Analyse single variable declaration in global scope.
+# ============================================================================
+# VARIABLE DECLARATION TESTS
+# ============================================================================
+
+
 def test_single_variable_declaration():
     """Test analysis of a single variable declaration."""
     source = """
         $MEM-GC
+
         val mui8 x = 42.
     """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
     analyser.analyse()
 
     symbol = analyser.global_scope.lookup("x")
+
     assert symbol is not None
     assert symbol.name == "x"
     assert symbol.kind == "variable"
     assert symbol.type == "mui8"
+    assert symbol.scope is analyser.global_scope
 
 
-# Analyse multiple variable declarations.
 def test_multiple_variable_declarations():
     """Test analysis of multiple variable declarations."""
     source = """
         $MEM-GC
+
         val mui8 a = 1.
         val mstr b = "test".
         val cbln c = true.
     """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
     analyser.analyse()
@@ -330,14 +317,15 @@ def test_multiple_variable_declarations():
     assert c.type == "cbln"
 
 
-# Duplicate variable declarations must raise error.
 def test_duplicate_variable_declarations():
     """Test that duplicate variable declarations raise SemanticError."""
     source = """
         $MEM-GC
+
         val mui8 x = 1.
         val mstr x = "test".
     """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
 
@@ -350,51 +338,61 @@ def test_duplicate_variable_declarations():
 # ============================================================================
 
 
-# Analyse function declaration with no parameters.
 def test_function_declaration_no_params():
     """Test analysis of function with no parameters."""
     source = """
         $MEM-GC
+
         fc get_answer()!mui8 {
-        } """
+        }
+    """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
     analyser.analyse()
 
     func_symbol = analyser.global_scope.lookup("get_answer")
+
     assert func_symbol is not None
     assert func_symbol.kind == "function"
     assert func_symbol.type == "mui8"
-    assert func_symbol.params == []
+    assert func_symbol.scope is not analyser.global_scope
 
 
-# Analyse function declaration with parameters.
 def test_function_declaration_with_params():
     """Test analysis of function with parameters."""
     source = """
         $MEM-GC
+
         fc add(mui8 a, mui8 b)!mui8 {
-        } """
+        }
+    """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
     analyser.analyse()
 
     func_symbol = analyser.global_scope.lookup("add")
+
     assert func_symbol is not None
     assert func_symbol.kind == "function"
     assert func_symbol.type == "mui8"
-    assert len(func_symbol.params) == 2
+    assert func_symbol.scope is not analyser.global_scope
+    assert func_symbol.scope.parent is analyser.global_scope
 
 
-# Duplicate function declarations must raise error.
 def test_duplicate_function_declarations():
     """Test that duplicate function declarations raise SemanticError."""
     source = """
         $MEM-GC
-        fc get_value()!void {
+
+        fc get_value()!mui8 {
         }
-        fc get_value()!void {
-        } """
+
+        fc get_value()!mui8 {
+        }
+    """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
 
@@ -402,20 +400,25 @@ def test_duplicate_function_declarations():
         analyser.analyse()
 
 
-# Function scope must have its own symbol table.
 def test_function_scope_isolation():
-    """Test that function creates its own scope."""
+    """Test that a function creates its own scope."""
     source = """
         $MEM-GC
+
         val mui8 x = 10.
-        fc test()!void {
-        } """
+
+        fc test()!mui8 {
+        }
+    """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
     analyser.analyse()
 
     func_symbol = analyser.global_scope.lookup("test")
+
     assert func_symbol.scope is not analyser.global_scope
+    assert func_symbol.scope.parent is analyser.global_scope
 
 
 # ============================================================================
@@ -423,31 +426,39 @@ def test_function_scope_isolation():
 # ============================================================================
 
 
-# Analyse sct declaration.
 def test_struct_declaration():
     """Test analysis of sct declaration."""
     source = """
         $MEM-GC
+
         sct Point {
-        } """
+        }
+    """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
     analyser.analyse()
 
     struct_symbol = analyser.global_scope.lookup("Point")
+
     assert struct_symbol is not None
     assert struct_symbol.kind == "struct"
+    assert struct_symbol.type is None
+    assert struct_symbol.scope is analyser.global_scope
 
 
-# Duplicate sct declarations must raise error.
 def test_duplicate_struct_declarations():
     """Test that duplicate sct declarations raise SemanticError."""
     source = """
         $MEM-GC
+
         sct Point {
         }
+
         sct Point {
-        } """
+        }
+    """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
 
@@ -460,18 +471,22 @@ def test_duplicate_struct_declarations():
 # ============================================================================
 
 
-# Analyse multiple different types of declarations.
 def test_mixed_declarations():
     """Test analysis of mixed variable, function, and sct declarations."""
     source = """
         $MEM-GC
+
         val mui8 count = 0.
-        fc get_count()!void {
+
+        fc get_count()!mui8 {
         }
+
         sct Result {
         }
+
         val mstr status = "ready".
     """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
     analyser.analyse()
@@ -485,17 +500,21 @@ def test_mixed_declarations():
     assert get_count.kind == "function"
     assert result.kind == "struct"
     assert status.kind == "variable"
+
     assert len(analyser.global_scope.symbols) == 4
 
 
-# Mixing variable and sct with same name must raise error.
 def test_duplicate_variable_and_struct():
     """Test that variable and sct with same name raises SemanticError."""
     source = """
         $MEM-GC
+
         val mui8 Item = 0.
+
         sct Item {
-        } """
+        }
+    """
+
     program = lex_and_parse(source)
     analyser = SemanticAnalyser(program, trace=False)
 
@@ -503,8 +522,13 @@ def test_duplicate_variable_and_struct():
         analyser.analyse()
 
 
-# A variable declaration must create a variable symbol in the supplied scope.
+# ============================================================================
+# DIRECT DECLARATION TESTS
+# ============================================================================
+
+
 def test_define_variable_declaration():
+    """Test that a variable declaration creates a variable symbol."""
     analyser = SemanticAnalyser(None, False)
     scope = SymbolTable()
 
@@ -523,8 +547,8 @@ def test_define_variable_declaration():
     assert symbol.scope is scope
 
 
-# Duplicate variable declarations must raise SemanticError.
 def test_duplicate_variable_declaration():
+    """Test that duplicate variable declarations raise SemanticError."""
     analyser = SemanticAnalyser(None, False)
     scope = SymbolTable()
 
@@ -539,8 +563,8 @@ def test_duplicate_variable_declaration():
         analyser.define_variable_declaration(node, scope)
 
 
-# A sct declaration must create a sct symbol in the supplied scope.
 def test_define_struct_declaration():
+    """Test that a sct declaration creates a struct symbol."""
     analyser = SemanticAnalyser(None, False)
     scope = SymbolTable()
 
@@ -559,8 +583,8 @@ def test_define_struct_declaration():
     assert symbol.scope is scope
 
 
-# Duplicate sct declarations must raise SemanticError.
 def test_duplicate_struct_declaration():
+    """Test that duplicate sct declarations raise SemanticError."""
     analyser = SemanticAnalyser(None, False)
     scope = SymbolTable()
 
@@ -575,8 +599,8 @@ def test_duplicate_struct_declaration():
         analyser.define_struct_declaration(node, scope)
 
 
-# A function declaration must create a function symbol with its return type.
 def test_define_function_declaration():
+    """Test that a function declaration creates a function symbol."""
     analyser = SemanticAnalyser(None, False)
     scope = SymbolTable()
 
@@ -596,8 +620,8 @@ def test_define_function_declaration():
     assert symbol.type == ast.Type("mui8")
 
 
-# A function declaration must create a child scope whose parent is the supplied scope.
 def test_function_has_own_scope():
+    """Test that a function creates a child scope."""
     analyser = SemanticAnalyser(None, False)
     scope = SymbolTable()
 
@@ -617,8 +641,8 @@ def test_function_has_own_scope():
     assert symbol.scope.parent is scope
 
 
-# Duplicate function declarations must raise SemanticError.
 def test_duplicate_function_declaration():
+    """Test that duplicate function declarations raise SemanticError."""
     analyser = SemanticAnalyser(None, False)
     scope = SymbolTable()
 
@@ -635,8 +659,13 @@ def test_duplicate_function_declaration():
         analyser.define_function_declaration(node, scope)
 
 
-# The first pass must process variable declarations.
+# ============================================================================
+# FIRST PASS TESTS
+# ============================================================================
+
+
 def test_first_pass_variable():
+    """Test that the first pass processes variable declarations."""
     node = ast.DeclareVariable(
         identifier="foo",
         datatype=ast.Type("mui8"),
@@ -654,8 +683,8 @@ def test_first_pass_variable():
     assert analyser.global_scope.symbols["foo"].kind == "variable"
 
 
-# The first pass must process sct declarations.
 def test_first_pass_struct():
+    """Test that the first pass processes sct declarations."""
     node = ast.Struct(
         identifier="Foo",
         body=[],
@@ -673,8 +702,8 @@ def test_first_pass_struct():
     assert analyser.global_scope.symbols["Foo"].kind == "struct"
 
 
-# The first pass must process function declarations.
 def test_first_pass_function():
+    """Test that the first pass processes function declarations."""
     node = ast.Function(
         name="foo",
         arguments=[],
@@ -694,14 +723,14 @@ def test_first_pass_function():
     assert analyser.global_scope.symbols["foo"].kind == "function"
 
 
-# The first pass must process multiple supported top-level AST nodes.
 def test_first_pass_multiple_declarations():
+    """Test that the first pass processes multiple supported AST nodes."""
     variable = ast.DeclareVariable(
         identifier="foo",
         datatype=ast.Type("mui8"),
     )
 
-    sct = ast.Struct(
+    struct = ast.Struct(
         identifier="Bar",
         body=[],
     )
@@ -716,7 +745,7 @@ def test_first_pass_multiple_declarations():
     tree = ast.Program(
         statements=[
             variable,
-            sct,
+            struct,
             function,
         ],
         memory_mode="manual",
@@ -730,8 +759,8 @@ def test_first_pass_multiple_declarations():
     assert "baz" in analyser.global_scope.symbols
 
 
-# The first pass must reject an unsupported AST node.
 def test_first_pass_unknown_node():
+    """Test that the first pass rejects an unsupported AST node."""
     tree = ast.Program(
         statements=[ast.Break()],
         memory_mode="manual",
@@ -743,8 +772,8 @@ def test_first_pass_unknown_node():
         analyser.first_pass_symbol_table()
 
 
-# The first pass must produce an empty symbol table for an empty program.
 def test_first_pass_empty_ast():
+    """Test that the first pass handles an empty program."""
     tree = ast.Program(
         statements=[],
         memory_mode="manual",
@@ -756,8 +785,13 @@ def test_first_pass_empty_ast():
     assert analyser.global_scope.symbols == {}
 
 
-# analyse() must build the symbol table from the AST.
+# ============================================================================
+# FULL ANALYSIS TESTS
+# ============================================================================
+
+
 def test_analyse():
+    """Test that analyse() builds the symbol table."""
     node = ast.DeclareVariable(
         identifier="foo",
         datatype=ast.Type("mui8"),
@@ -775,15 +809,14 @@ def test_analyse():
     assert analyser.global_scope.symbols["foo"].kind == "variable"
 
 
-# The currently empty second pass must complete successfully.
 def test_second_pass_type_check():
+    """Test that the second pass completes successfully."""
     analyser = SemanticAnalyser(None, False)
-
     analyser.second_pass_type_check()
 
 
-# analyse() must successfully process an empty program.
 def test_analyse_empty_ast():
+    """Test that analyse() successfully processes an empty program."""
     tree = ast.Program(
         statements=[],
         memory_mode="manual",
