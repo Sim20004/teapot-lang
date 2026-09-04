@@ -92,39 +92,30 @@ class SemanticAnalyser:
     def second_pass_type_check(self):
         pass
 
-    def first_pass_symbol_table(self, local=None, lnode=None):
-        if local is not None:
-            if self.trace:
-                print(type(lnode).__name__ + ":")
-
-            match lnode:
-                case ast.DeclareVariable():
-                    self.define_variable_declaration(lnode, local)
-                case ast.Struct():
-                    self.define_struct_declaration(lnode, local)
-                case ast.Function():
-                    self.define_function_declaration(lnode, local)
-                case _:
-                    raise SemanticError("Unknown node", lnode)
-            return
-
+    def first_pass_symbol_table(self):
         global_scope = SymbolTable()
-        # Create symbol table by passing over all top-level nodes
+
         for node in self.ast_tree.statements:
             if self.trace:
                 print(type(node).__name__ + ":")
 
-            match node:
-                case ast.DeclareVariable():
-                    self.define_variable_declaration(node, global_scope)
-                case ast.Struct():
-                    self.define_struct_declaration(node, global_scope)
-                case ast.Function():
-                    self.define_function_declaration(node, global_scope)
-                case _:
-                    raise SemanticError("Unknown node", node)
+            self.define_symbol(node, global_scope)
 
         self.global_scope = global_scope
+
+    def define_symbol(self, node, scope):
+        match node:
+            case ast.DeclareVariable():
+                self.define_variable_declaration(node, scope)
+
+            case ast.Struct():
+                self.define_struct_declaration(node, scope)
+
+            case ast.Function():
+                self.define_function_declaration(node, scope)
+
+            case _:
+                raise SemanticError("Unknown node", node)
 
     def define_function_declaration(self, node, scope):
 
@@ -159,7 +150,7 @@ class SemanticAnalyser:
 
     def define_function_scope_statements(self, node, function_scope):
         for statement in node.body:
-            self.first_pass_symbol_table(function_scope, statement)
+            self.define_symbol(statement, function_scope)
 
     def define_struct_declaration(self, node, scope):
         identifier = node.identifier
