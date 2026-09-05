@@ -215,46 +215,6 @@ def test_variable_shadowing_not_allowed_same_scope():
 # ============================================================================
 
 
-def test_function_declaration_no_params():
-    """Test function declaration with no parameters."""
-    source = """
-        $MEM-GC
-
-        fc get_answer()!mai8 {
-        }
-    """
-
-    analyser = analyse_program(source)
-
-    fc = analyser.global_scope.lookup("get_answer")
-
-    assert fc is not None
-    assert fc.kind == "function"
-    assert fc.type == "mai8"
-    assert fc.scope is not analyser.global_scope
-    assert fc.scope.parent is analyser.global_scope
-
-
-def test_function_declaration_with_params():
-    """Test function declaration with parameters."""
-    source = """
-        $MEM-GC
-
-        fc add(mui8 a, mui8 b)!mui8 {
-        }
-    """
-
-    analyser = analyse_program(source)
-
-    add_func = analyser.global_scope.lookup("add")
-
-    assert add_func is not None
-    assert add_func.kind == "function"
-    assert add_func.type == "mui8"
-    assert add_func.scope is not None
-    assert add_func.scope.parent is analyser.global_scope
-
-
 def test_function_declaration_multiple():
     """Test multiple function declarations."""
     source = """
@@ -485,98 +445,6 @@ def test_conflicts_function_and_struct():
 
 
 # ============================================================================
-# SCOPE HIERARCHY TESTS
-# ============================================================================
-
-
-def test_function_creates_new_scope():
-    """Test that function creates a new scope."""
-    source = """
-        $MEM-GC
-
-        val mui8 global_var = 10.
-
-        fc test_func()!mai8 {
-        }
-    """
-
-    analyser = analyse_program(source)
-
-    test_func = analyser.global_scope.lookup("test_func")
-
-    assert test_func is not None
-    assert test_func.kind == "function"
-    assert test_func.scope is not analyser.global_scope
-    assert test_func.scope.parent is analyser.global_scope
-
-    global_var = analyser.global_scope.lookup("global_var")
-
-    assert test_func.scope.lookup("global_var") is global_var
-
-
-def test_function_parameter_scope():
-    """Test that function parameters are placed in the function scope."""
-    source = """
-        $MEM-GC
-
-        fc add(mui8 a, mui8 b)!mui8 {
-        }
-    """
-
-    analyser = analyse_program(source)
-
-    add_func = analyser.global_scope.lookup("add")
-
-    assert add_func is not None
-    assert add_func.kind == "function"
-    assert add_func.scope is not None
-
-    # Parameter symbols should be available through the function scope.
-    a = add_func.scope.lookup("a")
-    b = add_func.scope.lookup("b")
-
-    assert a is not None
-    assert b is not None
-
-    assert a.kind == "function_parameter"
-    assert b.kind == "function_parameter"
-
-    assert a.type == "mui8"
-    assert b.type == "mui8"
-
-    assert a.scope is add_func.scope
-    assert b.scope is add_func.scope
-
-
-def test_nested_function_scope():
-    """Test function scope hierarchy."""
-    source = """
-        $MEM-GC
-
-        val mui8 outer_var = 1.
-
-        fc outer_func()!mai8 {
-            val mstr inner_var = "test".
-        }
-    """
-
-    analyser = analyse_program(source)
-
-    outer_func = analyser.global_scope.lookup("outer_func")
-
-    assert outer_func is not None
-    assert outer_func.kind == "function"
-
-    assert outer_func.scope is not analyser.global_scope
-    assert outer_func.scope.parent is analyser.global_scope
-
-    outer_var = analyser.global_scope.lookup("outer_var")
-
-    assert outer_func.scope.lookup("outer_var") is outer_var
-    assert outer_func.scope.lookup("inner_var") is not None
-
-
-# ============================================================================
 # COMPLEX SCENARIOS
 # ============================================================================
 
@@ -771,25 +639,6 @@ def test_single_statement_program():
     assert len(analyser.global_scope.symbols) == 1
 
 
-def test_function_with_no_body_statements():
-    """Test function with empty body."""
-    source = """
-        $MEM-GC
-
-        fc empty_func()!mai8 {
-        }
-    """
-
-    analyser = analyse_program(source)
-
-    fc = analyser.global_scope.lookup("empty_func")
-
-    assert fc is not None
-    assert fc.kind == "function"
-    assert fc.type == "mai8"
-    assert fc.scope is not analyser.global_scope
-
-
 def test_struct_with_empty_body():
     """Test struct with empty body."""
     source = """
@@ -836,3 +685,180 @@ def test_long_identifier_names():
     assert (
         analyser.global_scope.lookup("ThisIsAVeryLongStructNameForTesting") is not None
     )
+
+
+def test_function_declaration_with_params():
+    """Test function declaration with parameters."""
+    source = """
+
+        $MEM-GC
+
+        fc add(mui8 a, mui8 b)!mui8 {
+
+        }
+
+    """
+
+    analyser = analyse_program(source)
+
+    add_func = analyser.global_scope.lookup("add")
+
+    assert add_func is not None
+    assert add_func.kind == "function"
+    assert add_func.type == "mui8"
+
+    # The function is declared in the global scope.
+    assert add_func.scope is analyser.global_scope
+
+    # Parameters belong to the function's child scope.
+    assert add_func.child_scope is not None
+    assert add_func.child_scope.parent is analyser.global_scope
+
+
+def test_function_creates_new_scope():
+    """Test that function creates a new scope."""
+    source = """
+
+        $MEM-GC
+
+        val mui8 global_var = 10.
+
+        fc test_func()!mai8 {
+
+        }
+
+    """
+
+    analyser = analyse_program(source)
+
+    test_func = analyser.global_scope.lookup("test_func")
+
+    assert test_func is not None
+    assert test_func.kind == "function"
+
+    # The function itself is declared in the global scope.
+    assert test_func.scope is analyser.global_scope
+
+    # Its child scope is separate from the global scope.
+    assert test_func.child_scope is not analyser.global_scope
+    assert test_func.child_scope.parent is analyser.global_scope
+
+    global_var = analyser.global_scope.lookup("global_var")
+
+    # The function scope can access symbols from its parent scope.
+    assert test_func.child_scope.lookup("global_var") is global_var
+
+
+def test_function_parameter_scope():
+    """Test that function parameters are placed in the function scope."""
+    source = """
+
+        $MEM-GC
+
+        fc add(mui8 a, mui8 b)!mui8 {
+
+        }
+
+    """
+
+    analyser = analyse_program(source)
+
+    add_func = analyser.global_scope.lookup("add")
+
+    assert add_func is not None
+    assert add_func.kind == "function"
+
+    # The function is declared globally.
+    assert add_func.scope is analyser.global_scope
+
+    # The parameters are stored in the function's child scope.
+    function_scope = add_func.child_scope
+
+    assert function_scope is not None
+    assert function_scope.parent is analyser.global_scope
+
+    a = function_scope.lookup("a")
+    b = function_scope.lookup("b")
+
+    assert a is not None
+    assert b is not None
+
+    assert a.kind == "function_parameter"
+    assert b.kind == "function_parameter"
+
+    assert a.type == "mui8"
+    assert b.type == "mui8"
+
+    assert a.scope is function_scope
+    assert b.scope is function_scope
+
+
+def test_nested_function_scope():
+    """Test function scope hierarchy."""
+    source = """
+
+        $MEM-GC
+
+        val mui8 outer_var = 1.
+
+        fc outer_func()!mai8 {
+
+            val mstr inner_var = "test".
+
+        }
+
+    """
+
+    analyser = analyse_program(source)
+
+    outer_func = analyser.global_scope.lookup("outer_func")
+
+    assert outer_func is not None
+    assert outer_func.kind == "function"
+
+    # The function is declared in the global scope.
+    assert outer_func.scope is analyser.global_scope
+
+    # Its body has a separate child scope.
+    assert outer_func.child_scope is not analyser.global_scope
+    assert outer_func.child_scope.parent is analyser.global_scope
+
+    outer_var = analyser.global_scope.lookup("outer_var")
+
+    # The function scope can access the global variable.
+    assert outer_func.child_scope.lookup("outer_var") is outer_var
+
+    # Variables declared in the function belong to its child scope.
+    inner_var = outer_func.child_scope.lookup("inner_var")
+
+    assert inner_var is not None
+    assert inner_var.scope is outer_func.child_scope
+
+
+def test_function_with_no_body_statements():
+    """Test function with empty body."""
+    source = """
+
+        $MEM-GC
+
+        fc empty_func()!mai8 {
+
+        }
+
+    """
+
+    analyser = analyse_program(source)
+
+    fc = analyser.global_scope.lookup("empty_func")
+
+    assert fc is not None
+    assert fc.kind == "function"
+    assert fc.type == "mai8"
+
+    # The function is declared globally.
+    assert fc.scope is analyser.global_scope
+
+    # An empty function still gets its own scope.
+    assert fc.child_scope is not None
+    assert fc.child_scope is not analyser.global_scope
+    assert fc.child_scope.parent is analyser.global_scope

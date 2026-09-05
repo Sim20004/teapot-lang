@@ -8,50 +8,63 @@ from teapot.debug import print
 # SemanticError class for errors
 class SemanticError(Exception):
     def __init__(self, msg, node):
+
         super().__init__(f"Semantic analysis error at {node}: {msg}")
+
         self.node = node
+
         print(f"\nSemantic analysis error at {node}: {msg}")
 
 
 # Symbol class stores a symbol for the symbol table
 class Symbol:
-    def __init__(self, name, kind, type_, scope):
+    def __init__(self, name, kind, type_, scope, child_scope=None):
+
         self.name = name
         self.kind = kind
         self.type = type_
         self.scope = scope
+        self.child_scope = child_scope
 
 
 # Symbol table stores Symbols
 class SymbolTable:
     def __init__(self, parent=None):
+
         self.symbols = {}
         self.parent = parent
 
     def define(self, symbol):
+
         if symbol.name in self.symbols:
             raise SemanticError(
                 f"{symbol.kind.capitalize()} `{symbol.name}` already declared as a symbol!",
                 symbol,
             )
+
         self.symbols[symbol.name] = symbol
 
     def lookup(self, name):
+
         if name in self.symbols:
             return self.symbols[name]
+
         if self.parent is not None:
             return self.parent.lookup(name)
+
         return None
 
 
 # Semantic validation is currently a traversal scaffold for future checks.
 class SemanticAnalyser:
     def __init__(self, ast_tree, trace):
+
         self.ast_tree = ast_tree
         self.trace = trace
 
     """
     datatypes: ClassVar = {
+
         "mstr",
         "mchar",
         "mbln",
@@ -67,6 +80,7 @@ class SemanticAnalyser:
         "mui16",
         "mui32",
         "mui64",
+
         "cstr",
         "cchar",
         "cbln",
@@ -86,61 +100,140 @@ class SemanticAnalyser:
     """  # Uncomment when writing pass 2 code
 
     def analyse(self):
-        self.first_pass_symbol_table()
-        self.second_pass_type_check()
 
-    def second_pass_type_check(self):
+        self.build_symbol_table()
+        self.type_check()
+
+    def type_check(self):
+
         pass
 
-    def first_pass_symbol_table(self):
+    def build_symbol_table(self):
+
         global_scope = SymbolTable()
 
         for node in self.ast_tree.statements:
             if self.trace:
                 print(type(node).__name__ + ":")
 
-            self.define_symbol(node, global_scope)
+            self.register_node(node, global_scope)
 
         self.global_scope = global_scope
 
-    def define_symbol(self, node, scope):
+    def register_node(self, node, scope):
+
         match node:
             case ast.DeclareVariable():
-                self.define_variable_declaration(node, scope)
+                self.register_variable(node, scope)
 
             case ast.Struct():
-                self.define_struct_declaration(node, scope)
+                self.register_struct(node, scope)
 
             case ast.Function():
-                self.define_function_declaration(node, scope)
+                self.register_function(node, scope)
 
             case ast.Enum():
-                self.define_enum_declaration(node, scope)
+                self.register_enum(node, scope)
+
+            case ast.EnumMember():
+                self.register_enum_member(node, scope)
 
             case ast.StructField():
-                self.define_struct_field(node, scope)
+                self.register_struct_field(node, scope)
+
+            case ast.Error():
+                self.register_error(node, scope)
+
+            case ast.ErrorMember():
+                self.register_error_member(node, scope)
 
             case _:
                 raise SemanticError("Unknown node", node)
 
-    def define_struct_field(self, node, scope):
+    def register_error(self, node, scope):
+
+        error_scope = SymbolTable(parent=scope)
+
+        identifier = node.identifier
+
+        self.register_error_members(node, error_scope)
+
+        symbol = Symbol(
+            identifier,
+            "error",
+            None,
+            scope,
+            error_scope,
+        )
+
+        scope.define(symbol)
+
+    def register_error_members(self, node, scope):
+
+        for member in node.body:
+            self.register_node(member, scope)
+
+    def register_error_member(self, node, scope):
+
+        symbol = Symbol(
+            node.name,
+            "error_member",
+            node.datatype,
+            scope,
+        )
+
+        scope.define(symbol)
+
+    def register_enum_member(self, node, scope):
+
+        symbol = Symbol(
+            node.name,
+            "enum_member",
+            None,
+            scope,
+        )
+
+        scope.define(symbol)
+
+    def register_struct_field(self, node, scope):
+
         symbol = Symbol(
             node.identifier,
             "struct_field",
             node.datatype.name,
             scope,
         )
+
         scope.define(symbol)
 
-    def define_enum_declaration(self, node, scope):
+    def register_enum(self, node, scope):
+
+        enum_scope = SymbolTable(parent=scope)
+
+        self.register_enum_members(node, enum_scope)
+
         identifier = node.identifier
-        symbol = Symbol(identifier, "enum", None, scope)
+
+        symbol = Symbol(
+            identifier,
+            "enum",
+            None,
+            scope,
+            enum_scope,
+        )
+
         scope.define(symbol)
 
         if self.trace:
             print(f"  - Found valid enum declaration: {identifier}.")
 
-    def define_function_declaration(self, node, scope):
+    def register_enum_members(self, node, scope):
+
+        for member in node.body:
+            self.register_node(member, scope)
+
+    def register_function(self, node, scope):
+
         identifier = node.name
         return_type = node.return_type
 
@@ -160,40 +253,59 @@ class SemanticAnalyser:
             identifier,
             "function",
             return_type,
+            scope,
             function_scope,
         )
 
         scope.define(symbol)
 
-        self.define_function_scope_statements(node, function_scope)
+        self.register_function_body(node, function_scope)
 
         if self.trace:
             print(f"  - Found valid function declaration: {identifier}.")
 
-    def define_function_scope_statements(self, node, function_scope):
+    def register_function_body(self, node, scope):
+
         for statement in node.body:
-            self.define_symbol(statement, function_scope)
+            self.register_node(statement, scope)
 
-    def define_struct_scope_members(self, node, struct_scope):
+    def register_struct_members(self, node, scope):
+
         for member in node.body:
-            self.define_symbol(member, struct_scope)
+            self.register_node(member, scope)
 
-    def define_struct_declaration(self, node, scope):
+    def register_struct(self, node, scope):
+
         identifier = node.identifier
 
         struct_scope = SymbolTable(parent=scope)
-        self.define_struct_scope_members(node, struct_scope)
 
-        symbol = Symbol(identifier, "struct", None, struct_scope)
+        self.register_struct_members(node, struct_scope)
+
+        symbol = Symbol(
+            identifier,
+            "struct",
+            None,
+            scope,
+            struct_scope,
+        )
+
         scope.define(symbol)
 
         if self.trace:
             print(f"  - Found valid struct declaration: {identifier}.")
 
-    def define_variable_declaration(self, node, scope):
+    def register_variable(self, node, scope):
+
         identifier = node.identifier
         datatype = node.datatype.name
-        symbol = Symbol(identifier, "variable", datatype, scope)
+
+        symbol = Symbol(
+            identifier,
+            "variable",
+            datatype,
+            scope,
+        )
 
         scope.define(symbol)
 
@@ -202,11 +314,15 @@ class SemanticAnalyser:
 
 
 def analyse(ast_tree, trace_arg):
+
     # Keep phase banners in one place for callers that enable compiler tracing.
     trace = trace_arg
+
     if trace:
         print("========= BEGIN SEMANTIC ANALYSIS =========")
+
     analyser = SemanticAnalyser(ast_tree, trace)
+
     analyser.analyse()
 
     table = analyser.global_scope
@@ -214,10 +330,13 @@ def analyse(ast_tree, trace_arg):
     if trace:
 
         def display_scope(scope, name="GLOBAL", indent=0):
+
             prefix = " " * indent
+
             print(f"\n{prefix}{name} SCOPE:")
 
             headers = ("IDENTIFIER", "KIND", "DATATYPE")
+
             rows = [
                 (
                     symbol.name,
@@ -249,17 +368,20 @@ def analyse(ast_tree, trace_arg):
                         f"{row[1]:<{widths[1]}} | "
                         f"{row[2]:<{widths[2]}}"
                     )
+
             else:
                 print(f"{prefix}(empty)")
 
             for symbol in scope.symbols.values():
-                if symbol.scope is not scope:
+                if symbol.child_scope is not None:
                     display_scope(
-                        symbol.scope,
+                        symbol.child_scope,
                         f"{symbol.name.upper()}",
                         indent + 2,
                     )
 
         print("\nSYMBOL TABLE:")
+
         display_scope(table)
+
         print("========= END SEMANTIC ANALYSIS =========")

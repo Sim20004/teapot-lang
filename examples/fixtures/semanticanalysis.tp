@@ -21,3 +21,7 @@ enm Greetings {
     hi.
     bye.
 }
+
+err TestError {
+    mstr message.
+}

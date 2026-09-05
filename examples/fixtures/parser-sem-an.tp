@@ -1,0 +1,168 @@
+$MEM-GC
+
+pub sct Student {
+    cstr name.
+    mui8 age.
+    mui8 grades.
+}
+
+pub enm Result {
+    Pass.
+    Fail.
+}
+
+err TestError {
+    mstr message.
+}
+
+operator +(Student a, Student b)!cui8 {
+    exit 8.
+}
+
+fc factorial(cui8 n)!cui8 {
+    if (n <= 1) {
+        exit 1.
+    }
+
+    exit n * factorial(n - 1).
+}
+
+fc greet(cstr name = "User")!cstr {
+    exit "Hello".
+}
+
+fc overloaded(cui8 x)!cui8 {
+    exit x + 1.
+}
+
+fc overloaded(cstr x)!cstr {
+    exit x.
+}
+
+fc calculate_average(mui8[] grades)!cf32 {
+
+    val mui8 total = 0.
+
+    for (grade : grades) {
+        total += grade.
+    }
+
+    exit total >> cf32 / 3.
+}
+
+fc get_result(cf32 average)!Result {
+
+    if (average >= 50) {
+        exit Result::Pass.
+    }
+    elif (average == 49) {
+        exit Result::Fail.
+    }
+    else {
+        exit Result::Fail.
+    }
+}
+
+fc main()!void {
+
+    // constants
+    val cstr school = "Teapot Academy".
+
+    // primitive types
+    val cbln passed = true.
+    val cchar letter = "A".
+
+    val csi32 signed_num = -5.
+    val cui32 unsigned_num = 5.
+
+    val cf32 float32 = 3.14.
+    val cf64 float64 = 3.14159265359.
+
+    val cdml money = 12.34.
+    val caint huge = 999999999999999999999999.
+
+    // null initialisation then modified
+    val mui8 counter.
+    counter += 1.
+
+    // structs
+    val Student student = Student(
+        "Alex",
+        15
+    ).
+
+    student::grades = [80, 65, 90].
+
+    // references
+    val ref Student student_ref = student.
+
+
+        val cf32 average = calculate_average(
+            student::grades
+        ).
+
+        val Result result = get_result(
+            average
+        ).
+
+        if (result == Result::Pass) {
+
+        }
+
+        if (
+            passed &&
+            average > 0 ||
+            ~false
+        ) {
+
+        }
+
+        // modified in loop
+        val mui8 attempts = 3.
+
+        while (attempts > 0) {
+            attempts -= 1.
+        }
+
+        val cstr age_text =
+            student::age >> cstr.
+
+        val cui8 fact = factorial(5).
+
+        val cstr msg1 = greet().
+
+        val cstr msg2 =
+            greet("Alex").
+
+        val cui8 a =
+            overloaded(5).
+
+        val cstr b =
+            overloaded("hello").
+
+        val Student merged =
+            student + student.
+
+        // modified later
+        val mui8 math =
+            (5 + 2) * 3.
+
+        math /= 2.
+        math *= 2.
+        math -= 1.
+        math += 1.
+
+        if (math == 10) {}
+        if (math ~= 10) {}
+        if (math > 10) {}
+        if (math < 10) {}
+        if (math >= 10) {}
+        if (math <= 10) {}
+
+
+
+        val cstr error_text =
+            e::message.
+
+
+}
