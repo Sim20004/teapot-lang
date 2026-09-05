@@ -16,3 +16,8 @@ fc main()!void {
     val cstr school = "Teapot Academy".
     val mui8 age = 15.
 }
+
+enm Greetings {
+    hi.
+    bye.
+}

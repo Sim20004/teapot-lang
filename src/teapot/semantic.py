@@ -114,8 +114,19 @@ class SemanticAnalyser:
             case ast.Function():
                 self.define_function_declaration(node, scope)
 
+            case ast.Enum():
+                self.define_enum_declaration(node, scope)
+
             case _:
                 raise SemanticError("Unknown node", node)
+
+    def define_enum_declaration(self, node, scope):
+        identifier = node.identifier
+        symbol = Symbol(identifier, "enum", None, scope)
+        scope.define(symbol)
+
+        if self.trace:
+            print(f"  - Found valid enum declaration: {identifier}.")
 
     def define_function_declaration(self, node, scope):
 
