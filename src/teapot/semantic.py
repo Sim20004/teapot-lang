@@ -117,8 +117,20 @@ class SemanticAnalyser:
             case ast.Enum():
                 self.define_enum_declaration(node, scope)
 
+            case ast.StructField():
+                self.define_struct_field(node, scope)
+
             case _:
                 raise SemanticError("Unknown node", node)
+
+    def define_struct_field(self, node, scope):
+        symbol = Symbol(
+            node.identifier,
+            "struct_field",
+            node.datatype.name,
+            scope,
+        )
+        scope.define(symbol)
 
     def define_enum_declaration(self, node, scope):
         identifier = node.identifier
@@ -129,7 +141,6 @@ class SemanticAnalyser:
             print(f"  - Found valid enum declaration: {identifier}.")
 
     def define_function_declaration(self, node, scope):
-
         identifier = node.name
         return_type = node.return_type
 
@@ -163,9 +174,17 @@ class SemanticAnalyser:
         for statement in node.body:
             self.define_symbol(statement, function_scope)
 
+    def define_struct_scope_members(self, node, struct_scope):
+        for member in node.body:
+            self.define_symbol(member, struct_scope)
+
     def define_struct_declaration(self, node, scope):
         identifier = node.identifier
-        symbol = Symbol(identifier, "struct", None, scope)
+
+        struct_scope = SymbolTable(parent=scope)
+        self.define_struct_scope_members(node, struct_scope)
+
+        symbol = Symbol(identifier, "struct", None, struct_scope)
         scope.define(symbol)
 
         if self.trace:
