@@ -110,29 +110,24 @@ Every commit must include an appropriate entry in CHANGELOG.md.
 
 Each commit must add a concise, informative entry using the following format:
 
-- <Date>: informative description
+* <Date>: informative description
 
 For example:
 
-- 2026-09-05: Added semantic support for enum declarations.
+* 2026-09-05: Added semantic support for enum declarations.
 
 The description should explain what the commit actually changes.
 
 Avoid vague entries such as:
 
-- 2026-09-05: Changes
-
-or:
-
-- 2026-09-05: Fixed stuff
+* 2026-09-05: Changes
+* 2026-09-05: Fixed stuff
 
 The changelog should remain useful to someone reviewing the project’s history without having to inspect the commit itself.
 
 If a commit makes multiple closely related changes, describe the overall change clearly rather than listing every individual line changed.
 
 Do not add changelog entries for changes that were not actually made.
-
-When modifying an existing commit during development, ensure the final commit still has the appropriate changelog entry.
 
 ⸻
 
@@ -144,27 +139,27 @@ TeapotLang uses British English in documentation, comments, error messages, iden
 
 Prefer:
 
-analyse
-analysed
-analyser
-behaviour
-colour
-initialise
-organisation
-optimise
-serialise
+* analyse
+* analysed
+* analyser
+* behaviour
+* colour
+* initialise
+* organisation
+* optimise
+* serialise
 
 over:
 
-analyze
-analyzed
-analyzer
-behavior
-color
-initialize
-organization
-optimize
-serialize
+* analyze
+* analyzed
+* analyzer
+* behavior
+* color
+* initialize
+* organization
+* optimize
+* serialize
 
 For example:
 
@@ -178,11 +173,7 @@ Exceptions
 
 Do not unnecessarily rename technical terms, third-party APIs, Python APIs, library names, or external terminology simply to make them British English.
 
-For example:
-
-isinstance()
-
-should remain isinstance().
+For example, Python’s isinstance() should remain isinstance().
 
 Likewise, if an external API uses American English, use the API’s actual name.
 
@@ -238,15 +229,7 @@ member_name
 
 Avoid unnecessary abbreviations.
 
-Prefer:
-
-identifier
-
-over:
-
-ident
-
-unless the shorter form has an established meaning in the surrounding code.
+Prefer identifier over ident unless the shorter form has an established meaning in the surrounding code.
 
 Constants
 
@@ -516,11 +499,11 @@ The parser should primarily be concerned with syntax.
 
 It should answer questions such as:
 
-"Does this sequence of tokens form a valid expression?"
+“Does this sequence of tokens form a valid expression?”
 
 It should not answer questions such as:
 
-"Was this variable already declared?"
+“Was this variable already declared?”
 
 Those questions belong to semantic analysis.
 
@@ -733,41 +716,6 @@ Also verify that:
 * CHANGELOG.md contains an entry for every commit in the pull request.
 * Documentation is updated when necessary.
 * Language behaviour is documented when changed.
-
-If the change affects documentation or language behaviour, ensure that the relevant documentation is also updated.
-
-Suggested Pull Request Structure
-
-## Summary
-Briefly describe the change.
-## Motivation
-Explain why the change is needed.
-## Changes
-- Change one
-- Change two
-- Change three
-## Testing
-Explain how the change was tested.
-## Notes
-Include anything reviewers should be aware of.
-
-Pull Request Review
-
-Reviewers may request changes to:
-
-* Correctness
-* Code quality
-* Tests
-* Documentation
-* Language consistency
-* Architecture
-* Error handling
-* Maintainability
-* Changelog entries
-
-Address review comments where appropriate and explain disagreements clearly when you believe a requested change would be harmful.
-
-Review is intended to improve the contribution, not to criticise the contributor personally.
 
 ⸻
 
