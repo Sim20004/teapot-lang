@@ -184,34 +184,40 @@ class Parser:
 
     def handle_operator_arguments(self):
         args = []
+
         self.expect(tokens.TokenType.OPEN_PAREN)
+
         if self.current_token().type != tokens.TokenType.CLOSE_PAREN:
             if self.current_token().type in [
                 tokens.TokenType.TYPE,
                 tokens.TokenType.IDENTIFIER,
             ]:
-                datatype = self.expect(self.current_token().type)
+                datatype = self.expect(self.current_token().type).value
             else:
                 raise ParserError("Invalid type", self.current_token(), self.position)
 
-        identifier = self.expect(tokens.TokenType.IDENTIFIER)
-
-        args.append(ast.OperatorArgument(identifier, datatype))
-
-        while (
-            not self.at_end()
-            and self.current_token().type != tokens.TokenType.CLOSE_PAREN
-        ):
-            self.expect(tokens.TokenType.COMMA)
-            if self.current_token().type in [
-                tokens.TokenType.TYPE,
-                tokens.TokenType.IDENTIFIER,
-            ]:
-                datatype = self.expect(self.current_token().type)
-            else:
-                raise ParserError("Invalid type", self.current_token(), self.position)
-            identifier = self.expect(tokens.TokenType.IDENTIFIER)
+            identifier = self.expect(tokens.TokenType.IDENTIFIER).value
             args.append(ast.OperatorArgument(identifier, datatype))
+
+            while (
+                not self.at_end()
+                and self.current_token().type != tokens.TokenType.CLOSE_PAREN
+            ):
+                self.expect(tokens.TokenType.COMMA)
+
+                if self.current_token().type in [
+                    tokens.TokenType.TYPE,
+                    tokens.TokenType.IDENTIFIER,
+                ]:
+                    datatype = self.expect(self.current_token().type).value
+                else:
+                    raise ParserError(
+                        "Invalid type", self.current_token(), self.position
+                    )
+
+                identifier = self.expect(tokens.TokenType.IDENTIFIER).value
+                args.append(ast.OperatorArgument(identifier, datatype))
+
         self.expect(tokens.TokenType.CLOSE_PAREN)
         return args
 

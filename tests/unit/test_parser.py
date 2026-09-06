@@ -542,10 +542,10 @@ def test_operator_declaration():
     statement = program.statements[0]
 
     assert statement.symbol == "foo"
-    assert statement.arguments[0].datatype.value == "mui8"
-    assert statement.arguments[0].name.value == "bar"
-    assert statement.arguments[1].datatype.value == "mui8"
-    assert statement.arguments[1].name.value == "baz"
+    assert statement.arguments[0].datatype == "mui8"
+    assert statement.arguments[0].name == "bar"
+    assert statement.arguments[1].datatype == "mui8"
+    assert statement.arguments[1].name == "baz"
     assert statement.return_type.value == "cui8"
     assert statement.body[0].value.value == 8
 
@@ -557,10 +557,10 @@ def test_operator_declaration_with_symbol():
     statement = program.statements[0]
 
     assert statement.symbol == "+"
-    assert statement.arguments[0].datatype.value == "mui8"
-    assert statement.arguments[0].name.value == "foo"
-    assert statement.arguments[1].datatype.value == "mui8"
-    assert statement.arguments[1].name.value == "bar"
+    assert statement.arguments[0].datatype == "mui8"
+    assert statement.arguments[0].name == "foo"
+    assert statement.arguments[1].datatype == "mui8"
+    assert statement.arguments[1].name == "bar"
     assert statement.return_type.value == "cui8"
     assert statement.body[0].value.value == 8
 
@@ -573,10 +573,10 @@ def test_public_operator_declaration():
 
     assert statement.symbol == "foo"
     assert statement.public is True
-    assert statement.arguments[0].datatype.value == "mui8"
-    assert statement.arguments[0].name.value == "bar"
-    assert statement.arguments[1].datatype.value == "mui8"
-    assert statement.arguments[1].name.value == "baz"
+    assert statement.arguments[0].datatype == "mui8"
+    assert statement.arguments[0].name == "bar"
+    assert statement.arguments[1].datatype == "mui8"
+    assert statement.arguments[1].name == "baz"
     assert statement.return_type.value == "cui8"
     assert statement.body[0].value.value == 8
 

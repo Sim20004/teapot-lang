@@ -13,7 +13,7 @@ pub enm Result {
 
 err TestError {
     mstr message.
-}
+} // SEMANTIC ANALYSIS PASS 1 FUNCTIONAL TO HERE
 
 operator +(Student a, Student b)!cui8 {
     exit 8.
@@ -33,10 +33,6 @@ fc greet(cstr name = "User")!cstr {
 
 fc overloaded(cui8 x)!cui8 {
     exit x + 1.
-}
-
-fc overloaded(cstr x)!cstr {
-    exit x.
 }
 
 fc calculate_average(mui8[] grades)!cf32 {

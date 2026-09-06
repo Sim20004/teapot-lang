@@ -147,8 +147,46 @@ class SemanticAnalyser:
             case ast.ErrorMember():
                 self.register_error_member(node, scope)
 
+            case ast.Operator():
+                self.register_operator(node, scope)
+
+            case ast.OperatorArgument():
+                self.register_operator_argument(node, scope)
+
             case _:
                 raise SemanticError("Unknown node", node)
+
+    def register_operator(self, node, scope):
+        opsymbol = node.symbol
+        return_type = node.return_type
+        operator_scope = SymbolTable(scope)
+
+        symbol = Symbol(
+            opsymbol,
+            "operator",
+            return_type,
+            scope,
+            operator_scope,
+        )
+
+        scope.define(symbol)
+
+        self.register_operator_arguments(node, operator_scope)
+        self.register_operator_body(node, operator_scope)
+
+    def register_operator_body(self, node, scope):
+        for statement in node.body:
+            self.register_node(statement, scope)
+
+    def register_operator_arguments(self, node, scope):
+        for argument in node.arguments:
+            self.register_node(argument, scope)
+
+    def register_operator_argument(self, node, scope):
+        name = node.name
+        datatype = node.datatype
+        symbol = Symbol(name, "operator_argument", datatype, scope)
+        scope.define(symbol)
 
     def register_error(self, node, scope):
 
