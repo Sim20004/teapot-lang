@@ -1,8 +1,9 @@
 # TeapotLang Changelog
 Below is every change made to the TeapotLang repo with a date and short description.
 
-# Unreleased
+# Version 0.6.1-alpha
 
+- 2026-09-06: Added operator support to semantic analysis and fixed broken tests
 - 2026-09-05: Updated maintainer contact information with email addresses
 - 2026-09-05: Updated instructions for reporting vulnerabilities
 
