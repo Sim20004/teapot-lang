@@ -1,14 +1,3 @@
-"""
-Error handling and semantic error detection tests.
-
-Tests cover:
-- Semantic error messages
-- Error detection in various scenarios
-- Error recovery behavior
-- Multiple errors in sequence
-- Error reporting accuracy
-"""
-
 from pytest import raises
 
 from teapot.lexer import Lexer
