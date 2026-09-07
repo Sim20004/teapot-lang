@@ -389,7 +389,7 @@ class Parser:
 
     def handle_variable(self):
         # A pair of identifiers at the start denotes a user-defined struct value.
-        identifier = False
+        user_defined_type = False
         reference = False
         if self.current_token().type == tokens.TokenType.REFERENCE:
             reference = True
@@ -398,7 +398,7 @@ class Parser:
             datatype = self.expect(tokens.TokenType.TYPE).value
         elif self.current_token().type == tokens.TokenType.IDENTIFIER:
             datatype = self.expect(tokens.TokenType.IDENTIFIER).value
-            identifier = True
+            user_defined_type = True
         else:
             raise ParserError("Invalid datatype", self.current_token(), self.position)
 
@@ -419,7 +419,11 @@ class Parser:
         else:
             mutable = self.DATATYPES_MUTABILITY.get(datatype)
         # Unknown primitive names are errors, but user-defined types are valid here.
-        if mutable is None and not identifier:
+        if (
+            mutable is None
+            and not user_defined_type
+            and datatype not in tokens.TYPE_KEYWORDS
+        ):
             raise ParserError("Invalid datatype", self.current_token(), self.position)
         datatype = ast.Type(datatype, mutable, reference)
         return ast.DeclareVariable(identifier, datatype, value)
@@ -572,6 +576,12 @@ class Parser:
                 tokens.TokenType.ASSIGN_PLUS,
                 tokens.TokenType.ASSIGN_MULTIPLY,
             ]:
+                if public:
+                    raise ParserError(
+                        "Only functions, structs, enums, operators, and errors can be public.",
+                        token,
+                        self.position,
+                    )
                 operator = self.advance()
                 value = self.handle_expression()
                 self.expect(tokens.TokenType.PERIOD)
@@ -597,8 +607,6 @@ class Parser:
                 self.position,
             )
 
-        if handler is None:
-            raise ParserError("Invalid statement", token, self.position)
         self.advance()
 
         if token.type in [

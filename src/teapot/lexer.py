@@ -28,10 +28,6 @@ class LexerError(Exception):
         print(f"\nLexer error at {line}:{col}: {msg}")
 
 
-if trace:
-    print("Created LexerError class")
-
-
 class Lexer:
     def __init__(self, source):
         if trace:
