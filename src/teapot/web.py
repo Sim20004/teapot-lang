@@ -41,6 +41,25 @@ def _scope_name(scope, global_scope):
     return "local"
 
 
+def _serialise_symbols(scope, global_scope, scope_name):
+    return [
+        {
+            "name": name,
+            "kind": symbol.kind,
+            "type": _serialise(symbol.type),
+            "scope": scope_name,
+            "members": _serialise_symbols(
+                symbol.child_scope,
+                global_scope,
+                name,
+            )
+            if symbol.child_scope is not None
+            else [],
+        }
+        for name, symbol in scope.symbols.items()
+    ]
+
+
 def compile_source(source):
     """Run the real lexer, parser, and semantic pass and return plain data."""
 
@@ -52,33 +71,7 @@ def compile_source(source):
 
     global_scope = analyser.global_scope
 
-    symbols = []
-
-    for name, symbol in global_scope.symbols.items():
-        symbols.append(
-            {
-                "name": name,
-                "kind": symbol.kind,
-                "type": _serialise(symbol.type),
-                "scope": "module",
-                "members": [],
-            }
-        )
-
-        if symbol.scope is not global_scope:
-            for child_name, child in symbol.scope.symbols.items():
-                symbols.append(
-                    {
-                        "name": child_name,
-                        "kind": child.kind,
-                        "type": _serialise(child.type),
-                        "scope": _scope_name(
-                            symbol.scope,
-                            global_scope,
-                        ),
-                        "members": [],
-                    }
-                )
+    symbols = _serialise_symbols(global_scope, global_scope, "module")
 
     return {
         "tokens": [
