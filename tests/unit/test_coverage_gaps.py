@@ -1,11 +1,10 @@
+import importlib
 import runpy
 import sys
-import importlib
 
 import pytest
 
 import teapot.teapot_ast as ast
-import teapot.tokens as token_module
 from teapot import lexer
 from teapot.lexer import Lexer, LexerError
 from teapot.main import TeapotError
@@ -333,7 +332,7 @@ def test_semantic_analyser_delegates_and_rejects_unknown_attributes():
     analyser.register_variable(ast.DeclareVariable("x", ast.Type("mui8")), scope)
     assert scope.lookup("x").type == "mui8"
     with pytest.raises(AttributeError):
-        analyser.not_a_registration_method
+        _ = analyser.not_a_registration_method
 
 
 def test_semantic_trace_displays_populated_scopes(capsys):
