@@ -129,19 +129,6 @@ def test_fixture_semanticanalysis_compiles_end_to_end():
     assert lexer_run(source, False) is None
 
 
-def test_example_operators_tp_is_pinned_to_current_semantic_scaffold_behaviour():
-    """examples/operators.tp lexes and parses correctly, but the semantic
-    analyser is documented as a scaffold that only understands top-level
-    variables, functions and structs. A top-level `operator` declaration is
-    therefore expected to raise SemanticError. This pins that (currently
-    correct) behaviour so a regression is caught if the two stages ever
-    drift out of sync."""
-    source = (EXAMPLES / "operators.tp").read_text()
-
-    with raises(SemanticError):
-        lexer_run(source, False)
-
-
 def test_example_hello_tp_fails_to_parse_on_unsupported_list_type():
     """examples/hello.tp showcases aspirational syntax (e.g. `list<ui8>`)
     that the parser does not currently accept. This pins the real, current

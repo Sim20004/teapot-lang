@@ -1,4 +1,5 @@
 # from typing import ClassVar
+
 # ABOVE: Uncomment above when writing pass 2 code
 
 import teapot.teapot_ast as ast
@@ -96,12 +97,15 @@ class SemanticAnalyser:
         "cui16",
         "cui32",
         "cui64",
+
     }
+
     """  # Uncomment when writing pass 2 code
 
     def analyse(self):
 
         self.build_symbol_table()
+
         self.type_check()
 
     def type_check(self):
@@ -125,6 +129,9 @@ class SemanticAnalyser:
         match node:
             case ast.DeclareVariable():
                 self.register_variable(node, scope)
+
+            case ast.Assignment():
+                self.register_assignment(node, scope)
 
             case ast.Struct():
                 self.register_struct(node, scope)
@@ -153,12 +160,44 @@ class SemanticAnalyser:
             case ast.OperatorArgument():
                 self.register_operator_argument(node, scope)
 
+            case ast.Return():
+                pass
+
+            case ast.If():
+                self.register_non_scope_creating_block(node, scope)
+
+            case ast.For():
+                self.register_non_scope_creating_block(node, scope)
+
             case _:
                 raise SemanticError("Unknown node", node)
 
+    def register_non_scope_creating_block(self, node, scope):
+
+        for statement in node.body:
+            self.register_node(statement, scope)
+
+    def register_assignment(self, node, scope):
+
+        target = node.target
+
+        if not isinstance(target, ast.Identifier):
+            return
+
+        symbol = scope.lookup(target.name)
+
+        if symbol is None:
+            raise SemanticError(
+                f"Variable `{target.name}` cannot be assigned because it does not exist!",
+                node,
+            )
+
     def register_operator(self, node, scope):
+
         opsymbol = node.symbol
+
         return_type = node.return_type
+
         operator_scope = SymbolTable(scope)
 
         symbol = Symbol(
@@ -172,29 +211,39 @@ class SemanticAnalyser:
         scope.define(symbol)
 
         self.register_operator_arguments(node, operator_scope)
+
         self.register_operator_body(node, operator_scope)
 
     def register_operator_body(self, node, scope):
+
         for statement in node.body:
             self.register_node(statement, scope)
 
     def register_operator_arguments(self, node, scope):
+
         for argument in node.arguments:
             self.register_node(argument, scope)
 
     def register_operator_argument(self, node, scope):
+
         name = node.name
+
         datatype = node.datatype
-        symbol = Symbol(name, "operator_argument", datatype, scope)
+
+        symbol = Symbol(
+            name,
+            "operator_argument",
+            datatype,
+            scope,
+        )
+
         scope.define(symbol)
 
     def register_error(self, node, scope):
 
-        error_scope = SymbolTable(parent=scope)
-
         identifier = node.identifier
 
-        self.register_error_members(node, error_scope)
+        error_scope = SymbolTable(parent=scope)
 
         symbol = Symbol(
             identifier,
@@ -205,6 +254,8 @@ class SemanticAnalyser:
         )
 
         scope.define(symbol)
+
+        self.register_error_members(node, error_scope)
 
     def register_error_members(self, node, scope):
 
@@ -246,11 +297,9 @@ class SemanticAnalyser:
 
     def register_enum(self, node, scope):
 
-        enum_scope = SymbolTable(parent=scope)
-
-        self.register_enum_members(node, enum_scope)
-
         identifier = node.identifier
+
+        enum_scope = SymbolTable(parent=scope)
 
         symbol = Symbol(
             identifier,
@@ -261,6 +310,8 @@ class SemanticAnalyser:
         )
 
         scope.define(symbol)
+
+        self.register_enum_members(node, enum_scope)
 
         if self.trace:
             print(f"  - Found valid enum declaration: {identifier}.")
@@ -273,19 +324,10 @@ class SemanticAnalyser:
     def register_function(self, node, scope):
 
         identifier = node.name
+
         return_type = node.return_type
 
         function_scope = SymbolTable(parent=scope)
-
-        for param in node.arguments:
-            function_scope.define(
-                Symbol(
-                    param.identifier,
-                    "function_parameter",
-                    param.datatype,
-                    function_scope,
-                )
-            )
 
         symbol = Symbol(
             identifier,
@@ -296,6 +338,16 @@ class SemanticAnalyser:
         )
 
         scope.define(symbol)
+
+        for param in node.arguments:
+            function_scope.define(
+                Symbol(
+                    param.identifier,
+                    "function_parameter",
+                    param.datatype,
+                    function_scope,
+                )
+            )
 
         self.register_function_body(node, function_scope)
 
@@ -318,8 +370,6 @@ class SemanticAnalyser:
 
         struct_scope = SymbolTable(parent=scope)
 
-        self.register_struct_members(node, struct_scope)
-
         symbol = Symbol(
             identifier,
             "struct",
@@ -330,12 +380,15 @@ class SemanticAnalyser:
 
         scope.define(symbol)
 
+        self.register_struct_members(node, struct_scope)
+
         if self.trace:
             print(f"  - Found valid struct declaration: {identifier}.")
 
     def register_variable(self, node, scope):
 
         identifier = node.identifier
+
         datatype = node.datatype.name
 
         symbol = Symbol(
@@ -373,13 +426,17 @@ def analyse(ast_tree, trace_arg):
 
             print(f"\n{prefix}{name} SCOPE:")
 
-            headers = ("IDENTIFIER", "KIND", "DATATYPE")
+            headers = (
+                "IDENTIFIER",
+                "KIND",
+                "DATATYPE",
+            )
 
             rows = [
                 (
                     symbol.name,
                     symbol.kind,
-                    symbol.type if symbol.type is not None else "None",
+                    (symbol.type if symbol.type is not None else "None"),
                 )
                 for symbol in scope.symbols.values()
             ]
@@ -403,8 +460,8 @@ def analyse(ast_tree, trace_arg):
                 for row in rows:
                     print(
                         f"{prefix}{row[0]:<{widths[0]}} | "
-                        f"{row[1]:<{widths[1]}} | "
-                        f"{row[2]:<{widths[2]}}"
+                        f"{prefix}{row[1]:<{widths[1]}} | "
+                        f"{prefix}{row[2]:<{widths[2]}}"
                     )
 
             else:
