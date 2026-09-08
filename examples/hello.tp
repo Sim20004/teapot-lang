@@ -31,14 +31,6 @@ fc greet(cstr name = "User")!cstr {
     exit "Hello".
 }
 
-fc overloaded(cui8 x)!cui8 {
-    exit x + 1.
-}
-
-fc overloaded(cstr x)!cstr {
-    exit x.
-}
-
 fc calculate_average(mui8[] grades)!cf32 {
 
     val mui8 total = 0.

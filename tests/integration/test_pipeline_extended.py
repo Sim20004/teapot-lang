@@ -129,17 +129,6 @@ def test_fixture_semanticanalysis_compiles_end_to_end():
     assert lexer_run(source, False) is None
 
 
-def test_example_hello_tp_fails_to_parse_on_unsupported_list_type():
-    """examples/hello.tp showcases aspirational syntax (e.g. `list<ui8>`)
-    that the parser does not currently accept. This pins the real, current
-    failure mode (a ParserError, not a crash or silent misparse) so future
-    parser work has a clear regression signal."""
-    source = (EXAMPLES / "hello.tp").read_text()
-
-    with raises(ParserError):
-        lexer_run(source, False)
-
-
 # ============================================================================
 # STRUCT FIELD SYNTAX
 # ============================================================================

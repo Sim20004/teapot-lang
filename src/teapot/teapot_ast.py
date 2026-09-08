@@ -84,6 +84,11 @@ class Operator(ASTNode):
 
 
 @dataclass
+class ListType(ASTNode):
+    datatype: str
+
+
+@dataclass
 class ErrorMember(ASTNode):
     name: str
     datatype: object
@@ -246,6 +251,12 @@ class ArrayType(ASTNode):
 
 
 @dataclass
+class MapType(ASTNode):
+    key_datatype: object
+    value_datatype: object
+
+
+@dataclass
 class EnumMember(ASTNode):
     name: str
 
@@ -253,6 +264,12 @@ class EnumMember(ASTNode):
 @dataclass
 class ArrayLiteral(ASTNode):
     values: list
+
+
+@dataclass
+class IndexExpression(ASTNode):
+    obj: object
+    index: object
 
 
 @dataclass

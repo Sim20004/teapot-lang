@@ -1,0 +1,1051 @@
+$MEM-GC
+
+// ============================================================
+// TEAPOT LANGUAGE COMPILER EXHAUSTIVE TEST
+// ============================================================
+
+// ------------------------------------------------------------
+// STRUCTS
+// ------------------------------------------------------------
+
+pub sct EmptyStruct {
+}
+
+pub sct Student {
+cstr name.
+mui8 age.
+mui8[] grades.
+cbln active.
+}
+
+pub sct Address {
+cstr street.
+cstr city.
+cui16 postcode.
+}
+
+pub sct Person {
+cstr name.
+mui8 age.
+Address address.
+}
+
+sct PrivateStruct {
+mui8 value.
+}
+
+// ------------------------------------------------------------
+// ENUMS
+// ------------------------------------------------------------
+
+pub enm Result {
+Pass.
+Fail.
+Unknown.
+}
+
+enm Status {
+Ready.
+Running.
+Finished.
+}
+
+// ------------------------------------------------------------
+// ERRORS
+// ------------------------------------------------------------
+
+pub err TestError {
+mstr message.
+}
+
+err EmptyError {
+}
+
+// ------------------------------------------------------------
+// OPERATOR OVERLOADING
+// ------------------------------------------------------------
+
+operator +(Student a, Student b)!cui8 {
+exit 8.
+}
+
+operator -(Student a, Student b)!cui8 {
+exit 1.
+}
+
+// ------------------------------------------------------------
+// SIMPLE FUNCTIONS
+// ------------------------------------------------------------
+
+fc no_args()!void {
+exit.
+}
+
+fc return_integer()!cui8 {
+exit 42.
+}
+
+fc return_string()!cstr {
+exit "hello".
+}
+
+fc return_boolean()!cbln {
+exit true.
+}
+
+fc return_float()!cf32 {
+exit 3.14.
+}
+
+// ------------------------------------------------------------
+// DEFAULT PARAMETERS
+// ------------------------------------------------------------
+
+fc greet()!cstr {
+exit "Hello".
+}
+
+fc greet_name(cstr name = "User")!cstr {
+exit name.
+}
+
+// ------------------------------------------------------------
+// RECURSION
+// ------------------------------------------------------------
+
+fc factorial(cui8 n)!cui8 {
+if (n <= 1) {
+exit 1.
+}
+
+
+exit n * factorial(n - 1).
+
+
+}
+
+// ------------------------------------------------------------
+// FUNCTION OVERLOADING
+// ------------------------------------------------------------
+
+fc overloaded(cui8 x)!cui8 {
+exit x + 1.
+}
+
+fc overloaded(cstr x)!cstr {
+exit x.
+}
+
+fc overloaded(cbln x)!cbln {
+exit x.
+}
+
+// ------------------------------------------------------------
+// PARAMETERS AND EXPRESSIONS
+// ------------------------------------------------------------
+
+fc arithmetic(cui8 a, cui8 b)!cui8 {
+val cui8 add = a + b.
+val cui8 sub = a - b.
+val cui8 mul = a * b.
+val cui8 div = a / b.
+val cui8 mod = a % b.
+
+
+exit add.
+
+
+}
+
+// ------------------------------------------------------------
+// COLLECTIONS
+// ------------------------------------------------------------
+
+fc collections()!void {
+
+
+// Empty list
+val list<ui8> empty_list.
+
+// List with values
+val list<ui8> numbers = [1, 2, 3, 4, 5].
+
+// Empty array
+val mui8[] empty_array.
+
+// Array with values
+val mui8[] values = [1, 2, 3, 4, 5].
+
+// Map
+val map[str]ui8 subjects = (
+    ["Math", 90]
+    ["English", 85]
+    ["Science", 95]
+).
+
+// Nested collection
+val list<list<ui8>> nested =
+    [[1, 2], [3, 4], [5, 6]].
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// TYPE CONVERSIONS
+// ------------------------------------------------------------
+
+fc conversions()!void {
+
+
+val mui8 integer = 42.
+
+val cstr integer_text =
+    integer >> cstr.
+
+val cf32 integer_float =
+    integer >> cf32.
+
+val cf64 float_value =
+    integer >> cf64.
+
+val cui8 narrowed =
+    float_value >> cui8.
+
+val cstr boolean_text =
+    true >> cstr.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// BOOLEAN EXPRESSIONS
+// ------------------------------------------------------------
+
+fc boolean_tests()!void {
+
+
+val cbln a = true.
+val cbln b = false.
+
+val cbln and_result =
+    a && b.
+
+val cbln or_result =
+    a || b.
+
+val cbln not_result =
+    ~a.
+
+val cbln comparison_1 =
+    5 == 5.
+
+val cbln comparison_2 =
+    5 ~= 5.
+
+val cbln comparison_3 =
+    5 > 4.
+
+val cbln comparison_4 =
+    5 < 6.
+
+val cbln comparison_5 =
+    5 >= 5.
+
+val cbln comparison_6 =
+    5 <= 5.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// ALL PRIMITIVE TYPES
+// ------------------------------------------------------------
+
+fc primitive_types()!void {
+
+
+val cbln boolean_value = true.
+val cchar character_value = "A".
+val cstr string_value = "Teapot".
+
+val csi8 signed8 = -8.
+val csi16 signed16 = -16.
+val csi32 signed32 = -32.
+val csi64 signed64 = -64.
+
+val cui8 unsigned8 = 8.
+val cui16 unsigned16 = 16.
+val cui32 unsigned32 = 32.
+val cui64 unsigned64 = 64.
+
+val cf32 float32 = 3.14.
+val cf64 float64 = 3.14159265359.
+
+val cdml decimal = 12.34.
+val caint huge_integer =
+    999999999999999999999999999999.
+
+val mstr mutable_string.
+val mui8 mutable_integer.
+val mbln mutable_boolean.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// MUTABILITY
+// ------------------------------------------------------------
+
+fc mutability()!void {
+
+
+val mui8 counter = 0.
+
+counter += 1.
+counter -= 1.
+counter *= 2.
+counter /= 2.
+
+val mstr text = "hello".
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// STRUCT CREATION AND FIELD ACCESS
+// ------------------------------------------------------------
+
+fc structs()!void {
+
+
+val Address address = Address(
+    "High Street",
+    "Walsall",
+    1234
+).
+
+val Person person = Person(
+    "Alex",
+    15,
+    address
+).
+
+val Student student = Student(
+    "Alex",
+    15,
+    [80, 90, 100],
+    true
+).
+
+val cstr name =
+    student::name.
+
+val mui8 age =
+    student::age.
+
+student::age = 16.
+
+student::grades = [90, 95, 100].
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// ENUMS
+// ------------------------------------------------------------
+
+fc enums()!void {
+
+
+val Result result = Result::Pass.
+
+if (result == Result::Pass) {
+}
+
+if (result == Result::Fail) {
+}
+
+val Status status = Status::Ready.
+
+if (status == Status::Running) {
+}
+
+if (status == Status::Finished) {
+}
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// IF / ELIF / ELSE
+// ------------------------------------------------------------
+
+fc conditionals(cui8 value)!void {
+
+
+if (value == 0) {
+
+}
+elif (value == 1) {
+
+}
+elif (value == 2) {
+
+}
+else {
+
+}
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// NESTED CONDITIONS
+// ------------------------------------------------------------
+
+fc nested_conditions(cui8 value)!void {
+
+
+if (value > 0) {
+
+    if (value > 10) {
+
+        if (value > 100) {
+
+        }
+        else {
+
+        }
+
+    }
+    elif (value == 10) {
+
+    }
+    else {
+
+    }
+
+}
+else {
+
+}
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// WHILE
+// ------------------------------------------------------------
+
+fc while_loop()!void {
+
+
+val mui8 counter = 10.
+
+while (counter > 0) {
+
+    if (counter == 5) {
+        continue.
+    }
+
+    if (counter == 2) {
+        break.
+    }
+
+    counter -= 1.
+}
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// FOR LOOP
+// ------------------------------------------------------------
+
+fc for_loop()!void {
+
+
+val mui8[] values =
+    [1, 2, 3, 4, 5].
+
+for (value : values) {
+
+    if (value == 3) {
+        continue.
+    }
+
+}
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// DO / FAIL
+// ------------------------------------------------------------
+
+fc error_handling()!void {
+
+
+do {
+
+    val cui8 value =
+        return_integer().
+
+    if (value == 42) {
+
+    }
+
+}
+
+fail(TestError e) {
+
+    val cstr message =
+        e::message.
+
+}
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// ARRAY INDEXING
+// ------------------------------------------------------------
+
+fc indexing()!void {
+
+
+val mui8[] values =
+    [10, 20, 30, 40].
+
+val mui8 first =
+    values[0].
+
+val mui8 second =
+    values[1].
+
+val mui8 third =
+    values[2].
+
+val mui8 fourth =
+    values[3].
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// STRING INDEXING
+// ------------------------------------------------------------
+
+fc string_indexing()!void {
+
+
+val cstr text =
+    "Teapot".
+
+val cstr first =
+    text[0] >> cstr.
+
+val cstr second =
+    text[1] >> cstr.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// OPERATOR PRECEDENCE
+// ------------------------------------------------------------
+
+fc precedence()!void {
+
+
+val mui8 a =
+    2 + 3 * 4.
+
+val mui8 b =
+    (2 + 3) * 4.
+
+val mui8 c =
+    10 - 2 - 3.
+
+val mui8 d =
+    2 * 3 + 4 * 5.
+
+val cbln e =
+    true || false && true.
+
+val cbln f =
+    (true || false) && true.
+
+val cbln g =
+    5 > 2 && 10 < 20 || false.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// COMPOUND ASSIGNMENT
+// ------------------------------------------------------------
+
+fc compound_assignment()!void {
+
+
+val mui8 value = 10.
+
+value += 5.
+value -= 2.
+value *= 3.
+value /= 2.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// FUNCTION CALLS
+// ------------------------------------------------------------
+
+fc calls()!void {
+
+
+val cui8 a =
+    return_integer().
+
+val cstr b =
+    return_string().
+
+val cbln c =
+    return_boolean().
+
+val cf32 d =
+    return_float().
+
+val cstr e =
+    greet().
+
+val cstr f =
+    greet_name().
+
+val cstr g =
+    greet_name("Alex").
+
+val cui8 h =
+    overloaded(5).
+
+val cstr i =
+    overloaded("hello").
+
+val cbln j =
+    overloaded(true).
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// RECURSION + EXPRESSIONS
+// ------------------------------------------------------------
+
+fc recursion_test()!void {
+
+
+val cui8 zero =
+    factorial(0).
+
+val cui8 one =
+    factorial(1).
+
+val cui8 five =
+    factorial(5).
+
+val cui8 six =
+    factorial(6).
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// STRUCT OPERATOR OVERLOADING
+// ------------------------------------------------------------
+
+fc operator_test()!void {
+
+
+val Student a = Student(
+    "Alice",
+    15,
+    [80],
+    true
+).
+
+val Student b = Student(
+    "Bob",
+    16,
+    [90],
+    true
+).
+
+val cui8 added =
+    a + b.
+
+val cui8 subtracted =
+    a - b.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// COMPLEX EXPRESSION
+// ------------------------------------------------------------
+
+fc complex_expression()!void {
+
+
+val mui8 value =
+    ((5 + 3) * 2 - 4) / 2.
+
+val cbln valid =
+    value >= 5 &&
+    value <= 10 ||
+    ~false.
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// VARIABLE SHADOWING / SCOPES
+// ------------------------------------------------------------
+
+fc scopes()!void {
+
+
+val mui8 value = 10.
+
+if (true) {
+
+    val mui8 value = 20.
+
+    if (true) {
+
+        val mui8 value = 30.
+
+    }
+
+}
+
+exit.
+
+
+}
+
+// ------------------------------------------------------------
+// CALCULATE AVERAGE
+// ------------------------------------------------------------
+
+fc calculate_average(mui8[] grades)!cf32 {
+
+
+val mui8 total = 0.
+
+for (grade : grades) {
+    total += grade.
+}
+
+exit total >> cf32 / 3.
+
+
+}
+
+// ------------------------------------------------------------
+// ENUM RETURN
+// ------------------------------------------------------------
+
+fc get_result(cf32 average)!Result {
+
+
+if (average >= 50) {
+    exit Result::Pass.
+}
+elif (average == 49) {
+    exit Result::Fail.
+}
+else {
+    exit Result::Unknown.
+}
+
+
+}
+
+// ------------------------------------------------------------
+// MAIN INTEGRATION TEST
+// ------------------------------------------------------------
+
+fc main()!void {
+
+
+// Constants
+val cstr school =
+    "Teapot Academy".
+
+val cbln passed =
+    true.
+
+val cchar letter =
+    "A".
+
+// Signed integers
+val csi32 signed_num =
+    -5.
+
+// Unsigned integers
+val cui32 unsigned_num =
+    5.
+
+// Floating point
+val cf32 float32 =
+    3.14.
+
+val cf64 float64 =
+    3.14159265359.
+
+// Decimal
+val cdml money =
+    12.34.
+
+// Arbitrary integer
+val caint huge =
+    999999999999999999999999999999999999.
+
+// Mutable value
+val mui8 counter.
+
+counter += 1.
+counter += 10.
+counter -= 2.
+counter *= 2.
+counter /= 2.
+
+// Struct
+val Student student =
+    Student(
+        "Alex",
+        15,
+        [80, 65, 90],
+        true
+    ).
+
+// Struct fields
+val cstr student_name =
+    student::name.
+
+val mui8 student_age =
+    student::age.
+
+student::grades =
+    [80, 65, 90].
+
+student::age =
+    16.
+
+// Reference
+val ref Student student_ref =
+    student.
+
+// Collections
+val list<ui8> numbers =
+    [1, 2, 3, 4, 5].
+
+val map[str]ui8 subjects = (
+    ["Math", 90]
+    ["English", 85]
+    ["Science", 95]
+).
+
+val mui8[] values =
+    [1, 2, 3].
+
+// Array indexing
+val mui8 first_value =
+    values[0].
+
+// Loops
+for (value : values) {
+
+    if (value == 2) {
+        continue.
+    }
+
+}
+
+val mui8 attempts =
+    3.
+
+while (attempts > 0) {
+
+    if (attempts == 2) {
+        continue.
+    }
+
+    if (attempts == 1) {
+        break.
+    }
+
+    attempts -= 1.
+}
+
+// Average
+val cf32 average =
+    calculate_average(
+        student::grades
+    ).
+
+// Enum
+val Result result =
+    get_result(average).
+
+if (result == Result::Pass) {
+
+}
+
+if (result == Result::Fail) {
+
+}
+
+if (result == Result::Unknown) {
+
+}
+
+// Boolean precedence
+if (
+    passed &&
+    average > 0 ||
+    ~false
+) {
+
+}
+
+// Conversion
+val cstr age_text =
+    student::age >> cstr.
+
+val cstr first_letter =
+    student::name[0] >> cstr.
+
+// Recursion
+val cui8 fact =
+    factorial(5).
+
+// Default argument
+val cstr msg1 =
+    greet_name().
+
+// Explicit argument
+val cstr msg2 =
+    greet_name("Alex").
+
+// Function overload
+val cui8 a =
+    overloaded(5).
+
+val cstr b =
+    overloaded("hello").
+
+val cbln c =
+    overloaded(true).
+
+// Operator overload
+val Student merged =
+    student + student.
+
+// Arithmetic
+val mui8 math =
+    (5 + 2) * 3.
+
+math /= 2.
+math *= 2.
+math -= 1.
+math += 1.
+
+// Comparisons
+if (math == 10) {}
+if (math ~= 10) {}
+if (math > 10) {}
+if (math < 10) {}
+if (math >= 10) {}
+if (math <= 10) {}
+
+// Nested scopes
+if (math > 0) {
+
+    val mui8 inner =
+        math.
+
+    if (inner > 0) {
+
+        val cstr deeply_nested =
+            "nested".
+
+    }
+
+}
+
+// Error handling
+do {
+
+    val cui8 result_value =
+        return_integer().
+
+    if (result_value == 42) {
+
+    }
+
+}
+
+fail(TestError e) {
+
+    val cstr error_text =
+        e::message.
+
+}
+
+exit.
+
+
+}

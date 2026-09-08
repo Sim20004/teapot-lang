@@ -34,31 +34,34 @@ def _display_scope(scope, name="GLOBAL", indent=0):
     prefix = " " * indent
     print(f"\n{prefix}{name} SCOPE:")
     headers = ("IDENTIFIER", "KIND", "DATATYPE")
+
     rows = [
         (
-            symbol.name,
-            symbol.kind,
-            symbol.type if symbol.type is not None else "None",
+            str(symbol.name),
+            str(symbol.kind),
+            str(symbol.type) if symbol.type is not None else "None",
         )
         for symbol in scope.symbols.values()
     ]
 
     if rows:
         widths = [
-            max(len(str(row[column])) for row in (headers, *rows))
+            max(len(row[column]) for row in (headers, *rows))
             for column in range(len(headers))
         ]
+
         print(
             f"{prefix}{headers[0]:<{widths[0]}} | "
             f"{headers[1]:<{widths[1]}} | "
             f"{headers[2]:<{widths[2]}}"
         )
         print(f"{prefix}{'-' * widths[0]}-+-{'-' * widths[1]}-+-{'-' * widths[2]}")
+
         for row in rows:
             print(
                 f"{prefix}{row[0]:<{widths[0]}} | "
-                f"{prefix}{row[1]:<{widths[1]}} | "
-                f"{prefix}{row[2]:<{widths[2]}}"
+                f"{row[1]:<{widths[1]}} | "
+                f"{row[2]:<{widths[2]}}"
             )
     else:
         print(f"{prefix}(empty)")

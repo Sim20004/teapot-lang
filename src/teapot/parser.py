@@ -31,6 +31,8 @@ class Parser:
         self.position = 0
         self.ast_tree = []
         self.memory_mode = None
+        self.pending_generic_closes = 0
+        self.known_types = set()
         # The first datatype letter is reflected here as an explicit semantic flag.
         self.DATATYPES_MUTABILITY = {
             "mstr": True,
@@ -83,7 +85,6 @@ class Parser:
         return token
 
     def handle_struct(self, public=False):
-        # Struct fields are currently restricted to primitive datatype tokens.
         name = self.expect(tokens.TokenType.IDENTIFIER).value
         self.expect(tokens.TokenType.OPEN_BRACE)
         body = []
@@ -91,16 +92,35 @@ class Parser:
             not self.at_end()
             and self.current_token().type != tokens.TokenType.CLOSE_BRACE
         ):
-            member_type = self.expect(tokens.TokenType.TYPE).value
-            mutable = self.DATATYPES_MUTABILITY.get(member_type)
-            if mutable is None:
+            member_type, user_defined_type = self.handle_datatype()
+            mutable = self.datatype_mutability(member_type)
+            if user_defined_type and member_type not in self.known_types:
                 raise ParserError(
                     "Invalid datatype", self.current_token(), self.position
                 )
+            if (
+                not user_defined_type
+                and mutable is None
+                and member_type not in tokens.TYPE_KEYWORDS
+            ):
+                raise ParserError(
+                    "Invalid datatype", self.current_token(), self.position
+                )
+            if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
+                member_type = self.handle_array_type(member_type)
             member_id = self.expect(tokens.TokenType.IDENTIFIER).value
             self.expect(tokens.TokenType.PERIOD)
-            body.append(ast.StructField(member_id, ast.Type(member_type, mutable)))
+            body.append(
+                ast.StructField(
+                    member_id,
+                    ast.Type(
+                        member_type,
+                        self.datatype_mutability(member_type),
+                    ),
+                )
+            )
         self.expect(tokens.TokenType.CLOSE_BRACE)
+        self.known_types.add(name)
         return ast.Struct(name, body, public)
 
     def handle_enum(self, public=False):
@@ -115,6 +135,7 @@ class Parser:
             self.expect(tokens.TokenType.PERIOD)
             body.append(ast.EnumMember(member_name))
         self.expect(tokens.TokenType.CLOSE_BRACE)
+        self.known_types.add(name)
         return ast.Enum(name, body, public)
 
     def handle_err(self, public=False):
@@ -135,6 +156,7 @@ class Parser:
             self.expect(tokens.TokenType.PERIOD)
             body.append(ast.ErrorMember(member_name, member_datatype, mutable))
         self.expect(tokens.TokenType.CLOSE_BRACE)
+        self.known_types.add(name)
         return ast.Error(name, body, public)
 
     def handle_operator(self, public=False):
@@ -167,9 +189,36 @@ class Parser:
         return ast.Operator(name, args, body, return_type, public)
 
     def handle_exit(self):
-        value = self.handle_expression()
+        value = (
+            None
+            if self.current_token().type == tokens.TokenType.PERIOD
+            else self.handle_expression()
+        )
         self.expect(tokens.TokenType.PERIOD)
         return ast.Return(value)
+
+    def handle_free(self):
+        value = self.handle_expression()
+        self.expect(tokens.TokenType.PERIOD)
+        return ast.FreeMemory(value)
+
+    def handle_break(self):
+        self.expect(tokens.TokenType.PERIOD)
+        return ast.Break()
+
+    def handle_continue(self):
+        self.expect(tokens.TokenType.PERIOD)
+        return ast.Continue()
+
+    def handle_do(self):
+        body = self.handle_block()
+        self.expect(tokens.TokenType.FAIL)
+        self.expect(tokens.TokenType.OPEN_PAREN)
+        error = self.expect(tokens.TokenType.IDENTIFIER).value
+        identifier = self.expect(tokens.TokenType.IDENTIFIER).value
+        self.expect(tokens.TokenType.CLOSE_PAREN)
+        fail_body = self.handle_block()
+        return ast.Do(body, ast.Fail(fail_body, error, identifier))
 
     def handle_operator_block(self):
         self.expect(tokens.TokenType.OPEN_BRACE)
@@ -257,7 +306,7 @@ class Parser:
     def handle_function_argument(self):
         args = []
         default = None
-        datatype = self.expect(tokens.TokenType.TYPE).value
+        datatype, _ = self.handle_datatype()
         if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
             datatype = self.handle_array_type(datatype)
         identifier = self.expect(tokens.TokenType.IDENTIFIER).value
@@ -267,7 +316,7 @@ class Parser:
         while self.current_token().type == tokens.TokenType.COMMA:
             default = None
             self.advance()
-            datatype = self.expect(tokens.TokenType.TYPE).value
+            datatype, _ = self.handle_datatype()
             if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
                 datatype = self.handle_array_type(datatype)
             identifier = self.expect(tokens.TokenType.IDENTIFIER).value
@@ -281,6 +330,45 @@ class Parser:
         self.expect(tokens.TokenType.OPEN_BRACKET)
         self.expect(tokens.TokenType.CLOSE_BRACKET)
         return ast.ArrayType(datatype)
+
+    def handle_datatype(self):
+        token_type = self.current_token().type
+        if token_type in [tokens.TokenType.TYPE, tokens.TokenType.IDENTIFIER]:
+            return self.advance().value, token_type == tokens.TokenType.IDENTIFIER
+        if token_type == tokens.TokenType.LIST:
+            self.advance()
+            self.expect(tokens.TokenType.LESS)
+            datatype, _ = self.handle_datatype()
+            self.expect_generic_close()
+            return ast.ListType(datatype), False
+        if token_type == tokens.TokenType.MAP:
+            self.advance()
+            self.expect(tokens.TokenType.OPEN_BRACKET)
+            key_datatype, _ = self.handle_datatype()
+            self.expect(tokens.TokenType.CLOSE_BRACKET)
+            value_datatype, _ = self.handle_datatype()
+            return ast.MapType(key_datatype, value_datatype), False
+        raise ParserError("Invalid datatype", self.current_token(), self.position)
+
+    def expect_generic_close(self):
+        if self.pending_generic_closes:
+            self.pending_generic_closes -= 1
+        elif self.current_token().type == tokens.TokenType.GREATER:
+            self.advance()
+        elif self.current_token().type == tokens.TokenType.CAST:
+            self.advance()
+            self.pending_generic_closes = 1
+        else:
+            self.expect(tokens.TokenType.GREATER)
+
+    def datatype_mutability(self, datatype):
+        if isinstance(datatype, ast.ArrayType):
+            return self.datatype_mutability(datatype.datatype)
+        if isinstance(datatype, ast.ListType):
+            return self.datatype_mutability(datatype.datatype)
+        if isinstance(datatype, ast.MapType):
+            return False
+        return self.DATATYPES_MUTABILITY.get(datatype)
 
     def handle_default_argument(self):
         if self.current_token().type != tokens.TokenType.ASSIGN:
@@ -394,13 +482,7 @@ class Parser:
         if self.current_token().type == tokens.TokenType.REFERENCE:
             reference = True
             self.expect(tokens.TokenType.REFERENCE)
-        if self.current_token().type == tokens.TokenType.TYPE:
-            datatype = self.expect(tokens.TokenType.TYPE).value
-        elif self.current_token().type == tokens.TokenType.IDENTIFIER:
-            datatype = self.expect(tokens.TokenType.IDENTIFIER).value
-            user_defined_type = True
-        else:
-            raise ParserError("Invalid datatype", self.current_token(), self.position)
+        datatype, user_defined_type = self.handle_datatype()
 
         if self.current_token().type == tokens.TokenType.OPEN_BRACKET:
             datatype = self.handle_array_type(datatype)
@@ -414,14 +496,12 @@ class Parser:
             value = ast.Literal(None)
 
         self.expect(tokens.TokenType.PERIOD)
-        if isinstance(datatype, ast.ArrayType):
-            mutable = self.DATATYPES_MUTABILITY.get(datatype.datatype)
-        else:
-            mutable = self.DATATYPES_MUTABILITY.get(datatype)
+        mutable = self.datatype_mutability(datatype)
         # Unknown primitive names are errors, but user-defined types are valid here.
         if (
             mutable is None
             and not user_defined_type
+            and not isinstance(datatype, (ast.ListType, ast.MapType, ast.ArrayType))
             and datatype not in tokens.TYPE_KEYWORDS
         ):
             raise ParserError("Invalid datatype", self.current_token(), self.position)
@@ -457,6 +537,23 @@ class Parser:
         self.expect(tokens.TokenType.CLOSE_BRACKET)
         return ast.ArrayLiteral(elements)
 
+    def handle_map_literal(self):
+        entries = {}
+        self.expect(tokens.TokenType.OPEN_PAREN)
+        while self.current_token().type != tokens.TokenType.CLOSE_PAREN:
+            self.expect(tokens.TokenType.OPEN_BRACKET)
+            key = self.handle_expression()
+            self.expect(tokens.TokenType.COMMA)
+            value = self.handle_expression()
+            self.expect(tokens.TokenType.CLOSE_BRACKET)
+            if not isinstance(key, ast.Literal):
+                raise ParserError(
+                    "Map keys must be literals", self.current_token(), self.position
+                )
+            entries[key.value] = value
+        self.expect(tokens.TokenType.CLOSE_PAREN)
+        return ast.MapLiteral(entries)
+
     def handle_primary(self):
         negative = False
         token = self.current_token()
@@ -481,6 +578,11 @@ class Parser:
                 else:
                     side = ast.Literal(token.value)
         elif token.type == tokens.TokenType.OPEN_PAREN:
+            if (
+                self.position + 1 < len(self.tokens)
+                and self.tokens[self.position + 1].type == tokens.TokenType.OPEN_BRACKET
+            ):
+                return self.handle_map_literal()
             self.advance()
             expr = self.handle_expression()
             self.expect(tokens.TokenType.CLOSE_PAREN)
@@ -513,6 +615,11 @@ class Parser:
                 self.advance()
                 datatype = self.expect(tokens.TokenType.TYPE).value
                 left_side = ast.Cast(left_side, datatype)
+            elif self.current_token().type == tokens.TokenType.OPEN_BRACKET:
+                self.advance()
+                index = self.handle_expression()
+                self.expect(tokens.TokenType.CLOSE_BRACKET)
+                left_side = ast.IndexExpression(left_side, index)
             elif self.current_token().type == tokens.TokenType.DOUBLE_COLON:
                 while self.current_token().type == tokens.TokenType.DOUBLE_COLON:
                     self.advance()
@@ -628,6 +735,10 @@ class Parser:
         tokens.TokenType.ERROR: handle_err,
         tokens.TokenType.OPERATOR: handle_operator,
         tokens.TokenType.EXIT: handle_exit,
+        tokens.TokenType.FREE: handle_free,
+        tokens.TokenType.BREAK: handle_break,
+        tokens.TokenType.CONTINUE: handle_continue,
+        tokens.TokenType.DO: handle_do,
         tokens.TokenType.IF: handle_if,
         tokens.TokenType.FOR: handle_for,
         tokens.TokenType.WHILE: handle_while,
@@ -710,6 +821,3 @@ def run(tokens_from_lexer, trace_arg):
         print("========= END ABSTRACT SYNTAX TREE CONSTRUCTION =========")
 
     return analyse(ast_tree, trace_arg)
-
-
-# TODO: Struct instantiation handling

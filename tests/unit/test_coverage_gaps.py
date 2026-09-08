@@ -238,6 +238,141 @@ def test_parser_operator_and_empty_optional_paths():
     assert statement.else_body is None
 
 
+def test_parser_new_datatypes_and_expression_suffixes():
+    parser = Parser(
+        [
+            Token(TokenType.LIST, "list"),
+            Token(TokenType.LESS, "<"),
+            Token(TokenType.TYPE, "mui8"),
+            Token(TokenType.GREATER, ">"),
+        ]
+    )
+    datatype, user_defined = parser.handle_datatype()
+    assert isinstance(datatype, ast.ListType)
+    assert user_defined is False
+    assert parser.datatype_mutability(datatype) is True
+
+    parser = Parser(
+        [
+            Token(TokenType.MAP, "map"),
+            Token(TokenType.OPEN_BRACKET, "["),
+            Token(TokenType.TYPE, "mui8"),
+            Token(TokenType.CLOSE_BRACKET, "]"),
+            Token(TokenType.TYPE, "mstr"),
+        ]
+    )
+    datatype, user_defined = parser.handle_datatype()
+    assert isinstance(datatype, ast.MapType)
+    assert user_defined is False
+    assert parser.datatype_mutability(datatype) is False
+
+    parser = Parser(
+        [
+            Token(TokenType.LIST, "list"),
+            Token(TokenType.LESS, "<"),
+            Token(TokenType.LIST, "list"),
+            Token(TokenType.LESS, "<"),
+            Token(TokenType.TYPE, "mui8"),
+            Token(TokenType.CAST, ">>"),
+        ]
+    )
+    nested, _ = parser.handle_datatype()
+    assert isinstance(nested.datatype, ast.ListType)
+    assert parser.pending_generic_closes == 0
+
+    with pytest.raises(ParserError):
+        Parser([Token(TokenType.PLUS, "+")]).expect_generic_close()
+
+    parser = Parser([Token(TokenType.GREATER, ">")])
+    parser.pending_generic_closes = 1
+    parser.expect_generic_close()
+    assert parser.pending_generic_closes == 0
+
+    parser = Parser(
+        [
+            Token(TokenType.IDENTIFIER, "items"),
+            Token(TokenType.OPEN_BRACKET, "["),
+            Token(TokenType.INTEGER, 0),
+            Token(TokenType.CLOSE_BRACKET, "]"),
+        ]
+    )
+    indexed = parser.handle_expression()
+    assert isinstance(indexed, ast.IndexExpression)
+
+    parser = Parser(
+        [
+            Token(TokenType.OPEN_PAREN, "("),
+            Token(TokenType.OPEN_BRACKET, "["),
+            Token(TokenType.STRING, "key"),
+            Token(TokenType.COMMA, ","),
+            Token(TokenType.INTEGER, 1),
+            Token(TokenType.CLOSE_BRACKET, "]"),
+            Token(TokenType.CLOSE_PAREN, ")"),
+        ]
+    )
+    map_literal = parser.handle_expression()
+    assert isinstance(map_literal, ast.MapLiteral)
+    assert map_literal.entries["key"].value == 1
+
+    invalid_map = Parser(
+        [
+            Token(TokenType.OPEN_PAREN, "("),
+            Token(TokenType.OPEN_BRACKET, "["),
+            Token(TokenType.IDENTIFIER, "key"),
+            Token(TokenType.COMMA, ","),
+            Token(TokenType.INTEGER, 1),
+            Token(TokenType.CLOSE_BRACKET, "]"),
+            Token(TokenType.CLOSE_PAREN, ")"),
+        ]
+    )
+    with pytest.raises(ParserError, match="Map keys must be literals"):
+        invalid_map.handle_expression()
+
+
+def test_parser_struct_array_and_control_flow_helpers():
+    parser = Parser(
+        [
+            Token(TokenType.IDENTIFIER, "Record"),
+            Token(TokenType.OPEN_BRACE, "{"),
+            Token(TokenType.TYPE, "mui8"),
+            Token(TokenType.OPEN_BRACKET, "["),
+            Token(TokenType.CLOSE_BRACKET, "]"),
+            Token(TokenType.IDENTIFIER, "values"),
+            Token(TokenType.PERIOD, "."),
+            Token(TokenType.CLOSE_BRACE, "}"),
+        ]
+    )
+    record = parser.handle_struct()
+    assert isinstance(record.body[0].datatype.name, ast.ArrayType)
+
+    assert isinstance(
+        Parser(
+            [Token(TokenType.INTEGER, 1), Token(TokenType.PERIOD, ".")]
+        ).handle_free(),
+        ast.FreeMemory,
+    )
+    assert isinstance(Parser([Token(TokenType.PERIOD, ".")]).handle_break(), ast.Break)
+    assert isinstance(
+        Parser([Token(TokenType.PERIOD, ".")]).handle_continue(), ast.Continue
+    )
+
+    do_parser = Parser(
+        [
+            Token(TokenType.OPEN_BRACE, "{"),
+            Token(TokenType.CLOSE_BRACE, "}"),
+            Token(TokenType.FAIL, "fail"),
+            Token(TokenType.OPEN_PAREN, "("),
+            Token(TokenType.IDENTIFIER, "Failure"),
+            Token(TokenType.IDENTIFIER, "error"),
+            Token(TokenType.CLOSE_PAREN, ")"),
+            Token(TokenType.OPEN_BRACE, "{"),
+            Token(TokenType.CLOSE_BRACE, "}"),
+        ]
+    )
+    statement = do_parser.handle_do()
+    assert statement.fail.error == "Failure"
+
+
 def test_pass1_registers_all_supported_node_kinds():
     builder = SymbolTableBuilder()
     scope = SymbolTable()

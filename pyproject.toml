@@ -18,6 +18,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+filterwarnings = ["ignore:.*found in sys.modules after import.*:RuntimeWarning"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["teapot"]
