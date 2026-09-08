@@ -532,7 +532,10 @@ The first pass registers declarations including:
 
 * variables;
 * functions;
-* structs.
+* structs;
+* enums and enum members;
+* errors and error members; and
+* operators and operator arguments.
 
 Function declarations receive their own child scope.
 
@@ -544,7 +547,9 @@ For example, declaring the same name twice in one scope is rejected.
 
 Shadowing in a child scope is supported by the current symbol-table implementation.
 
-Full name resolution and type checking are not yet implemented.
+Assignments to undeclared identifiers and duplicate declarations in the same scope
+are rejected. The second-pass type checker is present but does not yet implement
+full name resolution or type checking.
 
 ## Diagnostics
 

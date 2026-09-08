@@ -21,7 +21,6 @@ cd teapot-lang
 python -m venv .venv
 source .venv/bin/activate
 
-python -m pip install -r requirements.txt
 python -m pip install -e .
 ```
 
@@ -140,7 +139,13 @@ teapot-lang/
 │       ├── lexer.py
 │       ├── main.py
 │       ├── parser.py
-│       ├── semantic.py
+│       ├── semantic/
+│       │   ├── analyser.py
+│       │   ├── errors.py
+│       │   ├── pass1.py
+│       │   ├── pass2.py
+│       │   ├── symbol_table.py
+│       │   └── symbols.py
 │       ├── teapot_ast.py
 │       ├── tokens.py
 │       └── web.py

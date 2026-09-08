@@ -134,7 +134,7 @@ The AST is the interface between parsing and later compiler stages. When adding 
 
 ### Semantic analysis
 
-`src/teapot/semantic.py` currently performs the first stage of semantic analysis.
+`src/teapot/semantic/pass1.py` performs the first stage of semantic analysis.
 
 The current implementation includes:
 
@@ -149,9 +149,7 @@ The current implementation includes:
 * duplicate declaration detection; and
 * function parameter metadata.
 
-The analyser currently has a first-pass symbol-table phase and a placeholder second-pass type-checking phase.
-
-The second pass does not yet implement full type checking.
+The analyser currently has a first-pass symbol-table phase and a second-pass type-checking phase. The second-pass `TypeChecker` is present but does not yet implement type-checking rules.
 
 Semantic failures raise `SemanticError`.
 
@@ -182,7 +180,13 @@ src/
         lexer.py                Lexer
         parser.py               Parser
         teapot_ast.py           AST dataclasses
-        semantic.py             Semantic analysis
+        semantic/                Semantic analysis package
+            analyser.py         Analysis orchestration
+            errors.py           Semantic errors
+            pass1.py            Symbol-table construction
+            pass2.py            Type-checking stage
+            symbol_table.py     Scope and symbol lookup
+            symbols.py          Symbol definitions
         debug.py                Diagnostic output
 
 tests/
@@ -196,6 +200,10 @@ tests/
 
     integration/
         test_pipeline.py
+        test_pipeline_extended.py
+
+    property/
+        test_generated_compiler_cases.py
 
 pyproject.toml                  Packaging and pytest configuration
 CONTRIBUTING.md                 Contribution guidelines

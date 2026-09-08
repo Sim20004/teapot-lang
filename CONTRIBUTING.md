@@ -62,20 +62,32 @@ teapot-lang/
 │       ├── __init__.py
 │       ├── lexer.py
 │       ├── parser.py
-│       ├── semantic.py
+│       ├── semantic/
+│       │   ├── analyser.py
+│       │   ├── errors.py
+│       │   ├── pass1.py
+│       │   ├── pass2.py
+│       │   ├── symbol_table.py
+│       │   └── symbols.py
 │       ├── teapot_ast.py
 │       ├── tokens.py
 │       └── ...
 ├── tests/
 │   └── unit/
 ├── examples/
-├── requirements.txt
 ├── pyproject.toml
 └── ...
 
-Install the project’s dependencies with:
+Create a virtual environment and install the project in editable mode with:
 
-python -m pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
+
+Install development tools used by CI as needed:
+
+python -m pip install pytest ruff mypy build pip-audit
 
 Run the test suite with:
 
