@@ -78,7 +78,8 @@ jobs:
             --cov=teapot \
             --cov-branch \
             --cov-report=term-missing \
-            --cov-report=xml
+            --cov-report=xml \
+            --cov-fail-under=100
 
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.14'
