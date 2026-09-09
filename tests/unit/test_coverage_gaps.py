@@ -443,6 +443,57 @@ def test_pass1_registers_nonempty_block_and_trace_paths(capsys):
     assert "Found valid variable declaration" in output
 
 
+def test_pass1_coverage_for_control_flow_and_unknown_nodes():
+    builder = SymbolTableBuilder()
+    scope = SymbolTable()
+
+    builder.register_node(
+        ast.If(
+            ast.Literal(True),
+            [ast.DeclareVariable("then_value", ast.Type("mui8"))],
+            elifs=[
+                ast.Elif(
+                    ast.Literal(False),
+                    [ast.DeclareVariable("elif_value", ast.Type("mui8"))],
+                )
+            ],
+            else_body=ast.Else(
+                [ast.DeclareVariable("else_value", ast.Type("mui8"))]
+            ),
+        ),
+        scope,
+    )
+    builder.register_node(
+        ast.For(
+            "item",
+            ast.Identifier("items"),
+            [ast.DeclareVariable("loop_value", ast.Type("mui8"))],
+        ),
+        scope,
+    )
+    builder.register_node(
+        ast.While(
+            ast.Literal(True),
+            [ast.DeclareVariable("while_value", ast.Type("mui8"))],
+        ),
+        scope,
+    )
+    builder.register_node(
+        ast.Do(
+            [ast.DeclareVariable("do_value", ast.Type("mui8"))],
+            ast.Fail(
+                [ast.DeclareVariable("fail_value", ast.Type("mui8"))],
+                "Failure",
+                "error",
+            ),
+        ),
+        scope,
+    )
+
+    with pytest.raises(SemanticError):
+        builder.register_node(ast.Program([], "manual"), scope)
+
+
 def test_pass1_assignment_and_unknown_node_errors():
     builder = SymbolTableBuilder()
     scope = SymbolTable()

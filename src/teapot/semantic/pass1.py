@@ -45,14 +45,83 @@ class SymbolTableBuilder:
                 self.register_operator_argument(node, scope)
             case ast.Return():
                 pass
-            case ast.If() | ast.For() | ast.While():
-                self.register_non_scope_creating_block(node, scope)
+            case ast.Break() | ast.Continue():
+                raise SemanticError(
+                    f"{type(node).__name__} statements are not valid in this scope.",
+                    node,
+                )
+            case ast.If():
+                self.register_if(node, scope)
+            case ast.For():
+                self.register_for(node, scope)
+            case ast.While():
+                self.register_while(node, scope)
+            case ast.Do():
+                self.register_do_block(node, scope)
             case _:
                 raise SemanticError("Unknown node", node)
 
-    def register_non_scope_creating_block(self, node, scope):
+    def register_if(self, node, scope):
+        if_scope = SymbolTable(scope)
+
         for statement in node.body:
-            self.register_node(statement, scope)
+            self.register_node(statement, if_scope)
+
+        for elif_node in node.elifs:
+            elif_scope = SymbolTable(scope)
+
+            for statement in elif_node.body:
+                self.register_node(statement, elif_scope)
+
+        if node.else_body is not None:
+            else_scope = SymbolTable(scope)
+
+            for statement in node.else_body.body:
+                self.register_node(statement, else_scope)
+
+    def register_for(self, node, scope):
+        for_scope = SymbolTable(scope)
+
+        for_scope.define(
+            Symbol(
+                node.variable,
+                "for_variable",
+                None,
+                for_scope,
+            )
+        )
+
+        for statement in node.body:
+            self.register_node(statement, for_scope)
+
+    def register_while(self, node, scope):
+        while_scope = SymbolTable(scope)
+
+        for statement in node.body:
+            self.register_node(statement, while_scope)
+
+    def register_do_block(self, node, scope):
+        do_scope = SymbolTable(scope)
+
+        for statement in node.body:
+            self.register_node(statement, do_scope)
+
+        self.register_fail(node.fail, scope)
+
+    def register_fail(self, node, scope):
+        fail_scope = SymbolTable(scope)
+
+        fail_scope.define(
+            Symbol(
+                node.identifier,
+                "error_variable",
+                node.error,
+                fail_scope,
+            )
+        )
+
+        for statement in node.body:
+            self.register_node(statement, fail_scope)
 
     def register_assignment(self, node, scope):
         target = node.target
@@ -68,6 +137,7 @@ class SymbolTableBuilder:
 
     def register_operator(self, node, scope):
         operator_scope = SymbolTable(scope)
+
         scope.define(
             Symbol(
                 node.symbol,
@@ -77,6 +147,7 @@ class SymbolTableBuilder:
                 operator_scope,
             )
         )
+
         self.register_operator_arguments(node, operator_scope)
         self.register_operator_body(node, operator_scope)
 
@@ -89,11 +160,28 @@ class SymbolTableBuilder:
             self.register_node(argument, scope)
 
     def register_operator_argument(self, node, scope):
-        scope.define(Symbol(node.name, "operator_argument", node.datatype, scope))
+        scope.define(
+            Symbol(
+                node.name,
+                "operator_argument",
+                node.datatype,
+                scope,
+            )
+        )
 
     def register_error(self, node, scope):
         error_scope = SymbolTable(parent=scope)
-        scope.define(Symbol(node.identifier, "error", None, scope, error_scope))
+
+        scope.define(
+            Symbol(
+                node.identifier,
+                "error",
+                None,
+                scope,
+                error_scope,
+            )
+        )
+
         self.register_error_members(node, error_scope)
 
     def register_error_members(self, node, scope):
@@ -101,17 +189,48 @@ class SymbolTableBuilder:
             self.register_node(member, scope)
 
     def register_error_member(self, node, scope):
-        scope.define(Symbol(node.name, "error_member", node.datatype, scope))
+        scope.define(
+            Symbol(
+                node.name,
+                "error_member",
+                node.datatype,
+                scope,
+            )
+        )
 
     def register_enum_member(self, node, scope):
-        scope.define(Symbol(node.name, "enum_member", None, scope))
+        scope.define(
+            Symbol(
+                node.name,
+                "enum_member",
+                None,
+                scope,
+            )
+        )
 
     def register_struct_field(self, node, scope):
-        scope.define(Symbol(node.identifier, "struct_field", node.datatype.name, scope))
+        scope.define(
+            Symbol(
+                node.identifier,
+                "struct_field",
+                node.datatype.name,
+                scope,
+            )
+        )
 
     def register_enum(self, node, scope):
         enum_scope = SymbolTable(parent=scope)
-        scope.define(Symbol(node.identifier, "enum", None, scope, enum_scope))
+
+        scope.define(
+            Symbol(
+                node.identifier,
+                "enum",
+                None,
+                scope,
+                enum_scope,
+            )
+        )
+
         self.register_enum_members(node, enum_scope)
 
         if self.trace:
@@ -123,6 +242,7 @@ class SymbolTableBuilder:
 
     def register_function(self, node, scope):
         function_scope = SymbolTable(parent=scope)
+
         scope.define(
             Symbol(
                 node.name,
@@ -158,7 +278,17 @@ class SymbolTableBuilder:
 
     def register_struct(self, node, scope):
         struct_scope = SymbolTable(parent=scope)
-        scope.define(Symbol(node.identifier, "struct", None, scope, struct_scope))
+
+        scope.define(
+            Symbol(
+                node.identifier,
+                "struct",
+                None,
+                scope,
+                struct_scope,
+            )
+        )
+
         self.register_struct_members(node, struct_scope)
 
         if self.trace:
@@ -166,7 +296,15 @@ class SymbolTableBuilder:
 
     def register_variable(self, node, scope):
         datatype = node.datatype.name
-        scope.define(Symbol(node.identifier, "variable", datatype, scope))
+
+        scope.define(
+            Symbol(
+                node.identifier,
+                "variable",
+                datatype,
+                scope,
+            )
+        )
 
         if self.trace:
             print(
