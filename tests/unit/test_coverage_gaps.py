@@ -457,9 +457,7 @@ def test_pass1_coverage_for_control_flow_and_unknown_nodes():
                     [ast.DeclareVariable("elif_value", ast.Type("mui8"))],
                 )
             ],
-            else_body=ast.Else(
-                [ast.DeclareVariable("else_value", ast.Type("mui8"))]
-            ),
+            else_body=ast.Else([ast.DeclareVariable("else_value", ast.Type("mui8"))]),
         ),
         scope,
     )
