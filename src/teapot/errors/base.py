@@ -220,12 +220,14 @@ class TypeMismatchError(SemanticError):
 
 
 # Keep legacy traceback names stable while callers can still catch precise types.
-for _error_type in LexerError.__subclasses__():
-    _error_type.__name__ = "LexerError"
-    _error_type.__qualname__ = "LexerError"
-for _error_type in ParserError.__subclasses__():
-    _error_type.__name__ = "ParserError"
-    _error_type.__qualname__ = "ParserError"
-for _error_type in SemanticError.__subclasses__():
-    _error_type.__name__ = "SemanticError"
-    _error_type.__qualname__ = "SemanticError"
+for _lexer_error_type in LexerError.__subclasses__():
+    _lexer_error_type.__name__ = "LexerError"
+    _lexer_error_type.__qualname__ = "LexerError"
+
+for _parser_error_type in ParserError.__subclasses__():
+    _parser_error_type.__name__ = "ParserError"
+    _parser_error_type.__qualname__ = "ParserError"
+
+for _semantic_error_type in SemanticError.__subclasses__():
+    _semantic_error_type.__name__ = "SemanticError"
+    _semantic_error_type.__qualname__ = "SemanticError"
