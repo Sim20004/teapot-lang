@@ -87,6 +87,23 @@ def test_type_mismatch_reports_expected_and_actual_types():
         analyse_program(source)
 
 
+def test_loop_control_is_valid_inside_nested_if():
+    source = """
+        $MEM-GC
+        fc main()!void {
+            while (true) {
+                if (true) {
+                    continue.
+                }
+                break.
+            }
+        }
+    """
+
+    program = lex_and_parse(source)
+    SemanticAnalyser(program, False).build_symbol_table()
+
+
 # ============================================================================
 # DUPLICATE VARIABLE DETECTION
 # ============================================================================

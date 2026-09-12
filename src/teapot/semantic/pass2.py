@@ -3,7 +3,7 @@ from typing import ClassVar
 import teapot.teapot_ast as ast
 
 # from teapot.debug import print
-from teapot.errors import TypeMismatchError
+from teapot.errors import TypeMismatchError, UnknownNodeError
 
 
 class TypeChecker:
@@ -351,7 +351,9 @@ class TypeChecker:
             case ast.DeclareVariable():
                 self.check_variable(node, scope)
             case _:
-                pass
+                raise UnknownNodeError(
+                    f"Unknown node type: {type(node).__name__}", node
+                )
 
     def check_type(self, node, expected):
         if node.value is None or node.value.value is None:

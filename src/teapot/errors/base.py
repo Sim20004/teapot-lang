@@ -207,16 +207,14 @@ class InvalidControlFlowError(SemanticError):
     )
 
 
-class UnknownNodeError(SemanticError):
-    code = "unknown-node"
-    default_hint = (
-        "Use a supported language construct or update the compiler phase handling it."
-    )
-
-
 class TypeMismatchError(SemanticError):
     code = "type-mismatch"
     default_hint = "Change the value or declared type so the two types agree."
+
+
+class UnknownNodeError(SemanticError):
+    code = "unknown-node"
+    default_hint = "You should not see this error. Please report it to the TeapotLang developers through an issue at https://github.com/Sim20004/teapot-lang."
 
 
 # Keep legacy traceback names stable while callers can still catch precise types.

@@ -12,6 +12,7 @@ from teapot.semantic.symbols import Symbol
 class SymbolTableBuilder:
     def __init__(self, trace=False):
         self.trace = trace
+        self.loop_depth = 0
 
     def build(self, ast_tree):
         global_scope = SymbolTable()
@@ -51,6 +52,8 @@ class SymbolTableBuilder:
             case ast.Return():
                 pass
             case ast.Break() | ast.Continue():
+                if self.loop_depth > 0:
+                    return
                 raise InvalidControlFlowError(
                     f"{type(node).__name__} statements are not valid in this scope.",
                     node,
@@ -99,14 +102,22 @@ class SymbolTableBuilder:
             )
         )
 
-        for statement in node.body:
-            self.register_node(statement, for_scope)
+        self.loop_depth += 1
+        try:
+            for statement in node.body:
+                self.register_node(statement, for_scope)
+        finally:
+            self.loop_depth -= 1
 
     def register_while(self, node, scope):
         while_scope = SymbolTable(scope)
 
-        for statement in node.body:
-            self.register_node(statement, while_scope)
+        self.loop_depth += 1
+        try:
+            for statement in node.body:
+                self.register_node(statement, while_scope)
+        finally:
+            self.loop_depth -= 1
 
     def register_do_block(self, node, scope):
         do_scope = SymbolTable(scope)
@@ -271,7 +282,12 @@ class SymbolTableBuilder:
                 )
             )
 
-        self.register_function_body(node, function_scope)
+        previous_loop_depth = self.loop_depth
+        self.loop_depth = 0
+        try:
+            self.register_function_body(node, function_scope)
+        finally:
+            self.loop_depth = previous_loop_depth
 
         if self.trace:
             print(f"  - Found valid function declaration: {node.name}.")
