@@ -1,6 +1,15 @@
 from sys import exit
 
 from teapot.debug import print
+from teapot.errors import (
+    DuplicateDirectiveError,
+    InvalidDirectiveError,
+    InvalidNumberError,
+    InvalidSymbolError,
+    LexerError,
+    SourceLocation,
+    UnterminatedStringError,
+)
 from teapot.parser import run as run_parser
 from teapot.tokens import (
     BOOLEAN_LITERALS,
@@ -19,13 +28,7 @@ if __name__ == "__main__":
 
 trace = False
 
-
-class LexerError(Exception):
-    def __init__(self, msg, line, col):
-        super().__init__(f"Lexer error at {line}:{col}: {msg}")
-        self.line = line
-        self.col = col
-        print(f"\nLexer error at {line}:{col}: {msg}")
+__all__ = ["Lexer", "LexerError", "run"]
 
 
 class Lexer:
@@ -113,8 +116,9 @@ class Lexer:
                     self.advance()
 
                 if directive_seen:
-                    raise LexerError(
-                        "Directive must only appear once", start_line, start_col
+                    raise DuplicateDirectiveError(
+                        "Directive must only appear once",
+                        location=SourceLocation(start_line, start_col),
                     )
 
                 if value in DIRECTIVES:
@@ -124,7 +128,10 @@ class Lexer:
                     directive_seen = True
                     continue
 
-                raise LexerError("Invalid directive", start_line, start_col)
+                raise InvalidDirectiveError(
+                    "Unknown directive; use `$MEM-GC` or `$MEM-MANUAL`",
+                    location=SourceLocation(start_line, start_col),
+                )
 
             if (
                 char == "/"
@@ -274,8 +281,9 @@ class Lexer:
 
             if char == ".":
                 if flt:
-                    raise LexerError(
-                        "Found duplicate floating point.", self.line, self.col
+                    raise InvalidNumberError(
+                        "number contains more than one decimal point",
+                        location=SourceLocation(self.line, self.col),
                     )
 
                 if trace:
@@ -345,7 +353,10 @@ class Lexer:
 
             return Token(SYMBOLS[first], first, start_line, start_col)
 
-        raise LexerError("Invalid symbol.", start_line, start_col)
+        raise InvalidSymbolError(
+            f"unknown symbol {first!r}",
+            location=SourceLocation(start_line, start_col),
+        )
 
     def read_string(self):
         if trace:
@@ -363,7 +374,10 @@ class Lexer:
             self.advance()
 
         if self.current_character() is None:
-            raise LexerError("Unterminated string.", start_line, start_col)
+            raise UnterminatedStringError(
+                "string literal is missing its closing quote",
+                location=SourceLocation(start_line, start_col),
+            )
 
         # Skip closing quote
         self.advance()
@@ -371,8 +385,10 @@ class Lexer:
         return Token(TokenType.STRING, str(value), start_line, start_col)
 
 
-def run(source, trace):
+def run(source, trace_arg):
     # This convenience entry point is used by the command-line compiler flow.
+    global trace
+    trace = trace_arg
     lexer = Lexer(source)
 
     tokens = lexer.tokenise()
@@ -394,4 +410,4 @@ def run(source, trace):
     if trace:
         print("========= END LEXICAL ANALYSIS =========")
 
-    return run_parser(tokens, trace)
+    return run_parser(tokens, trace_arg)

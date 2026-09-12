@@ -1,6 +1,10 @@
 import teapot.teapot_ast as ast
 from teapot.debug import print
-from teapot.semantic.errors import SemanticError
+from teapot.errors import (
+    InvalidControlFlowError,
+    UndefinedVariableError,
+    UnknownNodeError,
+)
 from teapot.semantic.symbol_table import SymbolTable
 from teapot.semantic.symbols import Symbol
 
@@ -20,6 +24,7 @@ class SymbolTableBuilder:
         return global_scope
 
     def register_node(self, node, scope):
+        scope.current_location = getattr(node, "location", None)
         match node:
             case ast.DeclareVariable():
                 self.register_variable(node, scope)
@@ -46,7 +51,7 @@ class SymbolTableBuilder:
             case ast.Return():
                 pass
             case ast.Break() | ast.Continue():
-                raise SemanticError(
+                raise InvalidControlFlowError(
                     f"{type(node).__name__} statements are not valid in this scope.",
                     node,
                 )
@@ -59,7 +64,10 @@ class SymbolTableBuilder:
             case ast.Do():
                 self.register_do_block(node, scope)
             case _:
-                raise SemanticError("Unknown node", node)
+                raise UnknownNodeError(
+                    f"unsupported AST node `{type(node).__name__}`",
+                    node,
+                )
 
     def register_if(self, node, scope):
         if_scope = SymbolTable(scope)
@@ -130,7 +138,7 @@ class SymbolTableBuilder:
             return
 
         if scope.lookup(target.name) is None:
-            raise SemanticError(
+            raise UndefinedVariableError(
                 f"Variable `{target.name}` cannot be assigned because it does not exist!",
                 node,
             )

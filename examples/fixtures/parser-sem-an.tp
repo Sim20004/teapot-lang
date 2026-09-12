@@ -13,7 +13,7 @@ pub enm Result {
 
 err TestError {
     mstr message.
-} // SEMANTIC ANALYSIS PASS 1 FUNCTIONAL TO HERE
+}
 
 operator +(Student a, Student b)!cui8 {
     exit 8.
@@ -37,7 +37,7 @@ fc overloaded(cui8 x)!cui8 {
 
 fc calculate_average(mui8[] grades)!cf32 {
 
-    val mui8 total = 0.
+    val mui8 total = 1.
 
     for (grade : grades) {
         total += grade.

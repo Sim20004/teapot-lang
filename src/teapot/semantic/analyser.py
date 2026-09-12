@@ -79,6 +79,7 @@ def analyse(ast_tree, trace_arg):
 
     analyser = SemanticAnalyser(ast_tree, trace)
     analyser.analyse()
+    analyser.build_symbol_table()
 
     if trace:
         print("\nSYMBOL TABLE:")

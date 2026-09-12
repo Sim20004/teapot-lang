@@ -1,15 +1,13 @@
-import builtins
-from pathlib import Path
+from teapot.output import get_output
 
 
-# Shadows built-in print() function with one that prints and writes to build/build.log.
 def print(*args, **kwargs):
-    # Keep trace output visible while making it available for later inspection.
-    text = " ".join(str(arg) for arg in args)
+    """Compatibility wrapper used by existing compiler trace calls."""
 
-    Path("build").mkdir(parents=True, exist_ok=True)
-
-    with open("build/build.log", "at") as file:
-        file.write(text + "\n")
-
-    builtins.print(*args, **kwargs)
+    sep = kwargs.pop("sep", " ")
+    end = kwargs.pop("end", "\n")
+    stream = kwargs.pop("file", None)
+    if kwargs:
+        raise TypeError(f"unsupported output options: {', '.join(kwargs)}")
+    text = sep.join(str(arg) for arg in args) + end.rstrip("\n")
+    get_output().write(text, level="info", stream=stream)

@@ -1,4 +1,4 @@
-from teapot.semantic.errors import SemanticError
+from teapot.errors import DuplicateDeclarationError
 
 
 class SymbolTable:
@@ -8,11 +8,15 @@ class SymbolTable:
 
     def define(self, symbol):
         if symbol.name in self.symbols:
-            raise SemanticError(
-                f"{symbol.kind.capitalize()} `{symbol.name}` already declared as a symbol!",
-                symbol,
+            existing = self.symbols[symbol.name]
+            raise DuplicateDeclarationError(
+                symbol.name,
+                symbol.kind.replace("_", " "),
+                location=getattr(existing, "location", None),
+                node=existing,
             )
 
+        symbol.location = getattr(self, "current_location", None)
         self.symbols[symbol.name] = symbol
 
     def lookup(self, name):

@@ -201,6 +201,7 @@ def test_semantic_error_surfaces_through_cli(tmp_path):
     assert result.returncode != 0
     assert "Semantic analysis error" in result.stdout
     assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
 
 
 def test_error_run_still_creates_build_directory(tmp_path):
@@ -264,6 +265,80 @@ def test_trace_flag_writes_build_log(tmp_path):
     build_log = tmp_path / "build" / "build.log"
     assert build_log.is_file()
     assert "BEGIN SEMANTIC ANALYSIS" in build_log.read_text()
+
+
+def test_quiet_flag_suppresses_trace_output(tmp_path):
+    write_source(tmp_path, "ok.tp", VALID_SOURCE)
+
+    result = run_cli("--quiet", "--trace", "ok.tp", cwd=tmp_path)
+
+    assert result.returncode == 0
+    assert result.stdout == ""
+
+
+def test_no_log_flag_disables_build_log(tmp_path):
+    write_source(tmp_path, "ok.tp", VALID_SOURCE)
+
+    result = run_cli("--no-log", "--trace", "ok.tp", cwd=tmp_path)
+
+    assert result.returncode == 0
+    assert not (tmp_path / "build" / "build.log").exists()
+
+
+def test_custom_log_file_receives_trace_output(tmp_path):
+    write_source(tmp_path, "ok.tp", VALID_SOURCE)
+    log_file = tmp_path / "custom" / "compiler.log"
+
+    result = run_cli("--trace", "--log-file", str(log_file), "ok.tp", cwd=tmp_path)
+
+    assert result.returncode == 0
+    assert "BEGIN SEMANTIC ANALYSIS" in log_file.read_text()
+
+
+def test_verbose_flag_reports_the_input_file(tmp_path):
+    write_source(tmp_path, "ok.tp", VALID_SOURCE)
+
+    result = run_cli("--verbose", "ok.tp", cwd=tmp_path)
+
+    assert result.returncode == 0
+    assert "Compiling ok.tp" in result.stdout
+
+
+def test_color_always_emits_ansi_sequences(tmp_path):
+    write_source(tmp_path, "ok.tp", VALID_SOURCE)
+
+    result = run_cli("--color", "always", "--verbose", "ok.tp", cwd=tmp_path)
+
+    assert result.returncode == 0
+    assert "\033[" in result.stdout
+
+
+def test_json_diagnostic_format_is_machine_readable(tmp_path):
+    write_source(tmp_path, "bad.tp", "$MEM-GC\nval mui8 value = .\n")
+
+    result = run_cli("--diagnostic-format", "json", "bad.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert '"code": "invalid-expression"' in result.stdout
+    assert '"location":' in result.stdout
+
+
+def test_full_diagnostic_detail_includes_error_code(tmp_path):
+    write_source(tmp_path, "bad.tp", "$MEM-GC\nval mui8 value = .\n")
+
+    result = run_cli("--diagnostic-detail", "full", "bad.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "[invalid-expression]" in result.stdout
+
+
+def test_quiet_and_verbose_are_rejected_together(tmp_path):
+    write_source(tmp_path, "ok.tp", VALID_SOURCE)
+
+    result = run_cli("--quiet", "--verbose", "ok.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "not allowed with argument" in result.stderr
 
 
 def test_without_trace_no_build_log_is_written_on_success(tmp_path):

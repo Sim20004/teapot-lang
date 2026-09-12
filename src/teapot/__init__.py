@@ -3,3 +3,7 @@
 # Single source of truth for the project version: pyproject.toml reads it from
 # here, and the CLI's --version reports it, so the two cannot drift.
 __version__ = "0.6.1a0"
+
+from teapot.errors import TeapotCompilerError
+
+__all__ = ["TeapotCompilerError", "__version__"]

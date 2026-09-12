@@ -6,6 +6,8 @@ import pytest
 
 import teapot.teapot_ast as ast
 from teapot import lexer
+from teapot.debug import print as debug_print
+from teapot.errors import TypeMismatchError
 from teapot.lexer import Lexer, LexerError
 from teapot.main import TeapotError
 from teapot.parser import Parser, ParserError, print_ast
@@ -592,7 +594,52 @@ def test_parser_module_guard():
         runpy.run_module("teapot.parser", run_name="__main__")
 
 
+def test_parser_core_module_guard():
+    with pytest.raises(SystemExit, match="Cannot run this file directly"):
+        runpy.run_module("teapot.parsing.core", run_name="__main__")
+
+
+def test_debug_print_rejects_unsupported_options():
+    with pytest.raises(TypeError, match="unsupported output options"):
+        debug_print("message", unsupported=True)
+
+
+def test_cli_converts_compiler_errors_to_clean_exit(monkeypatch, tmp_path, capsys):
+    import teapot.main as cli
+
+    source = tmp_path / "broken.tp"
+    source.write_text("$MEM-GC\n")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sys, "argv", ["teapot", "broken.tp"])
+
+    def fail_compile(source_text, trace):
+        raise TypeMismatchError("bad type")
+
+    monkeypatch.setattr(cli.lexer, "run", fail_compile)
+
+    with pytest.raises(SystemExit, match="1"):
+        cli.main()
+
+    assert "SemanticError: compilation failed" in capsys.readouterr().err
+
+
 @pytest.mark.parametrize("module_name", ["teapot.tokens", "teapot.teapot_ast"])
 def test_internal_modules_reject_direct_execution(module_name):
     with pytest.raises(SystemExit, match="Cannot run this file directly"):
         runpy.run_module(module_name, run_name="__main__")
+
+
+def test_phase_public_api_modules_and_compiler_pipeline():
+    ast_api = importlib.import_module("teapot.ast")
+    compiler_api = importlib.import_module("teapot.compiler")
+    lexing_api = importlib.import_module("teapot.lexing")
+    lexing_errors = importlib.import_module("teapot.lexing.errors")
+    parsing_errors = importlib.import_module("teapot.parsing.errors")
+    semantic_errors = importlib.import_module("teapot.semantic.errors")
+
+    assert ast_api.Program is ast.Program
+    assert compiler_api.compile_source("$MEM-GC\n")
+    assert lexing_api.Lexer is Lexer
+    assert lexing_errors.LexerError is LexerError
+    assert parsing_errors.__all__ == []
+    assert semantic_errors.SemanticError is SemanticError

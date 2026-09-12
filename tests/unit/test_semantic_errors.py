@@ -77,6 +77,16 @@ def test_semantic_error_message_format():
         )
 
 
+def test_type_mismatch_reports_expected_and_actual_types():
+    source = """
+        $MEM-GC
+        val mui8 value = "wrong".
+    """
+
+    with raises(SemanticError, match="expected int, found str"):
+        analyse_program(source)
+
+
 # ============================================================================
 # DUPLICATE VARIABLE DETECTION
 # ============================================================================
