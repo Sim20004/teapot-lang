@@ -1,9 +1,12 @@
 from typing import ClassVar
 
 import teapot.teapot_ast as ast
-
-# from teapot.debug import print
-from teapot.errors import TypeMismatchError
+from teapot.errors import (
+    InvalidDatatypeError,
+    TypeBoundsExceededError,
+    TypeMismatchError,
+    VoidDatatypeError,
+)
 
 
 class TypeChecker:
@@ -343,6 +346,7 @@ class TypeChecker:
     def check(self):
         if self.ast_tree is None:
             return
+
         for node in self.ast_tree.statements:
             self.check_node(node, self.global_scope)
 
@@ -350,14 +354,18 @@ class TypeChecker:
         match node:
             case ast.DeclareVariable():
                 self.check_variable(node, scope)
+
             case _:
                 pass
 
-    def check_type(self, node, expected):
+    def check_type(self, node, datatype):
+        if node.datatype.name == "void":
+            raise VoidDatatypeError("Void cannot be used as a datatype!", node)
+
         if node.value is None or node.value.value is None:
             return
-        if node.value.value == 0:
-            return
+
+        expected = datatype["type"]
         actual = type(node.value.value)
 
         if actual is not expected:
@@ -367,5 +375,27 @@ class TypeChecker:
                 node,
             )
 
+        if node.datatype.name in ["cchar", "mchar"] and len(node.value.value) != 1:
+            raise TypeBoundsExceededError(
+                "Characters must only have a length of 1!",
+                node,
+            )
+
+        if (datatype["max"] is not None and node.value.value > datatype["max"]) or (
+            datatype["min"] is not None and node.value.value < datatype["min"]
+        ):
+            raise TypeBoundsExceededError(
+                "Type bounds exceeded.",
+                node,
+            )
+
     def check_variable(self, node, scope):
-        self.check_type(node, self.TYPES[node.datatype.name]["type"])
+        try:
+            datatype = self.TYPES[node.datatype.name]
+        except KeyError:
+            raise InvalidDatatypeError(
+                f"Unknown datatype '{node.datatype.name}'.",
+                node,
+            )
+
+        self.check_type(node, datatype)

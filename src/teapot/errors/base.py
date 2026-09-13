@@ -200,6 +200,13 @@ class UndefinedVariableError(SemanticError):
     default_hint = "Declare the variable before assigning to or using it."
 
 
+class TypeBoundsExceededError(SemanticError):
+    code = "type-bounds-exceeded"
+    default_hint = (
+        "Change the datatype to fit the value or change the value to fit the datatype."
+    )
+
+
 class InvalidControlFlowError(SemanticError):
     code = "invalid-control-flow"
     default_hint = (
@@ -215,6 +222,27 @@ class TypeMismatchError(SemanticError):
 class UnknownNodeError(SemanticError):
     code = "unknown-node"
     default_hint = "You should not see this error. Please report it to the TeapotLang developers through an issue at https://github.com/Sim20004/teapot-lang."
+
+
+class InvalidDatatypeError(SemanticError):
+    code = "invalid-datatype"
+
+    default_hint = (
+        "Try replacing the datatype with a valid one from the "
+        "\033]8;;https://github.com/Sim20004/teapot-lang/blob/main/"
+        "docs/language-specification.md\033\\TeapotLang specification"
+        "\033]8;;\033\\ or remove the variable entirely."
+    )
+
+
+class VoidDatatypeError(SemanticError):
+    code = "void-datatype"
+    default_hint = (
+        "Try replacing the datatype with a valid one from the "
+        "\033]8;;https://github.com/Sim20004/teapot-lang/blob/main/"
+        "docs/language-specification.md\033\\TeapotLang specification"
+        "\033]8;;\033\\ or remove the variable entirely."
+    )
 
 
 # Keep legacy traceback names stable while callers can still catch precise types.

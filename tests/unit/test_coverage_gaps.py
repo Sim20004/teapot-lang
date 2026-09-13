@@ -7,13 +7,19 @@ import pytest
 import teapot.teapot_ast as ast
 from teapot import lexer
 from teapot.debug import print as debug_print
-from teapot.errors import TypeMismatchError
+from teapot.errors import (
+    InvalidDatatypeError,
+    TypeBoundsExceededError,
+    TypeMismatchError,
+    VoidDatatypeError,
+)
 from teapot.lexer import Lexer, LexerError
 from teapot.main import TeapotError
 from teapot.parser import Parser, ParserError, print_ast
 from teapot.semantic import SemanticAnalyser, SemanticError, SymbolTable
 from teapot.semantic.analyser import analyse
 from teapot.semantic.pass1 import SymbolTableBuilder
+from teapot.semantic.pass2 import TypeChecker
 from teapot.semantic.symbols import Symbol
 from teapot.tokens import Token, TokenType
 from teapot.web import _scope_name, _serialise
@@ -510,6 +516,32 @@ def test_pass1_assignment_and_unknown_node_errors():
     )
     with pytest.raises(SemanticError):
         builder.register_node(ast.Break(), scope)
+
+
+@pytest.mark.parametrize(
+    "datatype, value, expected_error",
+    [
+        ("void", 0, VoidDatatypeError),
+        ("mui8", 1.5, TypeMismatchError),
+        ("cchar", "too long", TypeBoundsExceededError),
+        ("mui8", 256, TypeBoundsExceededError),
+        ("mui8", -1, TypeBoundsExceededError),
+    ],
+)
+def test_type_checker_rejects_invalid_values(datatype, value, expected_error):
+    checker = TypeChecker(None, SymbolTable())
+    node = ast.DeclareVariable("value", ast.Type(datatype), ast.Literal(value))
+
+    with pytest.raises(expected_error):
+        checker.check_variable(node, checker.global_scope)
+
+
+def test_type_checker_rejects_unknown_datatypes():
+    checker = TypeChecker(None, SymbolTable())
+    node = ast.DeclareVariable("value", ast.Type("missing"), ast.Literal(0))
+
+    with pytest.raises(InvalidDatatypeError):
+        checker.check_variable(node, checker.global_scope)
 
 
 def test_semantic_analyser_delegates_and_rejects_unknown_attributes():

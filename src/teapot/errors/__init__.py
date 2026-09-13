@@ -3,6 +3,7 @@ from teapot.errors.base import (
     DuplicateDirectiveError,
     InvalidAssignmentError,
     InvalidControlFlowError,
+    InvalidDatatypeError,
     InvalidDirectiveError,
     InvalidExpressionError,
     InvalidMapKeyError,
@@ -17,12 +18,14 @@ from teapot.errors.base import (
     ParserError,
     SemanticError,
     TeapotCompilerError,
+    TypeBoundsExceededError,
     TypeMismatchError,
     UndefinedVariableError,
     UnexpectedEOFError,
     UnexpectedTokenError,
     UnknownNodeError,
     UnterminatedStringError,
+    VoidDatatypeError,
 )
 from teapot.errors.location import SourceLocation
 
@@ -31,6 +34,7 @@ __all__ = [
     "DuplicateDirectiveError",
     "InvalidAssignmentError",
     "InvalidControlFlowError",
+    "InvalidDatatypeError",
     "InvalidDirectiveError",
     "InvalidExpressionError",
     "InvalidMapKeyError",
@@ -46,10 +50,12 @@ __all__ = [
     "SemanticError",
     "SourceLocation",
     "TeapotCompilerError",
+    "TypeBoundsExceededError",
     "TypeMismatchError",
     "UndefinedVariableError",
     "UnexpectedEOFError",
     "UnexpectedTokenError",
     "UnknownNodeError",
     "UnterminatedStringError",
+    "VoidDatatypeError",
 ]

@@ -165,9 +165,20 @@ def test_variable_declaration_all_types():
 
     source_lines = ["$MEM-GC"]
 
+    literal_by_type = {
+        "mstr": '"value"',
+        "mchar": '"v"',
+        "mbln": "true",
+        "mf32": "0.0",
+        "mf64": "0.0",
+        "cbln": "true",
+        "cstr": '"value"',
+    }
+
     for i, (type_name, _) in enumerate(types):
         var_name = f"v{i}"
-        source_lines.append(f"val {type_name} {var_name} = 0.")
+        literal = literal_by_type.get(type_name, "0")
+        source_lines.append(f"val {type_name} {var_name} = {literal}.")
 
     source = "\n".join(source_lines)
     analyser = analyse_program(source)

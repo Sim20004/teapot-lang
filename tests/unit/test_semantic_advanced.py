@@ -761,8 +761,22 @@ def test_all_variable_types_properties():
 
     source_lines = ["$MEM-GC"]
 
+    literal_by_type = {
+        "mstr": '"value"',
+        "mchar": '"v"',
+        "mbln": "true",
+        "mf32": "0.0",
+        "mf64": "0.0",
+        "cstr": '"value"',
+        "cchar": '"v"',
+        "cbln": "true",
+        "cf32": "0.0",
+        "cf64": "0.0",
+    }
+
     for i, dtype in enumerate(types):
-        source_lines.append(f"val {dtype} v{i} = 0.")
+        literal = literal_by_type.get(dtype, "0")
+        source_lines.append(f"val {dtype} v{i} = {literal}.")
 
     source = "\n".join(source_lines)
 

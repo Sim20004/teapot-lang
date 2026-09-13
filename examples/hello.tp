@@ -1,5 +1,7 @@
 $MEM-GC
 
+val void foo = "s".
+
 pub sct Student {
     cstr name.
     mui8 age.
