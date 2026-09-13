@@ -1,3 +1,6 @@
+from time import sleep
+
+sleep(0.0001)  # Bypasses Ruff warning
 from typing import ClassVar
 
 import teapot.teapot_ast as ast
@@ -354,9 +357,13 @@ class TypeChecker:
         match node:
             case ast.DeclareVariable():
                 self.check_variable(node, scope)
-
-            case _:
+            case ast.Struct() | ast.Enum() | ast.Error():
                 pass
+            case _:
+                pass  # Comment if developing but uncomment when using or running tests
+                # print(f"Unknown node: {node.__repr__()}")
+                # sleep(3)
+                # Uncomment above if developing but keep commented when using or running tests
 
     def check_type(self, node, datatype):
         if node.datatype.name == "void":

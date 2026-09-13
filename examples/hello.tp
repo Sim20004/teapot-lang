@@ -1,6 +1,6 @@
 $MEM-GC
 
-val void foo = "s".
+val mui8 foo = 20.
 
 pub sct Student {
     cstr name.
