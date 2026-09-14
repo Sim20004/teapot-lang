@@ -194,6 +194,12 @@ class Parser:
             return_type = self.expect(tokens.TokenType.IDENTIFIER)
         elif self.current_token().type == tokens.TokenType.TYPE:
             return_type = self.expect(tokens.TokenType.TYPE)
+        else:
+            raise InvalidTypeError(
+                "expected a return datatype",
+                self.current_token(),
+                self.position,
+            )
         body = self.handle_operator_block()
         return ast.Operator(name, args, body, return_type, public)
 

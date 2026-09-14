@@ -705,6 +705,31 @@ def test_type_checker_check_dispatches_variables_and_operators():
     checker.check()
 
 
+def test_type_checker_check_dispatches_functions_with_string_return_types():
+    tree = ast.Program(
+        [
+            ast.Function(
+                "identity",
+                [],
+                "mui8",
+                [ast.Return(ast.Literal(1))],
+            ),
+        ],
+        "gc",
+    )
+
+    TypeChecker(tree, SymbolTable()).check()
+
+
+def test_type_checker_allows_unknown_function_return_types():
+    tree = ast.Program(
+        [ast.Function("factory", [], "CustomResult", [])],
+        "gc",
+    )
+
+    TypeChecker(tree, SymbolTable()).check()
+
+
 def test_type_checker_rejects_return_type_mismatch():
     checker = TypeChecker(None, SymbolTable())
 

@@ -358,8 +358,8 @@ class TypeChecker:
         match node:
             case ast.DeclareVariable():
                 self.check_variable(node, scope)
-            case ast.Operator():
-                self.check_operator(node)
+            case ast.Operator() | ast.Function():
+                self.check_operator_or_function(node)
             case ast.Struct() | ast.Enum() | ast.Error():
                 pass
             case _:
@@ -368,8 +368,15 @@ class TypeChecker:
             # sleep(3)
             # Uncomment above if developing but keep commented when using or running tests
 
+    def check_operator_or_function(self, node):
+        expected_type = node.return_type
+        if hasattr(expected_type, "value"):
+            expected_type = expected_type.value
+        if expected_type in self.TYPES:
+            self.check_return_type(node, expected_type)
+
     def check_operator(self, node):
-        self.check_return_type(node, node.return_type.value)
+        self.check_operator_or_function(node)
 
     def check_return_type(self, node, expected_type):
         datatype = self.TYPES[expected_type]
