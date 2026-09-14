@@ -1,11 +1,12 @@
 from time import sleep
 
-sleep(0.0001)  # Bypasses Ruff warning
+sleep(0)
 from typing import ClassVar
 
 import teapot.teapot_ast as ast
 from teapot.errors import (
     InvalidDatatypeError,
+    ReturnTypeMismatchError,
     TypeBoundsExceededError,
     TypeMismatchError,
     VoidDatatypeError,
@@ -357,13 +358,41 @@ class TypeChecker:
         match node:
             case ast.DeclareVariable():
                 self.check_variable(node, scope)
+            case ast.Operator():
+                self.check_operator(node)
             case ast.Struct() | ast.Enum() | ast.Error():
                 pass
             case _:
                 pass  # Comment if developing but uncomment when using or running tests
-                # print(f"Unknown node: {node.__repr__()}")
-                # sleep(3)
-                # Uncomment above if developing but keep commented when using or running tests
+            # print(f"Unknown node: {node.__repr__()}")
+            # sleep(3)
+            # Uncomment above if developing but keep commented when using or running tests
+
+    def check_operator(self, node):
+        self.check_return_type(node, node.return_type.value)
+
+    def check_return_type(self, node, expected_type):
+        datatype = self.TYPES[expected_type]
+
+        for statement in node.body:
+            if not isinstance(statement, ast.Return):
+                continue
+
+            value = statement.value.value
+
+            if type(value) is not datatype["type"]:
+                raise ReturnTypeMismatchError(
+                    f"You tried to return a {type(value).__name__} value "
+                    f"but chose {expected_type} as your callable's return type!"
+                )
+
+            if (datatype["min"] is not None and value < datatype["min"]) or (
+                datatype["max"] is not None and value > datatype["max"]
+            ):
+                raise ReturnTypeMismatchError(
+                    f"You tried to return a value outside the bounds of "
+                    f"{expected_type}!"
+                )
 
     def check_type(self, node, datatype):
         if node.datatype.name == "void":

@@ -9,6 +9,7 @@ from teapot import lexer
 from teapot.debug import print as debug_print
 from teapot.errors import (
     InvalidDatatypeError,
+    ReturnTypeMismatchError,
     TypeBoundsExceededError,
     TypeMismatchError,
     VoidDatatypeError,
@@ -675,3 +676,156 @@ def test_phase_public_api_modules_and_compiler_pipeline():
     assert lexing_errors.LexerError is LexerError
     assert parsing_errors.__all__ == []
     assert semantic_errors.SemanticError is SemanticError
+
+
+def test_type_checker_check_none_tree():
+    checker = TypeChecker(None, SymbolTable())
+    checker.check()
+
+
+def test_type_checker_check_dispatches_variables_and_operators():
+    tree = ast.Program(
+        [
+            ast.DeclareVariable(
+                "value",
+                ast.Type("mui8"),
+                ast.Literal(1),
+            ),
+            ast.Operator(
+                "+",
+                [],
+                [ast.Return(ast.Literal(1))],
+                Token(TokenType.TYPE, "mui8"),
+            ),
+        ],
+        "gc",
+    )
+
+    checker = TypeChecker(tree, SymbolTable())
+    checker.check()
+
+
+def test_type_checker_rejects_return_type_mismatch():
+    checker = TypeChecker(None, SymbolTable())
+
+    operator = ast.Operator(
+        "+",
+        [],
+        [ast.Return(ast.Literal("wrong"))],
+        Token(TokenType.TYPE, "mui8"),
+    )
+
+    with pytest.raises(
+        ReturnTypeMismatchError,
+        match="return a str value",
+    ):
+        checker.check_operator(operator)
+
+
+def test_type_checker_rejects_return_value_outside_bounds():
+    checker = TypeChecker(None, SymbolTable())
+
+    operator = ast.Operator(
+        "+",
+        [],
+        [ast.Return(ast.Literal(256))],
+        Token(TokenType.TYPE, "mui8"),
+    )
+
+    with pytest.raises(
+        ReturnTypeMismatchError,
+        match="outside the bounds of mui8",
+    ):
+        checker.check_operator(operator)
+
+
+def test_type_checker_ignores_non_return_statements():
+    checker = TypeChecker(None, SymbolTable())
+
+    operator = ast.Operator(
+        "+",
+        [],
+        [ast.Break()],
+        Token(TokenType.TYPE, "mui8"),
+    )
+
+    checker.check_operator(operator)
+
+
+def test_type_checker_check_node_ignores_non_typechecking_nodes():
+    checker = TypeChecker(None, SymbolTable())
+
+    checker.check_node(
+        ast.Struct("Record", []),
+        checker.global_scope,
+    )
+    checker.check_node(
+        ast.Enum("State", []),
+        checker.global_scope,
+    )
+    checker.check_node(
+        ast.Error("Failure", []),
+        checker.global_scope,
+    )
+    checker.check_node(
+        ast.Break(),
+        checker.global_scope,
+    )
+
+
+@pytest.mark.parametrize(
+    "datatype, value",
+    [
+        ("mui8", 0),
+        ("mui8", 255),
+        ("aint", 123),
+        ("str", "hello"),
+        ("cchar", "x"),
+        ("mchar", "x"),
+    ],
+)
+def test_type_checker_accepts_valid_values(datatype, value):
+    checker = TypeChecker(None, SymbolTable())
+
+    node = ast.DeclareVariable(
+        "value",
+        ast.Type(datatype),
+        ast.Literal(value),
+    )
+
+    checker.check_variable(node, checker.global_scope)
+
+
+def test_type_checker_accepts_missing_variable_value():
+    checker = TypeChecker(None, SymbolTable())
+
+    node = ast.DeclareVariable(
+        "value",
+        ast.Type("mui8"),
+    )
+
+    checker.check_variable(node, checker.global_scope)
+
+
+def test_type_checker_void_none_value_returns_without_checking():
+    checker = TypeChecker(None, SymbolTable())
+
+    node = ast.DeclareVariable(
+        "value",
+        ast.Type("mui8"),
+        None,
+    )
+
+    checker.check_variable(node, checker.global_scope)
+
+
+def test_type_checker_void_literal_none_returns_without_checking():
+    checker = TypeChecker(None, SymbolTable())
+
+    node = ast.DeclareVariable(
+        "value",
+        ast.Type("mui8"),
+        ast.Literal(None),
+    )
+
+    checker.check_variable(node, checker.global_scope)
