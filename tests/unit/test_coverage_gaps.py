@@ -730,6 +730,27 @@ def test_type_checker_allows_unknown_function_return_types():
     TypeChecker(tree, SymbolTable()).check()
 
 
+def test_type_checker_infers_valid_binary_types_and_rejects_invalid_pairs():
+    checker = TypeChecker(None, SymbolTable())
+    left = ast.Literal(1)
+    right = ast.Literal(2)
+    expression = ast.BinaryExpression(left, "+", right)
+    original = checker.infer_expression_type
+
+    def infer_children(node):
+        if node is left or node is right:
+            return "aint"
+        return original(node)
+
+    checker.infer_expression_type = infer_children
+    assert original(expression) == "aint"
+    assert checker.infer_binary_type("+", "aint", "aint") == "aint"
+    assert checker.infer_expression_type(ast.Literal("plain")) is None
+
+    with pytest.raises(TypeMismatchError, match="Cannot apply"):
+        checker.infer_binary_type("==", "aint", "str")
+
+
 def test_type_checker_rejects_return_type_mismatch():
     checker = TypeChecker(None, SymbolTable())
 
