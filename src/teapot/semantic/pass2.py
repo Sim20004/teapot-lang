@@ -363,10 +363,48 @@ class TypeChecker:
             case ast.Struct() | ast.Enum() | ast.Error():
                 pass
             case _:
-                pass  # Comment if developing but uncomment when using or running tests
-            # print(f"Unknown node: {node.__repr__()}")
-            # sleep(3)
+                # pass  # Comment if developing but uncomment when using or running tests
+                print(f"Unknown node: {node.__repr__()}")
+                sleep(3)
             # Uncomment above if developing but keep commented when using or running tests
+
+    BINARY_TYPES: ClassVar = {
+        "+": {
+            ("aint", "aint"): "aint",
+            ("dml", "dml"): "dml",
+        },
+        "-": {
+            ("aint", "aint"): "aint",
+            ("dml", "dml"): "dml",
+        },
+        "*": {
+            ("aint", "aint"): "aint",
+            ("dml", "dml"): "dml",
+        },
+        "/": {
+            ("aint", "aint"): "dml",
+            ("dml", "dml"): "dml",
+        },
+        "==": {
+            ("aint", "aint"): "bln",
+            ("dml", "dml"): "bln",
+            ("str", "str"): "bln",
+        },
+    }
+
+    def infer_expression_type(self, expression):
+        if isinstance(expression, ast.BinaryExpression):
+            left_type = self.infer_expression_type(expression.left)
+            right_type = self.infer_expression_type(expression.right)
+            return self.infer_binary_type(expression.operator, left_type, right_type)
+
+    def infer_binary_type(self, operator, left_type, right_type):
+        try:
+            return self.BINARY_TYPES[operator][(left_type, right_type)]
+        except KeyError:
+            raise TypeMismatchError(
+                f"Cannot apply {operator} to {left_type} and {right_type} types."
+            )
 
     def check_operator_or_function(self, node):
         expected_type = node.return_type
