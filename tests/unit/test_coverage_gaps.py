@@ -875,3 +875,33 @@ def test_type_checker_void_literal_none_returns_without_checking():
     )
 
     checker.check_variable(node, checker.global_scope)
+
+
+def test_type_checker_infers_nested_binary_expression_types():
+    checker = TypeChecker(None, SymbolTable())
+
+    left = ast.BinaryExpression(
+        ast.Literal(1),
+        "+",
+        ast.Literal(2),
+    )
+    right = ast.BinaryExpression(
+        ast.Literal(3),
+        "+",
+        ast.Literal(4),
+    )
+    expression = ast.BinaryExpression(left, "+", right)
+
+    assert checker.infer_expression_type(expression) == "aint"
+
+
+def test_type_checker_infer_expression_type_returns_none_for_unknown_literal_type():
+    checker = TypeChecker(None, SymbolTable())
+
+    assert checker.infer_expression_type(ast.Literal(None)) is None
+
+
+def test_type_checker_infer_expression_type_returns_none_for_unknown_expression():
+    checker = TypeChecker(None, SymbolTable())
+
+    assert checker.infer_expression_type(object()) is None
