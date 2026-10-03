@@ -745,7 +745,7 @@ def test_type_checker_infers_valid_binary_types_and_rejects_invalid_pairs():
     checker.infer_expression_type = infer_children
     assert original(expression) == "aint"
     assert checker.infer_binary_type("+", "aint", "aint") == "aint"
-    assert checker.infer_expression_type(ast.Literal("plain")) is None
+    assert checker.infer_expression_type(ast.Literal("plain")) == "str"
 
     with pytest.raises(TypeMismatchError, match="Cannot apply"):
         checker.infer_binary_type("==", "aint", "str")

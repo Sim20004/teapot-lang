@@ -2,6 +2,10 @@
 
 Every commit in the `Sim20004/teapot-lang` repository is represented below, from the initial repository creation through the latest commit. Descriptions have been rewritten to summarise the actual change made by each commit.
 
+# Unreleased
+
+* 2026-10-03: Fixed `infer_expression_type()` returning wrong thing for literals, also re-commented development code which was left uncommented.
+
 # TeapotLang 0.6.2-alpha
 
 * 2026-09-23: Added integration and unit tests covering binary-expression type inference and invalid type combinations, restoring the project to 100% test coverage

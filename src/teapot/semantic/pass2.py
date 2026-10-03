@@ -342,6 +342,127 @@ class TypeChecker:
         },
     }
 
+    BINARY_TYPES: ClassVar = {
+        # Arithmetic
+        "+": {
+            ("aint", "aint"): "aint",
+            ("dml", "dml"): "dml",
+            ("f32", "f32"): "f32",
+            ("f64", "f64"): "f64",
+            ("str", "str"): "str",
+        },
+        "-": {
+            ("aint", "aint"): "aint",
+            ("dml", "dml"): "dml",
+            ("f32", "f32"): "f32",
+            ("f64", "f64"): "f64",
+        },
+        "*": {
+            ("aint", "aint"): "aint",
+            ("dml", "dml"): "dml",
+            ("f32", "f32"): "f32",
+            ("f64", "f64"): "f64",
+        },
+        "/": {
+            ("aint", "aint"): "dml",
+            ("dml", "dml"): "dml",
+            ("f32", "f32"): "f32",
+            ("f64", "f64"): "f64",
+        },
+        # Equality
+        "==": {
+            ("str", "str"): "bln",
+            ("char", "char"): "bln",
+            ("bln", "bln"): "bln",
+            ("aint", "aint"): "bln",
+            ("dml", "dml"): "bln",
+            ("f32", "f32"): "bln",
+            ("f64", "f64"): "bln",
+            ("si8", "si8"): "bln",
+            ("si16", "si16"): "bln",
+            ("si32", "si32"): "bln",
+            ("si64", "si64"): "bln",
+            ("ui8", "ui8"): "bln",
+            ("ui16", "ui16"): "bln",
+            ("ui32", "ui32"): "bln",
+            ("ui64", "ui64"): "bln",
+        },
+        "!=": {
+            ("str", "str"): "bln",
+            ("char", "char"): "bln",
+            ("bln", "bln"): "bln",
+            ("aint", "aint"): "bln",
+            ("dml", "dml"): "bln",
+            ("f32", "f32"): "bln",
+            ("f64", "f64"): "bln",
+            ("si8", "si8"): "bln",
+            ("si16", "si16"): "bln",
+            ("si32", "si32"): "bln",
+            ("si64", "si64"): "bln",
+            ("ui8", "ui8"): "bln",
+            ("ui16", "ui16"): "bln",
+            ("ui32", "ui32"): "bln",
+            ("ui64", "ui64"): "bln",
+        },
+        # Ordering
+        "<": {
+            ("aint", "aint"): "bln",
+            ("dml", "dml"): "bln",
+            ("f32", "f32"): "bln",
+            ("f64", "f64"): "bln",
+            ("si8", "si8"): "bln",
+            ("si16", "si16"): "bln",
+            ("si32", "si32"): "bln",
+            ("si64", "si64"): "bln",
+            ("ui8", "ui8"): "bln",
+            ("ui16", "ui16"): "bln",
+            ("ui32", "ui32"): "bln",
+            ("ui64", "ui64"): "bln",
+        },
+        ">": {
+            ("aint", "aint"): "bln",
+            ("dml", "dml"): "bln",
+            ("f32", "f32"): "bln",
+            ("f64", "f64"): "bln",
+            ("si8", "si8"): "bln",
+            ("si16", "si16"): "bln",
+            ("si32", "si32"): "bln",
+            ("si64", "si64"): "bln",
+            ("ui8", "ui8"): "bln",
+            ("ui16", "ui16"): "bln",
+            ("ui32", "ui32"): "bln",
+            ("ui64", "ui64"): "bln",
+        },
+        "<=": {
+            ("aint", "aint"): "bln",
+            ("dml", "dml"): "bln",
+            ("f32", "f32"): "bln",
+            ("f64", "f64"): "bln",
+            ("si8", "si8"): "bln",
+            ("si16", "si16"): "bln",
+            ("si32", "si32"): "bln",
+            ("si64", "si64"): "bln",
+            ("ui8", "ui8"): "bln",
+            ("ui16", "ui16"): "bln",
+            ("ui32", "ui32"): "bln",
+            ("ui64", "ui64"): "bln",
+        },
+        ">=": {
+            ("aint", "aint"): "bln",
+            ("dml", "dml"): "bln",
+            ("f32", "f32"): "bln",
+            ("f64", "f64"): "bln",
+            ("si8", "si8"): "bln",
+            ("si16", "si16"): "bln",
+            ("si32", "si32"): "bln",
+            ("si64", "si64"): "bln",
+            ("ui8", "ui8"): "bln",
+            ("ui16", "ui16"): "bln",
+            ("ui32", "ui32"): "bln",
+            ("ui64", "ui64"): "bln",
+        },
+    }
+
     def __init__(self, ast_tree, global_scope, trace=False):
         self.ast_tree = ast_tree
         self.global_scope = global_scope
@@ -363,36 +484,22 @@ class TypeChecker:
             case ast.Struct() | ast.Enum() | ast.Error():
                 pass
             case _:
-                # pass  # Comment if developing but uncomment when using or running tests
-                print(f"Unknown node: {node.__repr__()}")
-                sleep(3)
+                pass  # Comment if developing but uncomment when using or running tests
+                # print(f"Unknown node: {node.__repr__()}")
+                # sleep(3)
             # Uncomment above if developing but keep commented when using or running tests
 
-    BINARY_TYPES: ClassVar = {
-        "+": {
-            ("aint", "aint"): "aint",
-            ("dml", "dml"): "dml",
-        },
-        "-": {
-            ("aint", "aint"): "aint",
-            ("dml", "dml"): "dml",
-        },
-        "*": {
-            ("aint", "aint"): "aint",
-            ("dml", "dml"): "dml",
-        },
-        "/": {
-            ("aint", "aint"): "dml",
-            ("dml", "dml"): "dml",
-        },
-        "==": {
-            ("aint", "aint"): "bln",
-            ("dml", "dml"): "bln",
-            ("str", "str"): "bln",
-        },
-    }
-
     def infer_expression_type(self, expression):
+        if isinstance(expression, ast.Literal):
+            if type(expression.value) is bool:
+                return "bln"
+            if type(expression.value) is int:
+                return "aint"
+            if type(expression.value) is float:
+                return "dml"
+            if type(expression.value) is str:
+                return "str"
+
         if isinstance(expression, ast.BinaryExpression):
             left_type = self.infer_expression_type(expression.left)
             right_type = self.infer_expression_type(expression.right)

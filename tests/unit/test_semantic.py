@@ -4,6 +4,7 @@ import teapot.teapot_ast as ast
 from teapot.lexer import Lexer
 from teapot.parser import Parser
 from teapot.semantic import SemanticAnalyser, SemanticError, Symbol, SymbolTable
+from teapot.semantic.pass2 import TypeChecker
 
 # *============================================================================*
 # *SYMBOL AND SYMBOL TABLE TESTS*
@@ -62,6 +63,26 @@ def test_symbol_creation_with_different_kinds():
 
     assert struct_symbol.kind == "struct"
     assert struct_symbol.type is None
+
+
+def test_infer_literal_bool_type():
+    checker = TypeChecker(None, SymbolTable())
+    assert checker.infer_expression_type(ast.Literal(True)) == "bln"
+
+
+def test_infer_literal_int_type():
+    checker = TypeChecker(None, SymbolTable())
+    assert checker.infer_expression_type(ast.Literal(42)) == "aint"
+
+
+def test_infer_literal_float_type():
+    checker = TypeChecker(None, SymbolTable())
+    assert checker.infer_expression_type(ast.Literal(3.14)) == "dml"
+
+
+def test_infer_literal_string_type():
+    checker = TypeChecker(None, SymbolTable())
+    assert checker.infer_expression_type(ast.Literal("hello")) == "str"
 
 
 def test_symbol_creation_with_different_types():
