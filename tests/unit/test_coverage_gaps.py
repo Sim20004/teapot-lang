@@ -908,31 +908,34 @@ def test_type_checker_infer_expression_type_returns_none_for_unknown_expression(
     assert checker.infer_expression_type(object()) is None
 
 
-def test_identifier_returns_declared_type(type_checker):
+def test_identifier_returns_declared_type():
+    checker = TypeChecker(None, SymbolTable())
     identifier = ast.Identifier("x")
-    type_checker.global_scope.lookup = Mock(return_value=Mock(type="int"))
+    checker.global_scope.lookup = Mock(return_value=Mock(type="int"))
 
-    result = type_checker._infer_expression_type(identifier)
+    result = checker._infer_expression_type(identifier)
 
     assert result == "int"
-    type_checker.global_scope.lookup.assert_called_once_with("x")
+    checker.global_scope.lookup.assert_called_once_with("x")
 
 
-def test_identifier_with_different_type_returns_that_type(type_checker):
+def test_identifier_with_different_type_returns_that_type():
+    checker = TypeChecker(None, SymbolTable())
     identifier = ast.Identifier("message")
-    type_checker.global_scope.lookup = Mock(return_value=Mock(type="string"))
+    checker.global_scope.lookup = Mock(return_value=Mock(type="string"))
 
-    result = type_checker._infer_expression_type(identifier)
+    result = checker._infer_expression_type(identifier)
 
     assert result == "string"
-    type_checker.global_scope.lookup.assert_called_once_with("message")
+    checker.global_scope.lookup.assert_called_once_with("message")
 
 
-def test_unknown_identifier_propagates_lookup_error(type_checker):
+def test_unknown_identifier_propagates_lookup_error():
+    checker = TypeChecker(None, SymbolTable())
     identifier = ast.Identifier("missing")
-    type_checker.global_scope.lookup = Mock(side_effect=NameError("missing"))
+    checker.global_scope.lookup = Mock(side_effect=NameError("missing"))
 
     with pytest.raises(NameError):
-        type_checker._infer_expression_type(identifier)
+        checker._infer_expression_type(identifier)
 
-    type_checker.global_scope.lookup.assert_called_once_with("missing")
+    checker.global_scope.lookup.assert_called_once_with("missing")
