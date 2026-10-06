@@ -913,7 +913,7 @@ def test_identifier_returns_declared_type():
     identifier = ast.Identifier("x")
     checker.global_scope.lookup = Mock(return_value=Mock(type="int"))
 
-    result = checker._infer_expression_type(identifier)
+    result = checker.infer_expression_type(identifier)
 
     assert result == "int"
     checker.global_scope.lookup.assert_called_once_with("x")
@@ -924,7 +924,7 @@ def test_identifier_with_different_type_returns_that_type():
     identifier = ast.Identifier("message")
     checker.global_scope.lookup = Mock(return_value=Mock(type="string"))
 
-    result = checker._infer_expression_type(identifier)
+    result = checker.infer_expression_type(identifier)
 
     assert result == "string"
     checker.global_scope.lookup.assert_called_once_with("message")
@@ -936,6 +936,6 @@ def test_unknown_identifier_propagates_lookup_error():
     checker.global_scope.lookup = Mock(side_effect=NameError("missing"))
 
     with pytest.raises(NameError):
-        checker._infer_expression_type(identifier)
+        checker.infer_expression_type(identifier)
 
     checker.global_scope.lookup.assert_called_once_with("missing")
