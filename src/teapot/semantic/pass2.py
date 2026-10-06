@@ -505,6 +505,9 @@ class TypeChecker:
             right_type = self.infer_expression_type(expression.right)
             return self.infer_binary_type(expression.operator, left_type, right_type)
 
+        if isinstance(expression, ast.Identifier):
+            return self.global_scope.lookup(expression.name).type
+
     def infer_binary_type(self, operator, left_type, right_type):
         try:
             return self.BINARY_TYPES[operator][(left_type, right_type)]
