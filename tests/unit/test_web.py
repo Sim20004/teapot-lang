@@ -44,3 +44,39 @@ def test_compile_source_returns_serialised_pipeline_result():
         ("amount", "function_parameter"),
         ("local_value", "variable"),
     ]
+
+
+def test_compile_source_preserves_struct_field_declaration_order():
+    """Declaration order is preserved because SymbolTable.symbols is a plain dict (insertion order guaranteed in Python 3.7+)."""
+    source = "$MEM-GC\nsct Point { mui8 zeta. mui8 alpha. mui8 mu. }\n"
+    result = compile_source(source)
+    point = result["symbols"][0]
+    assert point["kind"] == "struct"
+    assert [m["name"] for m in point["members"]] == ["zeta", "alpha", "mu"]
+    assert [m["kind"] for m in point["members"]] == [
+        "struct_field",
+        "struct_field",
+        "struct_field",
+    ]
+
+
+def test_compile_source_preserves_enum_member_declaration_order():
+    """Declaration order is preserved because SymbolTable.symbols is a plain dict (insertion order guaranteed in Python 3.7+)."""
+    source = "$MEM-GC\nenm Status { Zeta. Alpha. Mu. }\n"
+    result = compile_source(source)
+    status = result["symbols"][0]
+    assert status["kind"] == "enum"
+    assert [m["name"] for m in status["members"]] == ["Zeta", "Alpha", "Mu"]
+    assert [m["kind"] for m in status["members"]] == [
+        "enum_member",
+        "enum_member",
+        "enum_member",
+    ]
+
+
+def test_compile_source_preserves_top_level_declaration_order():
+    """Declaration order is preserved because SymbolTable.symbols is a plain dict (insertion order guaranteed in Python 3.7+)."""
+    source = "$MEM-GC\nval mui8 zeta_val = 1.\nsct Alpha {}\nval mui8 mu_val = 2.\n"
+    result = compile_source(source)
+    assert [s["name"] for s in result["symbols"]] == ["zeta_val", "Alpha", "mu_val"]
+    assert [s["kind"] for s in result["symbols"]] == ["variable", "struct", "variable"]
