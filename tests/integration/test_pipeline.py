@@ -873,3 +873,78 @@ def test_function_with_no_body_statements():
     assert fc.child_scope is not None
     assert fc.child_scope is not analyser.global_scope
     assert fc.child_scope.parent is analyser.global_scope
+
+
+# ============================================================================
+# LITERAL FIXTURE TEST (Issue #243)
+# ============================================================================
+
+
+def test_literal_fixture_integer():
+    """Test pipeline with a simple integer literal."""
+    source = """
+        $MEM-GC
+
+        val mui8 answer = 42.
+    """
+
+    analyser = analyse_program(source)
+
+    # Verify the literal was parsed and analysed correctly
+    answer = analyser.global_scope.lookup("answer")
+
+    assert answer is not None
+    assert answer.kind == "variable"
+    assert answer.type == "mui8"
+    assert len(analyser.global_scope.symbols) == 1
+
+
+def test_literal_fixture_string():
+    """Test pipeline with a simple string literal."""
+    source = """
+        $MEM-GC
+
+        val mstr greeting = "hello".
+    """
+
+    analyser = analyse_program(source)
+
+    greeting = analyser.global_scope.lookup("greeting")
+
+    assert greeting is not None
+    assert greeting.kind == "variable"
+    assert greeting.type == "mstr"
+
+
+def test_literal_fixture_boolean():
+    """Test pipeline with a simple boolean literal."""
+    source = """
+        $MEM-GC
+
+        val cbln flag = true.
+    """
+
+    analyser = analyse_program(source)
+
+    flag = analyser.global_scope.lookup("flag")
+
+    assert flag is not None
+    assert flag.kind == "variable"
+    assert flag.type == "cbln"
+
+
+def test_literal_fixture_float():
+    """Test pipeline with a simple float literal."""
+    source = """
+        $MEM-GC
+
+        val mf32 pi = 3.14.
+    """
+
+    analyser = analyse_program(source)
+
+    pi = analyser.global_scope.lookup("pi")
+
+    assert pi is not None
+    assert pi.kind == "variable"
+    assert pi.type == "mf32"
