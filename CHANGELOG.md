@@ -4,6 +4,7 @@ Every commit in the `Sim20004/teapot-lang` repository is represented below, from
 
 # Unreleased
 
+* 2026-10-08: Added regression tests covering struct field, enum member, and top-level declaration order in serialised compiler output.
 * 2026-10-03: Fixed `infer_expression_type()` returning wrong thing for literals, also re-commented development code which was left uncommented.
 
 # TeapotLang 0.6.2-alpha
