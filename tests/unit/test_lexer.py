@@ -243,6 +243,19 @@ def test_string_with_symbols():
     assert tokens_list[0].value == "foo*bar.baz|qux"
 
 
+def test_consecutive_string_literals():
+    lexer = Lexer('"foo""bar"')
+    tokens_list = lexer.tokenise()
+
+    assert tokens_list[0].type == tokens.TokenType.STRING
+    assert tokens_list[0].value == "foo"
+
+    assert tokens_list[1].type == tokens.TokenType.STRING
+    assert tokens_list[1].value == "bar"
+
+    assert tokens_list[2].type == tokens.TokenType.EOF
+
+
 def test_unterminated_string():
     lexer = Lexer('"foo')
     with pytest.raises(LexerError):
