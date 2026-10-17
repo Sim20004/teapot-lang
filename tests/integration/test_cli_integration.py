@@ -204,6 +204,127 @@ def test_semantic_error_surfaces_through_cli(tmp_path):
     assert "Traceback" not in result.stderr
 
 
+def test_semantic_type_mismatch_error_surfaces_through_cli(tmp_path):
+    source = """
+        $MEM-GC
+        val mui8 value = "wrong".
+    """
+    write_source(tmp_path, "type_mismatch.tp", source)
+
+    result = run_cli("type_mismatch.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error" in result.stdout
+    assert "Invalid type for 'value'" in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_semantic_undefined_variable_error_surfaces_through_cli(tmp_path):
+    source = """
+        $MEM-GC
+        fc foo()!void {
+            undeclared = 1.
+        }
+    """
+    write_source(tmp_path, "undef_var.tp", source)
+
+    result = run_cli("undef_var.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error" in result.stdout
+    assert (
+        "Variable `undeclared` cannot be assigned because it does not exist!"
+        in result.stdout
+    )
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_semantic_invalid_control_flow_error_surfaces_through_cli(tmp_path):
+    source = """
+        $MEM-GC
+        fc foo()!void {
+            break.
+        }
+    """
+    write_source(tmp_path, "invalid_flow.tp", source)
+
+    result = run_cli("invalid_flow.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error" in result.stdout
+    assert "Break statements are not valid in this scope" in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_semantic_void_datatype_error_surfaces_through_cli(tmp_path):
+    source = """
+        $MEM-GC
+        val void invalid = 1.
+    """
+    write_source(tmp_path, "void_type.tp", source)
+
+    result = run_cli("void_type.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error" in result.stdout
+    assert "Void cannot be used as a datatype!" in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_semantic_type_bounds_exceeded_error_surfaces_through_cli(tmp_path):
+    source = """
+        $MEM-GC
+        val mui8 small = 300.
+    """
+    write_source(tmp_path, "bounds_exceeded.tp", source)
+
+    result = run_cli("bounds_exceeded.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error" in result.stdout
+    assert "Type bounds exceeded" in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_semantic_duplicate_function_error_surfaces_through_cli(tmp_path):
+    source = """
+        $MEM-GC
+        fc greet()!void {}
+        fc greet()!void {}
+    """
+    write_source(tmp_path, "dup_func.tp", source)
+
+    result = run_cli("dup_func.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error" in result.stdout
+    assert "function `greet` is already declared in this scope" in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_semantic_duplicate_struct_error_surfaces_through_cli(tmp_path):
+    source = """
+        $MEM-GC
+        sct Point {}
+        sct Point {}
+    """
+    write_source(tmp_path, "dup_struct.tp", source)
+
+    result = run_cli("dup_struct.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error" in result.stdout
+    assert "struct `Point` is already declared in this scope" in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
 def test_error_run_still_creates_build_directory(tmp_path):
     # main.py creates build/ before invoking the compiler, so even a run
     # that fails partway through should leave the directory behind.
@@ -330,6 +451,38 @@ def test_full_diagnostic_detail_includes_error_code(tmp_path):
 
     assert result.returncode != 0
     assert "[invalid-expression]" in result.stdout
+
+
+def test_json_diagnostic_format_for_semantic_error(tmp_path):
+    source = """
+        $MEM-GC
+        val mui8 value = "wrong".
+    """
+    write_source(tmp_path, "sem_json.tp", source)
+
+    result = run_cli("--diagnostic-format", "json", "sem_json.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert '"code": "type-mismatch"' in result.stdout
+    assert '"phase": "semantic analysis"' in result.stdout
+    assert '"location":' in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_full_diagnostic_detail_for_semantic_error(tmp_path):
+    source = """
+        $MEM-GC
+        val mui8 value = "wrong".
+    """
+    write_source(tmp_path, "sem_full.tp", source)
+
+    result = run_cli("--diagnostic-detail", "full", "sem_full.tp", cwd=tmp_path)
+
+    assert result.returncode != 0
+    assert "Semantic analysis error [type-mismatch]" in result.stdout
+    assert "SemanticError" in result.stderr
+    assert "Traceback" not in result.stderr
 
 
 def test_quiet_and_verbose_are_rejected_together(tmp_path):
