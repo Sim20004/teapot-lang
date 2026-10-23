@@ -4,6 +4,7 @@ Every commit in the `Sim20004/teapot-lang` repository is represented below, from
 
 # Unreleased
 
+* 2026-10-23: Updated README.md to be more user-friendly.
 * 2026-10-23: Fixed browser playground compiler loading and result conversion, including Python package paths and serialised compiler output.
 * 2026-10-23: Added a test-only change.
 * 2026-10-23: Split `test_coverage_gaps` into per-component files.
