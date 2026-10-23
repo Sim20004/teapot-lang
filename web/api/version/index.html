@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeapotLang Version</title>
+</head>
+<body>
+  <span id="version"></span>
+
+  <script type="module">
+    import { getVersion } from "../../js/release.js";
+
+    document.getElementById("version").textContent = await getVersion();
+  </script>
+</body>
+</html>
