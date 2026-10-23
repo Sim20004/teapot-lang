@@ -187,6 +187,9 @@ If you are considering contributing:
 
 You can also review the project's [Code of Conduct](CODE_OF_CONDUCT.md) and [Security Policy](SECURITY.md).
 
+> [!IMPORTANT]
+> Contributions to compiler development are especially welcome, as this is currently the project's highest priority. Please see the pinned issue for details.
+
 ## Project status
 
 TeapotLang is an active experiment in programming-language and compiler development. Its specification and implementation will evolve as new language features are designed, implemented, and tested.
