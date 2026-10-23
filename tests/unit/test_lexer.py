@@ -1,7 +1,11 @@
+import runpy
+
 import pytest
 
-from teapot import tokens
+from teapot import lexer, tokens
 from teapot.lexer import Lexer, LexerError
+from teapot.parser import Parser
+from teapot.tokens import TokenType
 
 
 # Basic cursor behavior and source normalization.
@@ -908,3 +912,83 @@ def test_mixed_source():
 
     assert tokens_list[205].type == tokens.TokenType.EOF
     assert tokens_list[205].value is None
+
+
+def parse(source):
+    return Parser(Lexer(source).tokenise()).parse()
+
+
+def test_lexer_trace_exercises_dispatch_and_normalisation(monkeypatch, capsys):
+    monkeypatch.setattr(lexer, "trace", True)
+    tokens = Lexer(
+        '$MEM-GC\r\n// comment\nval mstr name = "hello\\nworld". 42 1.25 + >='
+    ).tokenise()
+
+    assert [token.type for token in tokens] == [
+        TokenType.DIRECTIVE,
+        TokenType.VAL,
+        TokenType.TYPE,
+        TokenType.IDENTIFIER,
+        TokenType.ASSIGN,
+        TokenType.STRING,
+        TokenType.PERIOD,
+        TokenType.INTEGER,
+        TokenType.FLOAT,
+        TokenType.PLUS,
+        TokenType.GREATER_EQUAL,
+        TokenType.EOF,
+    ]
+    output = capsys.readouterr().out
+    assert "Converted CRLF line endings to LF" in output
+    assert "Found comment" in output
+    assert "Created token" in output
+
+
+def test_lexer_direct_cursor_and_trace_branches(monkeypatch, capsys):
+    monkeypatch.setattr(lexer, "trace", True)
+    scanner = Lexer("a\n")
+    assert scanner.current_character() == "a"
+    scanner.advance()
+    assert scanner.current_character() == "\n"
+    scanner.advance()
+    assert scanner.current_character() is None
+    scanner.advance()
+    assert scanner.position == 3
+    assert "Reached end of source" in capsys.readouterr().out
+
+
+def test_lexer_number_and_symbol_errors():
+    with pytest.raises(LexerError) as number_error:
+        Lexer("1.2.3").tokenise()
+    assert number_error.value.line == 1
+    assert number_error.value.col == 4
+
+    with pytest.raises(LexerError) as symbol_error:
+        Lexer("£").tokenise()
+    assert symbol_error.value.col == 1
+
+
+def test_lexer_trace_without_crlf_and_duplicate_decimal(monkeypatch):
+    monkeypatch.setattr(lexer, "trace", True)
+    Lexer("true plain").tokenise()
+    with pytest.raises(LexerError):
+        Lexer("1.2.3").tokenise()
+
+
+def test_lexer_run_forwards_parser_and_trace(monkeypatch):
+    seen = {}
+
+    def fake_parser(tokens, trace):
+        seen["tokens"] = tokens
+        seen["trace"] = trace
+        return "parsed"
+
+    monkeypatch.setattr(lexer, "run_parser", fake_parser)
+    assert lexer.run("$MEM-GC", True) == "parsed"
+    assert seen["trace"] is True
+    assert seen["tokens"][-1].type is TokenType.EOF
+
+
+def test_lexer_module_guard():
+    with pytest.raises(SystemExit, match="Cannot run this file directly"):
+        runpy.run_module("teapot.lexer", run_name="__main__")

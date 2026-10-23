@@ -1,6 +1,22 @@
+from teapot.semantic import Symbol, SymbolTable
 from teapot.teapot_ast import Type
 from teapot.tokens import TokenType
-from teapot.web import _serialise, compile_source
+from teapot.web import _scope_name, _serialise, compile_source
+
+
+def test_serialisation_and_scope_name_fallbacks():
+    assert _serialise(TokenType.TYPE) == "TYPE"
+    marker = object()
+    assert _serialise(marker) is marker
+
+    global_scope = SymbolTable()
+    child_scope = SymbolTable(global_scope)
+    global_scope.define(Symbol("child", "function", "void", global_scope, child_scope))
+    assert _scope_name(global_scope, global_scope) == "module"
+    owner_scope = SymbolTable()
+    global_scope.define(Symbol("owned", "variable", "mui8", owner_scope))
+    assert _scope_name(owner_scope, global_scope) == "owned"
+    assert _scope_name(SymbolTable(), global_scope) == "local"
 
 
 def test_serialise_handles_enums_dataclasses_collections_and_dict_keys():

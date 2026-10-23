@@ -232,5 +232,6 @@ Every commit in the `Sim20004/teapot-lang` repository is represented below, from
 * 2026-07-25: Expanded tokeniser support
 * 2026-07-25: Completed the initial tokeniser
 * 2026-07-25: Created the initial repository and project structure
+* 2026-10-23: Split test_coverage_gaps into per-component files
 * 2026-10-23: Adding a test-only change 
 

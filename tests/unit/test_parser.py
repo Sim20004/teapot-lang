@@ -1,9 +1,12 @@
+import runpy
+
 from pytest import raises
 
 import teapot.teapot_ast as ast
 from teapot import tokens
 from teapot.lexer import Lexer
-from teapot.parser import Parser, ParserError
+from teapot.parser import Parser, ParserError, print_ast
+from teapot.tokens import Token
 
 
 # Lex each source snippet through the same entry point used by parser tests.
@@ -11,6 +14,10 @@ def lex(source):
     lexer = Lexer(source)
     tokens = lexer.tokenise()
     return tokens
+
+
+def parse(source):
+    return Parser(lex(source)).parse()
 
 
 # A valid program starts with a memory-management directive.
@@ -1554,3 +1561,296 @@ def test_if_empty_block():
 
     assert isinstance(statement, ast.If)
     assert statement.body == []
+
+
+def test_parser_trace_and_print_ast(capsys):
+    tree = parse("$MEM-GC\nval mui8 value = 1.")
+    print_ast(tree)
+    output = capsys.readouterr().out
+    assert "Program" in output
+    assert "memory_mode" in output
+
+    recursive = []
+    recursive.append(recursive)
+    print_ast(["text", (1,), {"key": True}, {"nested": None}, recursive, object()])
+    output = capsys.readouterr().out
+    assert "<recursive reference>" in output
+    assert "'text'" in output
+
+
+def test_parser_rejects_invalid_operator_return_type():
+    with raises(ParserError):
+        parse("$MEM-GC\noperator foo()!1 {}")
+
+
+def test_parser_direct_token_error_and_eof_paths():
+    parser = Parser([Token(tokens.TokenType.DIRECTIVE, "$MEM-GC")])
+    parser.position = len(parser.tokens)
+    assert parser.current_token().type is tokens.TokenType.EOF
+    assert parser.advance().type is tokens.TokenType.EOF
+    with raises(ParserError):
+        parser.expect(tokens.TokenType.TYPE)
+
+    with raises(ParserError):
+        Parser(
+            [
+                Token(tokens.TokenType.DIRECTIVE, "$MEM-GC"),
+                Token(tokens.TokenType.STRUCT, "sct"),
+                Token(tokens.TokenType.IDENTIFIER, "Record"),
+                Token(tokens.TokenType.OPEN_BRACE, "{"),
+                Token(tokens.TokenType.IDENTIFIER, "Unknown"),
+            ]
+        ).parse()
+    with raises(ParserError):
+        Parser(
+            [
+                Token(tokens.TokenType.DIRECTIVE, "$MEM-GC"),
+                Token(tokens.TokenType.ERROR, "err"),
+                Token(tokens.TokenType.IDENTIFIER, "Failure"),
+                Token(tokens.TokenType.OPEN_BRACE, "{"),
+                Token(tokens.TokenType.IDENTIFIER, "Unknown"),
+            ]
+        ).parse()
+
+
+def test_parser_invalid_operator_name_and_argument_type():
+    with raises(ParserError):
+        parse("$MEM-GC\noperator !()!void {}")
+    with raises(ParserError):
+        parse("$MEM-GC\noperator foo(1 value)!void {}")
+    with raises(ParserError):
+        parse("$MEM-GC\noperator foo(mui8 value, 1 other)!void {}")
+
+
+def test_parser_function_argument_variants_and_invalid_return():
+    tree = parse("$MEM-GC\nfc collect(mui8[] values, cstr[] labels)!Result {}")
+    assert isinstance(tree.statements[0].arguments[1].datatype, ast.ArrayType)
+    assert tree.statements[0].return_type == "Result"
+    with raises(ParserError):
+        parse("$MEM-GC\nfc broken()!1 {}")
+
+
+def test_parser_rejects_unknown_primitive_token():
+    with raises(ParserError):
+        Parser(
+            [
+                Token(tokens.TokenType.DIRECTIVE, "$MEM-GC"),
+                Token(tokens.TokenType.VAL, "val"),
+                Token(tokens.TokenType.TYPE, "unknown"),
+                Token(tokens.TokenType.IDENTIFIER, "value"),
+                Token(tokens.TokenType.PERIOD, "."),
+            ]
+        ).parse()
+
+
+def test_parser_struct_error_and_operator_alternative_paths():
+    for declaration in [tokens.TokenType.STRUCT, tokens.TokenType.ERROR]:
+        parser = Parser(
+            [
+                Token(tokens.TokenType.DIRECTIVE, "$MEM-GC"),
+                Token(declaration, "declaration"),
+                Token(tokens.TokenType.IDENTIFIER, "Named"),
+                Token(tokens.TokenType.OPEN_BRACE, "{"),
+                Token(tokens.TokenType.TYPE, "unknown"),
+                Token(tokens.TokenType.IDENTIFIER, "field"),
+                Token(tokens.TokenType.PERIOD, "."),
+                Token(tokens.TokenType.CLOSE_BRACE, "}"),
+            ]
+        )
+        with raises(ParserError):
+            parser.parse()
+
+    tree = parse("$MEM-GC\noperator foo()!Custom {}")
+    assert tree.statements[0].return_type.value == "Custom"
+
+
+def test_parser_reassignment_helper_success_and_error_paths():
+    parser = Parser(
+        [
+            Token(tokens.TokenType.IDENTIFIER, "value"),
+            Token(tokens.TokenType.ASSIGN_PLUS, "+="),
+            Token(tokens.TokenType.INTEGER, 2),
+            Token(tokens.TokenType.PERIOD, "."),
+        ]
+    )
+    assignment = parser.handle_reassignement()
+    assert assignment.target.name == "value"
+    assert assignment.operator.type is tokens.TokenType.ASSIGN_PLUS
+    assert assignment.value.value == 2
+
+    parser = Parser(
+        [
+            Token(tokens.TokenType.IDENTIFIER, "value"),
+            Token(tokens.TokenType.CLOSE_BRACE, "}"),
+        ]
+    )
+    with raises(ParserError):
+        parser.handle_reassignement()
+
+
+def test_parser_public_identifier_statement_is_rejected():
+    with raises(ParserError):
+        parse("$MEM-GC\npub value = 1.")
+
+
+def test_parser_operator_and_empty_optional_paths():
+    tree = parse("$MEM-GC\noperator +(mui8 left, Custom right)!void {}")
+    operator = tree.statements[0]
+    assert operator.symbol == "+"
+    assert [argument.datatype for argument in operator.arguments] == [
+        "mui8",
+        "Custom",
+    ]
+    assert operator.return_type.value == "void"
+
+    tree = parse("$MEM-GC\nif (true) {}")
+    statement = tree.statements[0]
+    assert statement.elifs == []
+    assert statement.else_body is None
+
+
+def test_parser_new_datatypes_and_expression_suffixes():
+    parser = Parser(
+        [
+            Token(tokens.TokenType.LIST, "list"),
+            Token(tokens.TokenType.LESS, "<"),
+            Token(tokens.TokenType.TYPE, "mui8"),
+            Token(tokens.TokenType.GREATER, ">"),
+        ]
+    )
+    datatype, user_defined = parser.handle_datatype()
+    assert isinstance(datatype, ast.ListType)
+    assert user_defined is False
+    assert parser.datatype_mutability(datatype) is True
+
+    parser = Parser(
+        [
+            Token(tokens.TokenType.MAP, "map"),
+            Token(tokens.TokenType.OPEN_BRACKET, "["),
+            Token(tokens.TokenType.TYPE, "mui8"),
+            Token(tokens.TokenType.CLOSE_BRACKET, "]"),
+            Token(tokens.TokenType.TYPE, "mstr"),
+        ]
+    )
+    datatype, user_defined = parser.handle_datatype()
+    assert isinstance(datatype, ast.MapType)
+    assert user_defined is False
+    assert parser.datatype_mutability(datatype) is False
+
+    parser = Parser(
+        [
+            Token(tokens.TokenType.LIST, "list"),
+            Token(tokens.TokenType.LESS, "<"),
+            Token(tokens.TokenType.LIST, "list"),
+            Token(tokens.TokenType.LESS, "<"),
+            Token(tokens.TokenType.TYPE, "mui8"),
+            Token(tokens.TokenType.CAST, ">>"),
+        ]
+    )
+    nested, _ = parser.handle_datatype()
+    assert isinstance(nested.datatype, ast.ListType)
+    assert parser.pending_generic_closes == 0
+
+    with raises(ParserError):
+        Parser([Token(tokens.TokenType.PLUS, "+")]).expect_generic_close()
+
+    parser = Parser([Token(tokens.TokenType.GREATER, ">")])
+    parser.pending_generic_closes = 1
+    parser.expect_generic_close()
+    assert parser.pending_generic_closes == 0
+
+    parser = Parser(
+        [
+            Token(tokens.TokenType.IDENTIFIER, "items"),
+            Token(tokens.TokenType.OPEN_BRACKET, "["),
+            Token(tokens.TokenType.INTEGER, 0),
+            Token(tokens.TokenType.CLOSE_BRACKET, "]"),
+        ]
+    )
+    indexed = parser.handle_expression()
+    assert isinstance(indexed, ast.IndexExpression)
+
+    parser = Parser(
+        [
+            Token(tokens.TokenType.OPEN_PAREN, "("),
+            Token(tokens.TokenType.OPEN_BRACKET, "["),
+            Token(tokens.TokenType.STRING, "key"),
+            Token(tokens.TokenType.COMMA, ","),
+            Token(tokens.TokenType.INTEGER, 1),
+            Token(tokens.TokenType.CLOSE_BRACKET, "]"),
+            Token(tokens.TokenType.CLOSE_PAREN, ")"),
+        ]
+    )
+    map_literal = parser.handle_expression()
+    assert isinstance(map_literal, ast.MapLiteral)
+    assert map_literal.entries["key"].value == 1
+
+    invalid_map = Parser(
+        [
+            Token(tokens.TokenType.OPEN_PAREN, "("),
+            Token(tokens.TokenType.OPEN_BRACKET, "["),
+            Token(tokens.TokenType.IDENTIFIER, "key"),
+            Token(tokens.TokenType.COMMA, ","),
+            Token(tokens.TokenType.INTEGER, 1),
+            Token(tokens.TokenType.CLOSE_BRACKET, "]"),
+            Token(tokens.TokenType.CLOSE_PAREN, ")"),
+        ]
+    )
+    with raises(ParserError, match="Map keys must be literals"):
+        invalid_map.handle_expression()
+
+
+def test_parser_struct_array_and_control_flow_helpers():
+    parser = Parser(
+        [
+            Token(tokens.TokenType.IDENTIFIER, "Record"),
+            Token(tokens.TokenType.OPEN_BRACE, "{"),
+            Token(tokens.TokenType.TYPE, "mui8"),
+            Token(tokens.TokenType.OPEN_BRACKET, "["),
+            Token(tokens.TokenType.CLOSE_BRACKET, "]"),
+            Token(tokens.TokenType.IDENTIFIER, "values"),
+            Token(tokens.TokenType.PERIOD, "."),
+            Token(tokens.TokenType.CLOSE_BRACE, "}"),
+        ]
+    )
+    record = parser.handle_struct()
+    assert isinstance(record.body[0].datatype.name, ast.ArrayType)
+
+    assert isinstance(
+        Parser(
+            [Token(tokens.TokenType.INTEGER, 1), Token(tokens.TokenType.PERIOD, ".")]
+        ).handle_free(),
+        ast.FreeMemory,
+    )
+    assert isinstance(
+        Parser([Token(tokens.TokenType.PERIOD, ".")]).handle_break(), ast.Break
+    )
+    assert isinstance(
+        Parser([Token(tokens.TokenType.PERIOD, ".")]).handle_continue(), ast.Continue
+    )
+
+    do_parser = Parser(
+        [
+            Token(tokens.TokenType.OPEN_BRACE, "{"),
+            Token(tokens.TokenType.CLOSE_BRACE, "}"),
+            Token(tokens.TokenType.FAIL, "fail"),
+            Token(tokens.TokenType.OPEN_PAREN, "("),
+            Token(tokens.TokenType.IDENTIFIER, "Failure"),
+            Token(tokens.TokenType.IDENTIFIER, "error"),
+            Token(tokens.TokenType.CLOSE_PAREN, ")"),
+            Token(tokens.TokenType.OPEN_BRACE, "{"),
+            Token(tokens.TokenType.CLOSE_BRACE, "}"),
+        ]
+    )
+    statement = do_parser.handle_do()
+    assert statement.fail.error == "Failure"
+
+
+def test_parser_module_guard():
+    with raises(SystemExit, match="Cannot run this file directly"):
+        runpy.run_module("teapot.parser", run_name="__main__")
+
+
+def test_parser_core_module_guard():
+    with raises(SystemExit, match="Cannot run this file directly"):
+        runpy.run_module("teapot.parsing.core", run_name="__main__")
