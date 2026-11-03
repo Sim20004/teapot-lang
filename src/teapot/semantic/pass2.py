@@ -480,16 +480,16 @@ class TypeChecker:
             case ast.DeclareVariable():
                 self.check_variable(node, scope)
             case ast.Operator() | ast.Function():
-                self.check_operator_or_function(node)
+                self.check_operator_or_function(node, scope)
             case ast.Struct() | ast.Enum() | ast.Error():
                 pass
             case _:
-                pass  # Comment if developing but uncomment when using or running tests
-                # print(f"Unknown node: {node.__repr__()}")
-                # sleep(3)
+                # pass  # Comment if developing but uncomment when using or running tests
+                print(f"Unknown node: {node.__repr__()}")
+                sleep(3)
             # Uncomment above if developing but keep commented when using or running tests
 
-    def infer_expression_type(self, expression):
+    def infer_expression_type(self, expression, scope):
         if isinstance(expression, ast.Literal):
             if type(expression.value) is bool:
                 return "bln"
@@ -501,12 +501,12 @@ class TypeChecker:
                 return "str"
 
         if isinstance(expression, ast.BinaryExpression):
-            left_type = self.infer_expression_type(expression.left)
-            right_type = self.infer_expression_type(expression.right)
+            left_type = self.infer_expression_type(expression.left, scope)
+            right_type = self.infer_expression_type(expression.right, scope)
             return self.infer_binary_type(expression.operator, left_type, right_type)
 
         if isinstance(expression, ast.Identifier):
-            return self.global_scope.lookup(expression.name).type
+            return scope.lookup(expression.name).type
 
     def infer_binary_type(self, operator, left_type, right_type):
         try:
@@ -516,37 +516,29 @@ class TypeChecker:
                 f"Cannot apply {operator} to {left_type} and {right_type} types."
             )
 
-    def check_operator_or_function(self, node):
+    def check_operator_or_function(self, node, scope):
         expected_type = node.return_type
         if hasattr(expected_type, "value"):
             expected_type = expected_type.value
         if expected_type in self.TYPES:
-            self.check_return_type(node, expected_type)
+            self.check_return_type(node, expected_type, scope)
 
-    def check_operator(self, node):
-        self.check_operator_or_function(node)
+    def check_operator(self, node, scope):
+        self.check_operator_or_function(node, scope)
 
-    def check_return_type(self, node, expected_type):
+    def check_return_type(self, node, expected_type, scope):
         datatype = self.TYPES[expected_type]
 
         for statement in node.body:
             if not isinstance(statement, ast.Return):
                 continue
 
-            value = statement.value.value
+            actual_type = self.infer_expression_type(statement.value, scope)
 
-            if type(value) is not datatype["type"]:
+            if actual_type != expected_type:
                 raise ReturnTypeMismatchError(
-                    f"You tried to return a {type(value).__name__} value "
+                    f"You tried to return a {actual_type} value "
                     f"but chose {expected_type} as your callable's return type!"
-                )
-
-            if (datatype["min"] is not None and value < datatype["min"]) or (
-                datatype["max"] is not None and value > datatype["max"]
-            ):
-                raise ReturnTypeMismatchError(
-                    f"You tried to return a value outside the bounds of "
-                    f"{expected_type}!"
                 )
 
     def check_type(self, node, datatype):
