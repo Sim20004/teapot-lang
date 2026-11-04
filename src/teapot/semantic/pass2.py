@@ -527,8 +527,6 @@ class TypeChecker:
         self.check_operator_or_function(node, scope)
 
     def check_return_type(self, node, expected_type, scope):
-        datatype = self.TYPES[expected_type]
-
         for statement in node.body:
             if not isinstance(statement, ast.Return):
                 continue
