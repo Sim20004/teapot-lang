@@ -12,6 +12,8 @@ from teapot.errors import (
     VoidDatatypeError,
 )
 
+# TODO: implement type flexibility
+
 
 class TypeChecker:
     TYPES: ClassVar = {
@@ -553,6 +555,14 @@ class TypeChecker:
             raise TypeMismatchError(
                 f"Invalid type for '{node.identifier}': "
                 f"expected {expected.__name__}, found {actual.__name__}",
+                node,
+            )
+
+        if (datatype["max"] is not None and node.value.value > datatype["max"]) or (
+            datatype["min"] is not None and node.value.value < datatype["min"]
+        ):
+            raise TypeBoundsExceededError(
+                "Type bounds exceeded.",
                 node,
             )
 
