@@ -66,23 +66,27 @@ def test_symbol_creation_with_different_kinds():
 
 
 def test_infer_literal_bool_type():
-    checker = TypeChecker(None, SymbolTable())
-    assert checker.infer_expression_type(ast.Literal(True)) == "bln"
+    scope = SymbolTable()
+    checker = TypeChecker(None, scope)
+    assert checker.infer_expression_type(ast.Literal(True), scope) == "bln"
 
 
 def test_infer_literal_int_type():
-    checker = TypeChecker(None, SymbolTable())
-    assert checker.infer_expression_type(ast.Literal(42)) == "aint"
+    scope = SymbolTable()
+    checker = TypeChecker(None, scope)
+    assert checker.infer_expression_type(ast.Literal(42), scope) == "aint"
 
 
 def test_infer_literal_float_type():
-    checker = TypeChecker(None, SymbolTable())
-    assert checker.infer_expression_type(ast.Literal(3.14)) == "dml"
+    scope = SymbolTable()
+    checker = TypeChecker(None, scope)
+    assert checker.infer_expression_type(ast.Literal(3.14), scope) == "dml"
 
 
 def test_infer_literal_string_type():
-    checker = TypeChecker(None, SymbolTable())
-    assert checker.infer_expression_type(ast.Literal("hello")) == "str"
+    scope = SymbolTable()
+    checker = TypeChecker(None, scope)
+    assert checker.infer_expression_type(ast.Literal("hello"), scope) == "str"
 
 
 def test_symbol_creation_with_different_types():
