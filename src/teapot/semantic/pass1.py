@@ -13,6 +13,20 @@ class SymbolTableBuilder:
     def __init__(self, trace=False):
         self.trace = trace
         self.loop_depth = 0
+        # Fallback storage for nodes that refuse new attributes (e.g. __slots__).
+        # Normally unused: scopes live on `node.scope`.
+        self.scopes = {}
+
+    def attach_scope(self, node, scope):
+        """Remember the scope created for `node` so later passes can reuse it."""
+        try:
+            node.scope = scope
+        except AttributeError:
+            try:
+                # frozen dataclasses
+                object.__setattr__(node, "scope", scope)
+            except (AttributeError, TypeError):
+                self.scopes[id(node)] = scope
 
     def build(self, ast_tree):
         global_scope = SymbolTable()
@@ -74,24 +88,28 @@ class SymbolTableBuilder:
 
     def register_if(self, node, scope):
         if_scope = SymbolTable(scope)
+        self.attach_scope(node, if_scope)
 
         for statement in node.body:
             self.register_node(statement, if_scope)
 
         for elif_node in node.elifs:
             elif_scope = SymbolTable(scope)
+            self.attach_scope(elif_node, elif_scope)
 
             for statement in elif_node.body:
                 self.register_node(statement, elif_scope)
 
         if node.else_body is not None:
             else_scope = SymbolTable(scope)
+            self.attach_scope(node.else_body, else_scope)
 
             for statement in node.else_body.body:
                 self.register_node(statement, else_scope)
 
     def register_for(self, node, scope):
         for_scope = SymbolTable(scope)
+        self.attach_scope(node, for_scope)
 
         for_scope.define(
             Symbol(
@@ -111,6 +129,7 @@ class SymbolTableBuilder:
 
     def register_while(self, node, scope):
         while_scope = SymbolTable(scope)
+        self.attach_scope(node, while_scope)
 
         self.loop_depth += 1
         try:
@@ -121,6 +140,7 @@ class SymbolTableBuilder:
 
     def register_do_block(self, node, scope):
         do_scope = SymbolTable(scope)
+        self.attach_scope(node, do_scope)
 
         for statement in node.body:
             self.register_node(statement, do_scope)
@@ -129,6 +149,7 @@ class SymbolTableBuilder:
 
     def register_fail(self, node, scope):
         fail_scope = SymbolTable(scope)
+        self.attach_scope(node, fail_scope)
 
         fail_scope.define(
             Symbol(
@@ -156,6 +177,7 @@ class SymbolTableBuilder:
 
     def register_operator(self, node, scope):
         operator_scope = SymbolTable(scope)
+        self.attach_scope(node, operator_scope)
 
         scope.define(
             Symbol(
@@ -190,6 +212,7 @@ class SymbolTableBuilder:
 
     def register_error(self, node, scope):
         error_scope = SymbolTable(parent=scope)
+        self.attach_scope(node, error_scope)
 
         scope.define(
             Symbol(
@@ -239,6 +262,7 @@ class SymbolTableBuilder:
 
     def register_enum(self, node, scope):
         enum_scope = SymbolTable(parent=scope)
+        self.attach_scope(node, enum_scope)
 
         scope.define(
             Symbol(
@@ -261,6 +285,7 @@ class SymbolTableBuilder:
 
     def register_function(self, node, scope):
         function_scope = SymbolTable(parent=scope)
+        self.attach_scope(node, function_scope)
 
         scope.define(
             Symbol(
@@ -302,6 +327,7 @@ class SymbolTableBuilder:
 
     def register_struct(self, node, scope):
         struct_scope = SymbolTable(parent=scope)
+        self.attach_scope(node, struct_scope)
 
         scope.define(
             Symbol(
