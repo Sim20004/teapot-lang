@@ -133,15 +133,13 @@ def test_type_checker_rejects_return_type_mismatch():
         checker.check_operator(operator, scope)
 
 
-@pytest.mark.skip(
-    reason="Return value bounds checking code has been deprecated and will be rewritten in future."
-)
 def test_type_checker_rejects_return_value_outside_bounds():
     scope = SymbolTable()
     checker = TypeChecker(None, scope)
 
     operator = ast.Operator(
         "+",
+        [],
         [ast.Return(ast.Literal(256))],
         Token(TokenType.TYPE, "mui8"),
     )

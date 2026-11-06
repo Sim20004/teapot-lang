@@ -375,6 +375,24 @@ class TypeChecker:
         if actual_type is None:
             return  # couldn't infer, so don't guess
 
+        if (
+            actual_type == "aint"
+            and expected_type in self.TYPES
+            and isinstance(statement.value, ast.Literal)
+        ):
+            value = statement.value.value
+            datatype = self.TYPES[expected_type]
+
+            minimum = datatype["min"]
+            maximum = datatype["max"]
+
+            if (minimum is not None and value < minimum) or (
+                maximum is not None and value > maximum
+            ):
+                raise ReturnTypeMismatchError(
+                    f"Returned value {value} is outside the bounds of {expected_type}."
+                )
+
         if not self.is_type_compatible(actual_type, expected_type, statement.value):
             raise ReturnTypeMismatchError(
                 f"You tried to return a {actual_type} value "
@@ -509,7 +527,7 @@ class TypeChecker:
                 if minimum is not None and value < minimum:
                     return False
 
-                return maximum is not None and value > maximum
+                return maximum is None or value <= maximum
 
             # Non-literal integer expression such as (5 + 2) * 3.
             # TODO: constant-fold these so bounds can be checked too.
