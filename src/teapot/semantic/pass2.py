@@ -505,10 +505,7 @@ class TypeChecker:
                 if minimum is not None and value < minimum:
                     return False
 
-                if maximum is not None and value > maximum:
-                    return False
-
-                return True
+                return (maximum is not None and value > maximum)
 
             # Non-literal integer expression such as (5 + 2) * 3.
             # TODO: constant-fold these so bounds can be checked too.
