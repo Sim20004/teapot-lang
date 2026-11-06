@@ -214,7 +214,9 @@ class TypeChecker:
 
         if kind in self.GROUP_NODES:
             inner = self._attr(expression, "expression", "inner", "value", "node")
-            return self.infer_expression_type(inner, scope) if inner is not None else None
+            return (
+                self.infer_expression_type(inner, scope) if inner is not None else None
+            )
 
         if kind in self.CAST_NODES:
             target = self._attr(expression, "target_type", "datatype", "type", "target")
@@ -226,7 +228,9 @@ class TypeChecker:
                 return "bln"
             operand = self._attr(expression, "operand", "right", "expression", "value")
             return (
-                self.infer_expression_type(operand, scope) if operand is not None else None
+                self.infer_expression_type(operand, scope)
+                if operand is not None
+                else None
             )
 
         if kind in self.CALL_NODES:
@@ -505,7 +509,7 @@ class TypeChecker:
                 if minimum is not None and value < minimum:
                     return False
 
-                return (maximum is not None and value > maximum)
+                return maximum is not None and value > maximum
 
             # Non-literal integer expression such as (5 + 2) * 3.
             # TODO: constant-fold these so bounds can be checked too.
