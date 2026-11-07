@@ -755,6 +755,7 @@ def test_type_checker_is_type_compatible_rejects_different_sized_types(
 
     assert checker.is_type_compatible(actual, expected, ast.Literal(1)) is False
 
+
 @pytest.mark.parametrize(
     "operator, left, right",
     [
