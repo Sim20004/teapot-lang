@@ -754,3 +754,33 @@ def test_type_checker_is_type_compatible_rejects_different_sized_types(
     checker = TypeChecker(None, SymbolTable())
 
     assert checker.is_type_compatible(actual, expected, ast.Literal(1)) is False
+
+@pytest.mark.parametrize(
+    "operator, left, right",
+    [
+        ("+", "str", "bln"),  # operand base types differ
+        ("+", "mui8", "si8"),  # different sized integers
+        ("-", "str", "str"),  # only + is valid on strings
+        ("+", "bln", "bln"),  # arithmetic on a non-numeric type
+        ("<", "str", "str"),  # ordering on a non-numeric type
+        ("<=", "bln", "bln"),
+        ("&&", "aint", "aint"),  # logical operator on a non-bln type
+        ("||", "str", "str"),
+        ("%", "aint", "aint"),  # operator with no rule at all
+    ],
+)
+def test_type_checker_infer_binary_type_rejects_unsupported_combinations(
+    operator, left, right
+):
+    checker = TypeChecker(None, SymbolTable())
+
+    with pytest.raises(TypeMismatchError, match="Cannot apply"):
+        checker.infer_binary_type(operator, left, right)
+
+
+def test_type_checker_check_statement_skips_return_without_expected_type():
+    scope = SymbolTable()
+    checker = TypeChecker(None, scope)
+
+    # Would raise if it were checked against a return type.
+    checker.check_statement(ast.Return(ast.Literal("anything")), scope, None)
