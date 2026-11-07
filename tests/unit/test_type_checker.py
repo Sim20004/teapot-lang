@@ -1,7 +1,6 @@
-from unittest.mock import Mock
 from types import SimpleNamespace
+from unittest.mock import Mock
 
-from teapot.errors import UndefinedVariableError  
 import pytest
 
 import teapot.teapot_ast as ast
@@ -10,6 +9,7 @@ from teapot.errors import (
     ReturnTypeMismatchError,
     TypeBoundsExceededError,
     TypeMismatchError,
+    UndefinedVariableError,
     VoidDatatypeError,
 )
 from teapot.semantic import SymbolTable
@@ -471,7 +471,9 @@ def test_type_checker_infer_call_type_uses_callee_node_and_symbol_type():
 def test_type_checker_infer_enum_access_without_a_usable_owner():
     checker = TypeChecker(None, SymbolTable())
 
-    assert checker.infer_enum_access_type(_fake("EnumAccess"), _scope_with(None)) is None
+    assert (
+        checker.infer_enum_access_type(_fake("EnumAccess"), _scope_with(None)) is None
+    )
 
 
 def test_type_checker_infer_enum_access_returns_enum_name():

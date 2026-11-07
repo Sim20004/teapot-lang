@@ -1,13 +1,14 @@
 import runpy
 
-import teapot.parsing.core as core
 from pytest import raises
 
 import teapot.teapot_ast as ast
 from teapot import tokens
 from teapot.lexer import Lexer
 from teapot.parser import Parser, ParserError, print_ast
+from teapot.parsing import core
 from teapot.tokens import Token
+
 
 class MockParser:
     def __init__(self, tree):
@@ -15,6 +16,7 @@ class MockParser:
 
     def parse(self):
         return self.tree
+
 
 # Lex each source snippet through the same entry point used by parser tests.
 def lex(source):
@@ -1862,6 +1864,7 @@ def test_parser_core_module_guard():
     with raises(SystemExit, match="Cannot run this file directly"):
         runpy.run_module("teapot.parsing.core", run_name="__main__")
 
+
 def test_run_without_trace(monkeypatch):
     tokens = []
     ast_tree = object()
@@ -1873,6 +1876,7 @@ def test_run_without_trace(monkeypatch):
     result = core.run(tokens, False)
 
     assert result is expected
+
 
 def test_run_with_trace(monkeypatch):
     tokens = []

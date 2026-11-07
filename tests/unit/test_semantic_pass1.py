@@ -142,8 +142,9 @@ def test_pass1_assignment_and_unknown_node_errors():
     with pytest.raises(SemanticError):
         builder.register_node(ast.Break(), scope)
 
+
 def test_no_scope_attribute_error():
-    class NoScope():
+    class NoScope:
         __slots__ = ()
 
     builder = SymbolTableBuilder()
