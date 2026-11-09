@@ -1,6 +1,6 @@
 import runpy
 
-from pytest import raises
+from pytest import mark, raises
 
 import teapot.teapot_ast as ast
 from teapot import tokens
@@ -1054,6 +1054,48 @@ def test_boolean_literal():
 
     assert isinstance(statement.value, ast.Literal)
     assert statement.value.value is True
+
+
+# Each boolean word becomes a Python bool, not an int or a string
+@mark.parametrize("word, expected", [("true", True), ("false", False)])
+def test_boolean_literal_values(word, expected):
+    program = parse(f"$MEM-GC\nfoo = {word}.")
+    statement = program.statements[0]
+
+    assert isinstance(statement.value, ast.Literal)
+    assert statement.value.value is expected
+
+
+# Boolean literals keep their value when used to initialise mutable and constant variables
+def test_boolean_literal_in_declaration():
+    mutable = parse("$MEM-GC\nval mbln foo = true.").statements[0]
+
+    assert isinstance(mutable, ast.DeclareVariable)
+    assert mutable.datatype.name == "mbln"
+    assert mutable.datatype.mutable is True
+    assert isinstance(mutable.value, ast.Literal)
+    assert mutable.value.value is True
+
+    constant = parse("$MEM-GC\nval cbln qux = false.").statements[0]
+
+    assert isinstance(constant, ast.DeclareVariable)
+    assert constant.datatype.name == "cbln"
+    assert constant.datatype.mutable is False
+    assert isinstance(constant.value, ast.Literal)
+    assert constant.value.value is False
+
+
+# Boolean literals on both sides of a binary expression produce Literal operands
+def test_boolean_literal_in_binary_expression():
+    statement = parse("$MEM-GC\nfoo = true || false.").statements[0]
+    expression = statement.value
+
+    assert isinstance(expression, ast.BinaryExpression)
+    assert expression.operator == "||"
+    assert isinstance(expression.left, ast.Literal)
+    assert expression.left.value is True
+    assert isinstance(expression.right, ast.Literal)
+    assert expression.right.value is False
 
 
 # String literal produces valid AST

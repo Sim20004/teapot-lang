@@ -4,6 +4,7 @@ Every commit in the `Sim20004/teapot-lang` repository is represented below, from
 
 # Unreleased
 
+* 2026-11-08: Added parser tests for the `true` and `false` boolean literals, covering standalone assignments, variable declarations and binary expressions.
 * 2026-11-07: Added tests to fill coverage gaps
 * 2026-11-04: Fixed format, fixed various failing tests due to: addition of parameter in various functions, deprecation and removal of bounds checking code for future rewrite, and change of other code, and then fixed formatting again in three commits.
 * 2026-11-03: Updated infer_expression_type() to accept a scope argument, added scope propagation when recursively inferring binexp, updated iden type inference to look up variables in provided scope rather than glob, updated check_node() to pass scope into type checking, updated check_operator_or_function() and check_return_type() to propagate scope.
