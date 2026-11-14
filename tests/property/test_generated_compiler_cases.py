@@ -62,3 +62,77 @@ def test_parser_builds_variable_ast_for_type_literal_and_identifier_matrix(
     assert declaration.identifier == name
     assert declaration.datatype.name == datatype
     assert declaration.value is not None
+
+
+BALANCED_ATOM_CASES = tuple(
+    (atom_text, atom_node, depth)
+    for atom_text, atom_node in (
+        ("1", ast.Literal(1)),
+        ("x", ast.Identifier("x")),
+        ("true", ast.Literal(True)),
+    )
+    for depth in range(5)
+)
+
+
+@pytest.mark.parametrize("atom_text, atom_node, depth", BALANCED_ATOM_CASES)
+def test_parser_parses_balanced_parenthesised_atoms(atom_text, atom_node, depth):
+    wrapped = "(" * depth + atom_text + ")" * depth
+    program = Parser(Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()).parse()
+
+    declaration = program.statements[0]
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.value == atom_node
+
+
+BALANCED_BINARY_CASES = tuple(
+    (
+        left_text,
+        left_node,
+        operator,
+        right_text,
+        right_node,
+        left_wrap,
+        right_wrap,
+        whole_wrap,
+    )
+    for (left_text, left_node, operator, right_text, right_node) in (
+        ("1", ast.Literal(1), "+", "x", ast.Identifier("x")),
+        ("x", ast.Identifier("x"), "*", "2", ast.Literal(2)),
+    )
+    for left_wrap, right_wrap, whole_wrap in itertools.product(range(3), repeat=3)
+)
+
+
+@pytest.mark.parametrize(
+    (
+        "left_text",
+        "left_node",
+        "operator",
+        "right_text",
+        "right_node",
+        "left_wrap",
+        "right_wrap",
+        "whole_wrap",
+    ),
+    BALANCED_BINARY_CASES,
+)
+def test_parser_parses_balanced_parenthesised_binary_expressions(
+    left_text,
+    left_node,
+    operator,
+    right_text,
+    right_node,
+    left_wrap,
+    right_wrap,
+    whole_wrap,
+):
+    left_expression = "(" * left_wrap + left_text + ")" * left_wrap
+    right_expression = "(" * right_wrap + right_text + ")" * right_wrap
+    inner = f"{left_expression} {operator} {right_expression}"
+    wrapped = "(" * whole_wrap + inner + ")" * whole_wrap
+    program = Parser(Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()).parse()
+
+    declaration = program.statements[0]
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.value == ast.BinaryExpression(left_node, operator, right_node)
