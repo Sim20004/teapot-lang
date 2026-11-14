@@ -1,4 +1,5 @@
 import itertools
+import string
 
 import pytest
 
@@ -6,6 +7,25 @@ import teapot.teapot_ast as ast
 from teapot import tokens
 from teapot.lexer import Lexer
 from teapot.parser import Parser
+
+RESERVED_WORDS = (
+    set(tokens.KEYWORDS) | set(tokens.TYPE_KEYWORDS) | set(tokens.BOOLEAN_LITERALS)
+)
+
+
+def _generated_simple_identifiers():
+    starts = string.ascii_letters + "_"
+    continues = string.ascii_letters + string.digits + "_"
+    for start in starts:
+        if start not in RESERVED_WORDS:
+            yield start
+        for cont in continues:
+            name = start + cont
+            if name not in RESERVED_WORDS:
+                yield name
+
+
+SIMPLE_IDENTIFIERS = tuple(_generated_simple_identifiers())
 
 WHITESPACE = ("", " ", "\t", "\n", " \t", "\n\n", " \n", "\t\n", "\r\n")
 LEXICAL_ATOMS = tuple(
@@ -61,4 +81,25 @@ def test_parser_builds_variable_ast_for_type_literal_and_identifier_matrix(
     assert isinstance(declaration, ast.DeclareVariable)
     assert declaration.identifier == name
     assert declaration.datatype.name == datatype
+    assert declaration.value is not None
+
+
+@pytest.mark.parametrize("name", SIMPLE_IDENTIFIERS)
+def test_lexer_classifies_generated_simple_identifiers(name):
+    for prefix, suffix in (("", ""), (" ", " "), ("\n", "\t")):
+        tokenised = Lexer(prefix + name + suffix).tokenise()
+
+        assert tokenised[0].type == tokens.TokenType.IDENTIFIER
+        assert tokenised[0].value == name
+        assert tokenised[-1].type == tokens.TokenType.EOF
+
+
+@pytest.mark.parametrize("name", SIMPLE_IDENTIFIERS)
+def test_parser_accepts_generated_simple_identifier_names(name):
+    program = Parser(Lexer(f"$MEM-GC\nval aint {name} = 1.").tokenise()).parse()
+
+    declaration = program.statements[0]
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.identifier == name
+    assert declaration.datatype.name == "aint"
     assert declaration.value is not None
