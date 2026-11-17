@@ -1,4 +1,3 @@
-
 import itertools
 import string
 
@@ -46,13 +45,9 @@ LEXICAL_CASES = tuple(
     for prefix, suffix in itertools.product(WHITESPACE, repeat=2)
 )
 
-SIMPLE_INTEGER_LITERALS = (
-    "0", "1", "7", "9", "10", "42", "99", "00", "007", "123"
-)
+SIMPLE_INTEGER_LITERALS = ("0", "1", "7", "9", "10", "42", "99", "00", "007", "123")
 
-SIMPLE_FLOAT_LITERALS = (
-    "0.0", "0.5", "1.0", "2.75", "10.01", "00.0", "01.50"
-)
+SIMPLE_FLOAT_LITERALS = ("0.0", "0.5", "1.0", "2.75", "10.01", "00.0", "01.50")
 
 NUMERIC_LITERAL_CASES = tuple(
     (literal, tokens.TokenType.INTEGER, prefix, suffix)
@@ -133,9 +128,7 @@ def test_lexer_classifies_generated_simple_identifiers(name):
 
 @pytest.mark.parametrize("name", SIMPLE_IDENTIFIERS)
 def test_parser_accepts_generated_simple_identifier_names(name):
-    program = Parser(
-        Lexer(f"$MEM-GC\nval aint {name} = 1.").tokenise()
-    ).parse()
+    program = Parser(Lexer(f"$MEM-GC\nval aint {name} = 1.").tokenise()).parse()
 
     declaration = program.statements[0]
     assert isinstance(declaration, ast.DeclareVariable)
@@ -146,9 +139,7 @@ def test_parser_accepts_generated_simple_identifier_names(name):
 
 NUMERIC_DECLARATION_CASES = tuple(
     ("caint", literal, "value") for literal in SIMPLE_INTEGER_LITERALS
-) + tuple(
-    ("cdml", literal, "value") for literal in SIMPLE_FLOAT_LITERALS
-)
+) + tuple(("cdml", literal, "value") for literal in SIMPLE_FLOAT_LITERALS)
 
 
 @pytest.mark.parametrize("datatype, literal, name", NUMERIC_DECLARATION_CASES)
@@ -183,9 +174,7 @@ BALANCED_ATOM_CASES = tuple(
 @pytest.mark.parametrize("atom_text, atom_node, depth", BALANCED_ATOM_CASES)
 def test_parser_parses_balanced_parenthesised_atoms(atom_text, atom_node, depth):
     wrapped = "(" * depth + atom_text + ")" * depth
-    program = Parser(
-        Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()
-    ).parse()
+    program = Parser(Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()).parse()
 
     declaration = program.statements[0]
     assert isinstance(declaration, ast.DeclareVariable)
@@ -239,12 +228,8 @@ def test_parser_parses_balanced_parenthesised_binary_expressions(
     inner = f"{left_expression} {operator} {right_expression}"
     wrapped = "(" * whole_wrap + inner + ")" * whole_wrap
 
-    program = Parser(
-        Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()
-    ).parse()
+    program = Parser(Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()).parse()
 
     declaration = program.statements[0]
     assert isinstance(declaration, ast.DeclareVariable)
-    assert declaration.value == ast.BinaryExpression(
-        left_node, operator, right_node
-    )
+    assert declaration.value == ast.BinaryExpression(left_node, operator, right_node)
