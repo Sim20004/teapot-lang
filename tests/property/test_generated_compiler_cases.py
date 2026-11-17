@@ -1,3 +1,4 @@
+
 import itertools
 import string
 
@@ -28,6 +29,7 @@ def _generated_simple_identifiers():
 SIMPLE_IDENTIFIERS = tuple(_generated_simple_identifiers())
 
 WHITESPACE = ("", " ", "\t", "\n", " \t", "\n\n", " \n", "\t\n", "\r\n")
+
 LEXICAL_ATOMS = tuple(
     (value, token_type)
     for value, token_type in itertools.chain(
@@ -37,9 +39,28 @@ LEXICAL_ATOMS = tuple(
         (("true", tokens.TokenType.BOOLEAN), ("false", tokens.TokenType.BOOLEAN)),
     )
 )
+
 LEXICAL_CASES = tuple(
     (value, token_type, prefix, suffix)
     for value, token_type in LEXICAL_ATOMS
+    for prefix, suffix in itertools.product(WHITESPACE, repeat=2)
+)
+
+SIMPLE_INTEGER_LITERALS = (
+    "0", "1", "7", "9", "10", "42", "99", "00", "007", "123"
+)
+
+SIMPLE_FLOAT_LITERALS = (
+    "0.0", "0.5", "1.0", "2.75", "10.01", "00.0", "01.50"
+)
+
+NUMERIC_LITERAL_CASES = tuple(
+    (literal, tokens.TokenType.INTEGER, prefix, suffix)
+    for literal in SIMPLE_INTEGER_LITERALS
+    for prefix, suffix in itertools.product(WHITESPACE, repeat=2)
+) + tuple(
+    (literal, tokens.TokenType.FLOAT, prefix, suffix)
+    for literal in SIMPLE_FLOAT_LITERALS
     for prefix, suffix in itertools.product(WHITESPACE, repeat=2)
 )
 
@@ -58,6 +79,22 @@ def test_lexer_classifies_every_atom_across_whitespace_boundaries(
         if expected_type == tokens.TokenType.BOOLEAN and value == "false"
         else value
     )
+    assert tokenised[-1].type == tokens.TokenType.EOF
+
+
+@pytest.mark.parametrize(
+    "literal, expected_type, prefix, suffix", NUMERIC_LITERAL_CASES
+)
+def test_lexer_classifies_simple_numeric_literals_across_whitespace_boundaries(
+    literal, expected_type, prefix, suffix
+):
+    tokenised = Lexer(prefix + literal + suffix).tokenise()
+
+    assert tokenised[0].type == expected_type
+    if expected_type == tokens.TokenType.INTEGER:
+        assert tokenised[0].value == int(literal)
+    else:
+        assert tokenised[0].value == pytest.approx(float(literal))
     assert tokenised[-1].type == tokens.TokenType.EOF
 
 
@@ -96,10 +133,118 @@ def test_lexer_classifies_generated_simple_identifiers(name):
 
 @pytest.mark.parametrize("name", SIMPLE_IDENTIFIERS)
 def test_parser_accepts_generated_simple_identifier_names(name):
-    program = Parser(Lexer(f"$MEM-GC\nval aint {name} = 1.").tokenise()).parse()
+    program = Parser(
+        Lexer(f"$MEM-GC\nval aint {name} = 1.").tokenise()
+    ).parse()
 
     declaration = program.statements[0]
     assert isinstance(declaration, ast.DeclareVariable)
     assert declaration.identifier == name
     assert declaration.datatype.name == "aint"
     assert declaration.value is not None
+
+
+NUMERIC_DECLARATION_CASES = tuple(
+    ("caint", literal, "value") for literal in SIMPLE_INTEGER_LITERALS
+) + tuple(
+    ("cdml", literal, "value") for literal in SIMPLE_FLOAT_LITERALS
+)
+
+
+@pytest.mark.parametrize("datatype, literal, name", NUMERIC_DECLARATION_CASES)
+def test_parser_builds_numeric_literal_declarations(datatype, literal, name):
+    program = Parser(
+        Lexer(f"$MEM-GC\nval {datatype} {name} = {literal}.").tokenise()
+    ).parse()
+
+    declaration = program.statements[0]
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.identifier == name
+    assert declaration.datatype.name == datatype
+    assert isinstance(declaration.value, ast.Literal)
+
+    if datatype == "caint":
+        assert declaration.value.value == int(literal)
+    else:
+        assert declaration.value.value == pytest.approx(float(literal))
+
+
+BALANCED_ATOM_CASES = tuple(
+    (atom_text, atom_node, depth)
+    for atom_text, atom_node in (
+        ("1", ast.Literal(1)),
+        ("x", ast.Identifier("x")),
+        ("true", ast.Literal(True)),
+    )
+    for depth in range(5)
+)
+
+
+@pytest.mark.parametrize("atom_text, atom_node, depth", BALANCED_ATOM_CASES)
+def test_parser_parses_balanced_parenthesised_atoms(atom_text, atom_node, depth):
+    wrapped = "(" * depth + atom_text + ")" * depth
+    program = Parser(
+        Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()
+    ).parse()
+
+    declaration = program.statements[0]
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.value == atom_node
+
+
+BALANCED_BINARY_CASES = tuple(
+    (
+        left_text,
+        left_node,
+        operator,
+        right_text,
+        right_node,
+        left_wrap,
+        right_wrap,
+        whole_wrap,
+    )
+    for (left_text, left_node, operator, right_text, right_node) in (
+        ("1", ast.Literal(1), "+", "x", ast.Identifier("x")),
+        ("x", ast.Identifier("x"), "*", "2", ast.Literal(2)),
+    )
+    for left_wrap, right_wrap, whole_wrap in itertools.product(range(3), repeat=3)
+)
+
+
+@pytest.mark.parametrize(
+    (
+        "left_text",
+        "left_node",
+        "operator",
+        "right_text",
+        "right_node",
+        "left_wrap",
+        "right_wrap",
+        "whole_wrap",
+    ),
+    BALANCED_BINARY_CASES,
+)
+def test_parser_parses_balanced_parenthesised_binary_expressions(
+    left_text,
+    left_node,
+    operator,
+    right_text,
+    right_node,
+    left_wrap,
+    right_wrap,
+    whole_wrap,
+):
+    left_expression = "(" * left_wrap + left_text + ")" * left_wrap
+    right_expression = "(" * right_wrap + right_text + ")" * right_wrap
+    inner = f"{left_expression} {operator} {right_expression}"
+    wrapped = "(" * whole_wrap + inner + ")" * whole_wrap
+
+    program = Parser(
+        Lexer(f"$MEM-GC\nval si64 value = {wrapped}.").tokenise()
+    ).parse()
+
+    declaration = program.statements[0]
+    assert isinstance(declaration, ast.DeclareVariable)
+    assert declaration.value == ast.BinaryExpression(
+        left_node, operator, right_node
+    )
