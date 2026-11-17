@@ -1,4 +1,3 @@
-from time import sleep
 from typing import ClassVar
 
 import teapot.teapot_ast as ast
