@@ -11,8 +11,6 @@ from teapot.errors import (
     VoidDatatypeError,
 )
 
-# TODO: implement type flexibility
-
 INT_BASES = ("aint", "si8", "si16", "si32", "si64", "ui8", "ui16", "ui32", "ui64")
 FLOAT_BASES = ("dml", "f32", "f64")
 NUMERIC_BASES = INT_BASES + FLOAT_BASES
@@ -23,11 +21,6 @@ COMPOUND_TYPE_NAMES = ("list", "map", "ref", "arr", "array", "set")
 
 
 def _make_types():
-    """Builds the same table as the old hand-written TYPES dict.
-
-    Layout: void, base types, then m-prefixed (mutable) and c-prefixed (constant)
-    versions of every base type except void.
-    """
     specs = {
         "str": (str, None, None),
         "char": (str, None, None),
@@ -62,11 +55,6 @@ def _make_types():
 
 
 def _make_binary_types():
-    """Kept for reference / backwards compatibility.
-
-    TypeChecker.infer_binary_type no longer reads this table; it applies rules
-    instead so that sized integers, constants and mutables all work.
-    """
     arith = ("aint", "dml", "f32", "f64")
     equality = ("str", "char", "bln", "aint", "dml", "f32", "f64") + SIZED_INT_BASES
     ordering = arith + SIZED_INT_BASES
@@ -94,12 +82,6 @@ class TypeChecker:
     TYPES: ClassVar = _make_types()
     BINARY_TYPES: ClassVar = _make_binary_types()
 
-    # ------------------------------------------------------------------
-    # AST adapters.
-    # I only know the node classes that pass 1 uses. If your AST names these
-    # differently, edit the tuples below. Anything not recognised is treated
-    # as "type unknown" and skipped rather than raising.
-    # ------------------------------------------------------------------
     CALL_NODES: ClassVar = ("Call", "FunctionCall", "CallExpression")
     CAST_NODES: ClassVar = ("Cast", "CastExpression", "TypeCast")
     GROUP_NODES: ClassVar = ("Grouping", "GroupExpression", "Parenthesized", "Group")
@@ -173,10 +155,7 @@ class TypeChecker:
             case ast.Struct() | ast.Enum() | ast.Error():
                 pass
             case _:
-                # pass  # Comment if developing but uncomment when using or running tests
-                print(f"Unknown node: {node.__repr__()}")
-                sleep(3)
-            # Uncomment above if developing but keep commented when using or running tests
+                pass
 
     # ------------------------------------------------------------------
     # Expression typing (always returns a BASE type name, or None = unknown)
@@ -529,8 +508,6 @@ class TypeChecker:
 
                 return maximum is None or value <= maximum
 
-            # Non-literal integer expression such as (5 + 2) * 3.
-            # TODO: constant-fold these so bounds can be checked too.
             return True
 
         return False
