@@ -197,7 +197,7 @@ cui64
 
 The parser records mutability information for the mutable and constant forms.
 
-Semantic enforcement of mutability and complete type checking are still under development.
+Mutability enforcement is not implemented. The second semantic pass performs partial type checking for supported declarations, initialisers, expressions, and callable return values; it is not a complete type checker.
 
 ## Arrays
 
@@ -265,7 +265,7 @@ For example:
 count += 1.
 ```
 
-The semantic analyser does not yet perform complete type or mutability validation for assignments.
+The first semantic pass rejects assignment to an undeclared identifier. The second pass does not yet check the assigned expression's type or enforce target mutability.
 
 ## Functions
 
@@ -313,7 +313,7 @@ exit value.
 
 The expression must be followed by a period.
 
-Complete return-type checking is not currently implemented.
+The second semantic pass checks the inferred type of supported return expressions against the declared return type for functions and operators. Unsupported expressions may remain unchecked, and return-path analysis is not implemented.
 
 ## Visibility
 
@@ -508,15 +508,15 @@ The semantic analyser does not yet enforce conversion rules.
 
 The parser uses the following precedence levels. Higher numbers bind more tightly:
 
-| Level | Operators            |   |   |
-| ----: | -------------------- | - | - |
-|     6 | `**`                 |   |   |
-|     5 | `%`, `/`, `*`        |   |   |
-|     4 | `+`, `-`             |   |   |
-|     3 | `<`, `<=`, `>`, `>=` |   |   |
-|     2 | `==`, `~=`           |   |   |
-|     1 | `&&`                 |   |   |
-|     0 | `                    |   | ` |
+| Level | Operators |
+| ----: | --------- |
+| 6 | `**` |
+| 5 | `%`, `/`, `*` |
+| 4 | `+`, `-` |
+| 3 | `<`, `<=`, `>`, `>=` |
+| 2 | `==`, `~=` |
+| 1 | `&&` |
+| 0 | `||` |
 
 Parentheses explicitly group expressions.
 
@@ -526,7 +526,7 @@ The parser constructs an AST and does not evaluate expressions.
 
 ## Semantic analysis
 
-Semantic analysis currently builds symbol tables.
+Semantic analysis has two passes. The first builds symbol tables and scopes. The second performs an initial, partial set of type checks.
 
 The first pass registers declarations including:
 
@@ -547,9 +547,9 @@ For example, declaring the same name twice in one scope is rejected.
 
 Shadowing in a child scope is supported by the current symbol-table implementation.
 
-Assignments to undeclared identifiers and duplicate declarations in the same scope
-are rejected. The second-pass type checker is present but does not yet implement
-full name resolution or type checking.
+Assignments to undeclared identifier targets and duplicate declarations in the same scope are rejected. The second pass validates built-in variable datatypes, literal types and bounds, supported initialisers, selected binary expressions, identifiers used by supported expressions, and callable return expressions. It traverses nested function/operator bodies and their supported control-flow blocks.
+
+This is not complete semantic analysis. Assignment value compatibility, function-call argument validation, condition typing, complete mutability and cast rules, member resolution, and full overload resolution remain unfinished. Expression forms that the type checker does not understand may be left unchecked.
 
 ## Diagnostics
 
@@ -569,9 +569,9 @@ teapot examples/hello.tp --trace
 
 The following features are not currently complete:
 
-* full type checking;
-* identifier resolution;
-* function-call validation;
+* complete type checking;
+* complete name resolution across all expression forms;
+* function-call argument validation;
 * mutability enforcement;
 * complete reference semantics;
 * overload resolution;

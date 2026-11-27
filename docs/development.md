@@ -35,12 +35,21 @@ After installing the package:
 teapot examples/hello.tp
 ```
 
-The CLI accepts:
+The CLI accepts an input `.tp` file and the following options:
 
 ```text
-    input (positional)    Input TeapotLang source file. Required.
--t, --trace               Enable compiler diagnostic output.
-    --version             Display the compiler version.
+-t, --trace, --debug          Enable compiler trace output.
+-q, --quiet                   Suppress informational and trace output.
+-v, --verbose                 Increase informational output (repeat for more detail).
+    --color {auto,always,never}
+                               Control terminal colours.
+    --diagnostic-format {text,json}
+                               Select human-readable or JSON diagnostics.
+    --diagnostic-detail {concise,normal,full}
+                               Select diagnostic detail.
+    --log-file PATH            Write trace and diagnostic output to a file.
+    --no-log                   Disable log-file output.
+    --version                  Display the compiler version.
 ```
 
 For example:
@@ -136,20 +145,17 @@ The AST is the interface between parsing and later compiler stages. When adding 
 
 `src/teapot/semantic/pass1.py` performs the first stage of semantic analysis.
 
-The current implementation includes:
+The first pass in `src/teapot/semantic/pass1.py` currently provides:
 
-* `Symbol`;
-* `SymbolTable`;
-* parent/child scope lookup;
-* global scope construction;
-* variable declaration registration;
-* function declaration registration;
-* function scopes;
-* struct declaration registration;
+* global, function, operator, struct, enum, error, and nested block scopes;
+* symbol registration for variables, functions, parameters, structs and fields, enums and members, errors and members, and operators and arguments;
+* parent-scope lookup and child-scope shadowing;
 * duplicate declaration detection; and
-* function parameter metadata.
+* checks that assignment targets name an existing identifier.
 
-The analyser currently has a first-pass symbol-table phase and a second-pass type-checking phase. The second-pass `TypeChecker` is present but does not yet implement type-checking rules.
+The second pass in `src/teapot/semantic/pass2.py` is an initial type checker, not an empty placeholder. It currently validates built-in variable datatypes, literal Python types and numeric bounds, supported variable initialisers, selected binary-expression combinations, identifier references used by supported expressions, and return-expression compatibility inside functions and operators. It also traverses the supported nested control-flow bodies.
+
+Important gaps remain: assignment right-hand-side compatibility, function-call argument count and types, complete mutability enforcement, condition typing, member and field resolution, complete cast rules, and proper overload resolution are not implemented. Unknown or unsupported expression forms may remain untyped rather than being rejected.
 
 Semantic failures raise `SemanticError`.
 
@@ -292,7 +298,7 @@ Pass 2
 
 The exact division between passes may evolve as implementation continues.
 
-Current symbol-table behaviour should be tested independently from future type-checking behaviour.
+Keep tests for symbol-table construction separate from tests for the current, deliberately partial type-checking rules. When adding a semantic rule, test both accepted and rejected programs, including nested scopes where relevant.
 
 ## Trace output
 

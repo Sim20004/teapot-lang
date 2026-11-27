@@ -227,7 +227,7 @@ The intended semantic rules include:
 * constant values must obey their immutability rules; and
 * references must satisfy reference rules.
 
-Only declaration registration and duplicate-name detection are currently implemented.
+The first semantic pass registers declarations and scopes and detects duplicate names. The second pass has begun type checking for supported built-in declarations, initialisers, expressions, and callable returns; complete type and mutability rules remain unfinished.
 
 ## 8. References
 
@@ -386,9 +386,9 @@ Functions return values using `exit`:
 exit value.
 ```
 
-The intended language should verify that the returned expression is compatible with the function's declared return type.
+The intended language should verify that every returned expression is compatible with the callable's declared return type and that required return paths are complete.
 
-The current parser constructs return AST nodes, but complete return checking is not implemented.
+The current second semantic pass checks supported return expressions in functions and operators. It does not perform return-path analysis, and unsupported expression forms may remain unchecked.
 
 ## 14. Visibility
 
@@ -613,9 +613,9 @@ The intended responsibilities include:
 * entry-point validation;
 * and other language invariants.
 
-The current implementation has begun this process with symbol-table construction.
+The current implementation has two semantic passes. The first constructs symbol tables and scopes; the second performs an initial set of type checks.
 
-The current first pass:
+The first pass:
 
 ```text
 Program
@@ -629,7 +629,7 @@ Program
 
 Duplicate declarations in the same scope currently produce `SemanticError`.
 
-Full name resolution and type checking remain future work.
+Name lookup is implemented for identifiers encountered by the supported expression-inference paths. Type inference and checking are partial: the checker validates supported declarations and initialisers, selected binary expressions, and callable return expressions. Assignment value compatibility, function-call argument validation, condition typing, full mutability rules, member resolution, complete cast semantics, and full operator-overload resolution remain future work.
 
 ## 25. Diagnostics
 
@@ -687,9 +687,10 @@ The current repository can be summarised as follows:
 | Nested symbol lookup            | Implemented                                     |
 | Duplicate declaration detection | Implemented                                     |
 | Function scopes                 | Implemented                                     |
-| Name resolution                 | In progress                                     |
-| Type checking                   | Not yet implemented                             |
-| Mutability checking             | Not yet implemented                             |
+| Name resolution                 | Partial, for supported expression forms         |
+| Type inference                  | Partial                                         |
+| Type checking                   | Partial, for declarations, initialisers, binary expressions, and callable returns |
+| Mutability checking             | Not implemented                                 |
 | Complete semantic validation    | Not yet implemented                             |
 | Code generation                 | Not implemented                                 |
 | Runtime                         | Not implemented                                 |
