@@ -249,6 +249,9 @@ class ReturnTypeMismatchError(SemanticError):
     code = "return-type-mismatch"
     default_hint = "Try changing the callable's return type to match value you would like to return or return a different value."
 
+class AssignmentTypeMismatchError(SemanticError):
+    code = "assignment-type-mismatch"
+    default_hint = "Try changing the value of the assignment or the datatype of the variable."
 
 # Keep legacy traceback names stable while callers can still catch precise types.
 for _lexer_error_type in LexerError.__subclasses__():

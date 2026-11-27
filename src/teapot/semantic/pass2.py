@@ -342,8 +342,23 @@ class TypeChecker:
                 )
                 fail = statement.fail
                 self.check_body(fail.body, self.scope_of(fail, scope), expected_type)
+            case ast.Assignment():
+                self.check_assignment(statement, self.scope_of(statement, scope), expected_type)
             case _:
                 pass
+
+    def check_assignment(self, statement, scope, expected_type):
+        target = self.type_name(statement.target.datatype)
+        actual_type = self.infer_expression_type(statement.value, scope)
+
+        if actual_type is None:
+            return
+
+        if not self.is_type_compatible(actual_type, target, statement.value):
+            raise TypeMismatchError(
+                f"Cannot assign a {actual_type} value to a {target} variable.",
+                statement,
+            )
 
     def check_return(self, statement, expected_type, scope):
         if statement.value is None:

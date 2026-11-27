@@ -27,6 +27,7 @@ from teapot.errors.base import (
     UnknownNodeError,
     UnterminatedStringError,
     VoidDatatypeError,
+    AssignmentTypeMismatchError,
 )
 from teapot.errors.location import SourceLocation
 
@@ -60,4 +61,5 @@ __all__ = [
     "UnknownNodeError",
     "UnterminatedStringError",
     "VoidDatatypeError",
+    "AssignmentTypeMismatchError"
 ]
