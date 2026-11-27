@@ -1,178 +1,96 @@
-TeapotLang Roadmap
+# TeapotLang roadmap
 
-TeapotLang is currently in Alpha.
+TeapotLang is in alpha. This roadmap describes the intended direction of the project, not a promise of release dates. Items marked complete refer only to the scope stated in that item; they do not imply that the whole language feature is finished.
 
-This roadmap describes the planned direction of the language and may change as development progresses.
+## Current status
 
-Current Status
+The lexer, parser, AST, CLI, and initial semantic-analysis infrastructure are implemented. Semantic analysis currently has a declaration-and-scope pass followed by a partial type-checking pass. The compiler does not yet generate executable code or provide a language runtime.
 
-TeapotLang is currently focused on building the core language infrastructure and compiler pipeline.
+### Alpha foundations
 
-Alpha
+- [x] Lexer and token definitions
+- [x] Parser and AST infrastructure
+- [x] Core declaration syntax for variables, functions, structs, enums, errors, and operators
+- [x] Initial symbol table and parent/child scope lookup
+- [x] Declaration registration and duplicate-name detection
+- [x] Initial semantic type checks for supported declarations, literals, expressions, and callable returns
+- [ ] Complete semantic analysis and type checking
+- [ ] Assignment value and mutability validation
+- [ ] Function-call argument validation
+- [ ] Condition and control-flow validation
+- [ ] Complete member, cast, and operator-overload resolution
+- [ ] Finalise core language semantics and specification
 
-* [x]	Lexer
-* [x]	Parser
-* [x]	AST infrastructure
-* [x]	Struct declarations
-* [x]	Enum declarations
-* [x]	Function declarations
-* [x]	Operator overloading infrastructure
-* [x]	Symbol table
-* [x]	First-pass semantic analysis
-* [ ]	Complete semantic analysis
-* [ ]	Complete type checking
-* [ ]	Improve compiler diagnostics
-* [ ]	Stabilise the language specification
+## Phase 1: Language foundations
 
-⸻
+Make the core language rules reliable and unambiguous.
 
-Phase 1: Language Foundations
+- [ ] Define and implement assignment compatibility and mutability rules
+- [ ] Validate function-call argument counts and types
+- [ ] Validate conditions and control-flow requirements
+- [ ] Complete type conversions and cast validation
+- [ ] Resolve struct fields and enum members
+- [ ] Define and implement operator-overload resolution
+- [ ] Complete return-path and callable validation
+- [ ] Finalise variable, function, struct, enum, and error semantics
+- [ ] Improve semantic diagnostics and source locations
+- [ ] Keep the language reference aligned with implemented behaviour
 
-The first priority is making the core language well-defined and reliable.
+## Phase 2: Compiler infrastructure
 
-* [ ]	Complete semantic analysis
-* [ ]	Complete type checking
-* [ ]	Finalise variable and declaration rules
-* [ ]	Finalise function and parameter rules
-* [ ]	Finalise struct semantics
-* [ ]	Finalise enum semantics
-* [ ]	Finalise operator overloading rules
-* [ ]	Improve scope and symbol resolution
-* [ ]	Define compile-time error behaviour
-* [ ]	Expand the language specification
-* [ ]	Document all core language features
+Build the stages needed to produce executable programs.
 
-⸻
+- [ ] Design an intermediate representation
+- [ ] Implement IR generation and lowering
+- [ ] Design a backend interface
+- [ ] Select and support an initial target architecture
+- [ ] Implement code generation
+- [ ] Integrate linking and runtime support
+- [ ] Add compiler optimisation infrastructure
 
-Phase 2: Compiler Infrastructure
+## Phase 3: Memory management
 
-Build the infrastructure required to turn valid TeapotLang programs into executable code.
+The source directives currently record a selected mode; they do not implement memory management.
 
-* [ ]	Design intermediate representation
-* [ ]	Implement IR generation
-* [ ]	Implement backend architecture
-* [ ]	Add target architecture support
-* [ ]	Implement code generation
-* [ ]	Implement linking/runtime integration
-* [ ]	Add compiler optimisation infrastructure
-* [ ]	Improve compiler error messages
-* [ ]	Add source-location tracking throughout compilation
+- [ ] Finalise memory-management semantics
+- [ ] Define ownership, aliasing, and lifetime rules
+- [ ] Implement automatic memory management
+- [ ] Implement manual memory management
+- [ ] Add memory-related diagnostics and tests
 
-⸻
+## Phase 4: Runtime and standard library
 
-Phase 3: Memory Management
+- [ ] Design and implement the runtime
+- [ ] Add core utilities and input/output
+- [ ] Add strings and collections
+- [ ] Add filesystem and process APIs
+- [ ] Add runtime error-handling facilities
+- [ ] Document and stabilise standard-library APIs
 
-TeapotLang supports different memory-management models through compiler directives.
+## Phase 5: Developer experience
 
-* [ ]	Finalise memory-management semantics
-* [ ]	Implement automatic memory management
-* [ ]	Implement manual memory management
-* [ ]	Define ownership/lifetime behaviour where applicable
-* [ ]	Improve memory-related diagnostics
-* [ ]	Document memory-management behaviour
+- [ ] Improve CLI diagnostics and tooling
+- [ ] Add a formatter
+- [ ] Add language-server support
+- [ ] Add editor integrations
+- [ ] Add project and package management
+- [ ] Add tutorials and practical examples
 
-⸻
+## Phase 6: Ecosystem
 
-Phase 4: Standard Library
+- [ ] Design package publishing and dependency management
+- [ ] Establish a package registry
+- [ ] Encourage third-party libraries and community examples
+- [ ] Consider a plugin or extension system where it is useful
 
-Build a useful standard library around the language.
+## Before a stable 1.0 release
 
-* [ ]	Core utilities
-* [ ]	Strings
-* [ ]	Collections
-* [ ]	File I/O
-* [ ]	Environment/process APIs
-* [ ]	Error handling utilities
-* [ ]	Standard library documentation
-* [ ]	Stable standard-library API
+- [ ] Stable language specification and compiler behaviour
+- [ ] Usable runtime and standard library
+- [ ] Predictable diagnostics
+- [ ] Cross-platform support
+- [ ] Reproducible builds and release process
+- [ ] Migration guidance and compatibility policy
+- [ ] Complete user and developer documentation
 
-⸻
-
-Phase 5: Developer Experience
-
-Make TeapotLang pleasant to use outside the compiler itself.
-
-* [ ]	Improve compiler diagnostics
-* [ ]	Add a formatter
-* [ ]	Add language-server support
-* [ ]	Add editor integrations
-* [ ]	Improve CLI tooling
-* [ ]	Add project/package management
-* [ ]	Improve documentation
-* [ ]	Add tutorials and examples
-* [ ]	Create a comprehensive language reference
-
-⸻
-
-Phase 6: Ecosystem
-
-Move from a language implementation to an ecosystem.
-
-* [ ]	Package registry
-* [ ]	Package publishing tooling
-* [ ]	Dependency management
-* [ ]	Third-party libraries
-* [ ]	Community examples
-* [ ]	Community tooling
-* [ ]	Plugin/extension system where appropriate
-
-⸻
-
-Stability
-
-Before reaching a stable release, TeapotLang should have:
-
-* [ ]	A stable language specification
-* [ ]	Stable compiler behaviour
-* [ ]	Stable standard library APIs
-* [ ]	Predictable error reporting
-* [ ]	Cross-platform support
-* [ ]	Reproducible builds
-* [ ]	Comprehensive documentation
-* [ ]	Migration guidance between releases
-* [ ]	Versioning policy
-* [ ]	Backwards-compatibility policy
-
-⸻
-
-Release Targets
-
-Alpha
-
-Goal: Rapid language and compiler development.
-
-Focus:
-
-* Core language features
-* Parser and AST
-* Semantic analysis
-* Type checking
-* Compiler architecture
-
-Breaking changes are expected.
-
-Beta
-
-Goal: Feature-complete language suitable for wider testing.
-
-Focus:
-
-* Stable language semantics
-* Compiler reliability
-* Standard library
-* Developer tooling
-* Documentation
-* Cross-platform support
-
-Breaking changes should become increasingly rare.
-
-1.0
-
-Goal: A stable TeapotLang release suitable for production use.
-
-Requirements:
-
-* Stable specification
-* Stable compiler
-* Stable standard library
-* Documented compatibil
+Breaking language and compiler changes are expected during alpha. Priorities may change as implementation and language design develop.

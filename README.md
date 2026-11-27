@@ -111,7 +111,7 @@ Semantic analysis
   Future stages
 ```
 
-The current implementation includes the lexer, parser, abstract syntax tree (AST), and semantic-analysis infrastructure. The pipeline is being extended towards the language specification.
+The current implementation includes the lexer, parser, AST, symbol-table construction, and an initial second semantic pass. The type checker validates supported variable declarations and initialisers, literal types and bounds, selected binary expressions, identifier references in inferred expressions, and return expressions in functions and operators. This is a partial implementation, not complete static analysis.
 
 The following distinctions matter:
 
@@ -124,7 +124,7 @@ A keyword being recognised, or an AST node existing, does not necessarily mean t
 
 ### What is not implemented yet?
 
-Code generation and a complete executable runtime remain future work. TeapotLang therefore cannot yet compile a program into a finished executable through a complete end-to-end pipeline.
+Assignment value checking, function-call argument validation, complete mutability and conversion rules, member resolution, full operator-overload resolution, code generation, and a complete executable runtime remain future work. TeapotLang therefore cannot yet compile a program into a finished executable through a complete end-to-end pipeline.
 
 The language specification may describe capabilities beyond those currently supported. Check the [language reference](docs/language-reference.md) before relying on a particular feature.
 

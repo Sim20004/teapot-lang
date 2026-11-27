@@ -1,9 +1,16 @@
 # TeapotLang Changelog
 
-Every commit in the `Sim20004/teapot-lang` repository is represented below, from the initial repository creation through the latest commit. Descriptions summarise the changes made by each commit. PLEASE add changes to the top and not the bottom, look at the dates to ensure you've done it correctly.
+This changelog records notable changes to TeapotLang. Entries are listed newest first; merge commits and routine maintenance may be grouped with the changes they contain.
 
 # Unreleased
 
+* 2026-11-27: Audited and updated the project documentation to reflect the current compiler, semantic analyser, CLI, and development roadmap.
+* 2026-11-17: Applied Ruff cleanup and updated the pull-request template.
+* 2026-11-17: Added property-based tests for simple numeric literals.
+* 2026-11-14: Added property-based tests for balanced parentheses, numeric literals, and simple identifier names.
+* 2026-11-09: Added parser tests for the `true` and `false` Boolean literals.
+* 2026-11-07: Added branch-coverage tests and pinned the Ruff version used by CI.
+* 2026-11-05: Adjusted type flexibility and expression-inference behaviour.
 * 2026-11-08: Added parser tests for the `true` and `false` boolean literals, covering standalone assignments, variable declarations and binary expressions.
 * 2026-11-07: Added tests to fill coverage gaps
 * 2026-11-04: Fixed format, fixed various failing tests due to: addition of parameter in various functions, deprecation and removal of bounds checking code for future rewrite, and change of other code, and then fixed formatting again in three commits.

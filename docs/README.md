@@ -66,11 +66,12 @@ The documentation uses several terms to avoid confusing language design with com
 
 | Term            | Meaning                                                                                               |
 | --------------- | ----------------------------------------------------------------------------------------------------- |
-| **Implemented** | The relevant compiler behaviour exists                                                                |
-| **Parsed**      | The parser constructs an AST representation                                                           |
-| **Recognised**  | The lexer recognises the syntax                                                                       |
-| **Represented** | A compiler data structure exists, but the feature may not be parser-supported                         |
-| **Design**      | The feature belongs to the intended language model but is not currently established by implementation |
+| **Implemented** | The relevant behaviour exists in the compiler stage being described. This does not imply that later stages or runtime support are complete. |
+| **Partial**     | Some semantic or compiler behaviour exists, but important validation or execution rules remain unfinished. |
+| **Parsed**      | The parser constructs an AST representation, but later compiler stages may not support it. |
+| **Recognised**  | The lexer recognises the syntax, but the parser may not accept it. |
+| **Represented** | A compiler data structure exists, but the feature may not be parser-supported. |
+| **Design**      | The feature belongs to the intended language model but is not implemented yet. |
 
 A keyword, token, or AST dataclass does **not** by itself mean that a feature is usable.
 
